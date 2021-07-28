@@ -1,15 +1,15 @@
-import React from 'react';
+import './App.css';
 
 import {
   BrowserRouter as Router,
   Switch,
   Route
 } from "react-router-dom";
-import './App.css';
-import Nav from './components/Nav';
-import About from './components/pages/About';
-import Home from './components/pages/Home';
-import Users from './components/pages/Users';
+import Nav from '../common/Nav';
+import About from '../features/fixedPages/About';
+import Home from '../features/fixedPages/Home';
+import Login from '../features/login/Login';
+import Users from '../features/fixedPages/Users';
 
 export default function App() {
   return (
@@ -22,6 +22,9 @@ export default function App() {
           </Route>
           <Route path="/users">
             <Users />
+          </Route>
+          <Route path="/login">
+            <Login />
           </Route>
           <Route path="/">
             <Home />
