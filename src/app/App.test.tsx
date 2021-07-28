@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import App from './App';
 
 import { Provider } from 'react-redux';
-import {store} from './store';
+import { store } from './store';
 
 test('renders login page link', () => {
   render(<App />);
@@ -12,7 +12,11 @@ test('renders login page link', () => {
 });
 
 test('login page link works', () => {
-  render(<Provider store={store}><App /></Provider>);
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
   const linkElement = screen.getByText(/Login/i);
   linkElement.click();
   const LoginStatusText = screen.getByText(/You are not logged in/i);

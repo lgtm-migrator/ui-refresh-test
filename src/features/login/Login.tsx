@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState } from 'react';
 import { useAppSelector, useAppDispatch } from '../../common/hooks';
-import { login, logout, loginStatus } from "./loginSlice";
+import { login, logout, loginStatus } from './loginSlice';
 
 export default function Login() {
   const loggedIn = useAppSelector(loginStatus);
-  const user = useAppSelector(state => state.login.user);
+  const user = useAppSelector((state) => state.login.user);
   return (
     <div>
       <h2>Login</h2>
@@ -20,20 +20,23 @@ const LoginForm = () => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState<string>();
   const onLogin = () => {
-    console.log("cool");
     if (name) {
-      dispatch(login(name))
+      dispatch(login(name));
     } else {
-      alert("Please enter a username")
+      alert('Please enter a username');
     }
   };
   return (
     <div>
-      <input type="text" value={name} onChange={(e) => setName(e.target.value)} data-testid="login-name" />
-      <button onClick={onLogin} data-testid="login-button">Login</button>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <button onClick={onLogin}>Login</button>
     </div>
   );
-}
+};
 
 const LogoutForm = () => {
   const dispatch = useAppDispatch();
@@ -42,4 +45,4 @@ const LogoutForm = () => {
       <button onClick={() => dispatch(logout())}>Logout</button>
     </div>
   );
-}
+};
