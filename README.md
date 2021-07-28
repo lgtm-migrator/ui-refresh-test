@@ -1,6 +1,14 @@
-# Getting Started with Create React App
+# UI Refresh Test Repo
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) (`npx create-react-app ui-refresh-test --template typescript`). It also includes the following:
+- Redux (`@reduxjs/toolkit`) for state management
+- `react-router-dom` for routing
+- `prettier` for code formatting
+- extended eslint configuration and eslint/prettier integration
+- npm linting scripts (`lint`, `lint:fix`, `lint:strict`)
+- `husky` to enable a `lint:strict` precommit hook
+- `.nvmrc` specifying the node version
+- Very small example app implementation with mock login
 
 ## Available Scripts
 
@@ -28,6 +36,10 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run lint`, `npm run lint:fix`, `npm run lint:strict`
+
+Runs eslint/prettier and shows errors/warnings. `npm run lint:fix` will fix files in-place where possible. `npm run lint:strict` will fail with any errors/warnings and is used as a pre-commit hook.
 
 ### `npm run eject`
 
