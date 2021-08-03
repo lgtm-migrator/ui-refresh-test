@@ -11,6 +11,9 @@ export default function Nav() {
           <Link to="/about">About</Link>
         </li>
         <li>
+          <Link to="/count">Count</Link>
+        </li>
+        <li>
           <Link to="/users">Users</Link>
         </li>
         <li>

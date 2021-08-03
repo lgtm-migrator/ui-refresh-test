@@ -19,7 +19,7 @@ export default function Login() {
 const LoginForm = () => {
   const dispatch = useAppDispatch();
   const [name, setName] = useState<string>();
-  const onLogin = () => {
+  const doLogin = () => {
     if (name) {
       dispatch(login(name));
     } else {
@@ -33,7 +33,7 @@ const LoginForm = () => {
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-      <button onClick={onLogin}>Login</button>
+      <button onClick={doLogin}>Login</button>
     </div>
   );
 };
