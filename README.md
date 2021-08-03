@@ -9,6 +9,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 - `husky` to enable a `lint:strict` precommit hook
 - `.nvmrc` specifying the node version
 - Very small example app implementation with mock login
+- `.editorconfig` for cross-editor config defaults. See [editorconfig.org](https://editorconfig.org) for compatability
 
 ## Available Scripts
 
