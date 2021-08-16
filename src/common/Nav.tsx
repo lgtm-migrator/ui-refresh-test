@@ -17,7 +17,7 @@ export default function Nav() {
           <Link to="/users">Users</Link>
         </li>
         <li>
-          <Link to="/login">Login</Link>
+          <Link to="/auth">Auth</Link>
         </li>
       </ul>
     </nav>
