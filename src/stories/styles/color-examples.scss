@@ -1,0 +1,32 @@
+@import '../../common/colors.scss';
+
+@each $colorname, $_ in $palette {
+  .example--#{$colorname} {
+    display: block;
+    float: left;
+    background-color: use_color($colorname);
+    width: 150px;
+    height: 150px;
+    padding: 10px;
+    overflow: hidden;
+    border: 1px solid white;
+    font-weight: bold;
+    white-space: pre;
+    @if (lightness(use_color($colorname)) > 33) {
+      color: black;
+    } @else {
+      color: white;
+    }
+    &::before, &::after {
+      content: '';
+      display: inline;
+      font-weight: normal;
+    }
+    &::before {
+      content: "'";
+    }
+    &::after {
+      content: "'\a#{use_color($colorname)}";
+    }
+  }
+}
