@@ -15,10 +15,6 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    environment: Actions
-    env:
-      REPO_NAME: ${{ github.event.repository.name }}
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -31,10 +27,10 @@ jobs:
       - name: Push to repository
         uses: cpina/github-action-push-to-another-repository@main
         env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+          API_TOKEN_GITHUB: ${{ secrets.GHCR_TOKEN }}
         with:
           source-directory: 'build'
-          destination-github-username: 'dauglyon'
+          destination-github-username: 'kbase'
           destination-repository-name: 'static-content'
-          user-email: 5115845+dauglyon@users.noreply.github.com
+          user-email: 'sysadmins@lists.kbase.us'
           target-branch: main
