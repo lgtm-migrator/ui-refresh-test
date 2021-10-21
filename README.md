@@ -12,6 +12,15 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 - `.editorconfig` for cross-editor config defaults. See [editorconfig.org](https://editorconfig.org) for compatability
 - Storybook (`npm run storybook`) for dev docs, style examples, and component examples.
 
+
+## Architectural Decision Records
+
+An architecture decision record (ADR) is a document that captures an important
+architecture decision made along with its context and consequences. They track
+major decisions that change the course of the project. You can find the ADRs
+for this project in [`docs/adrs`](docs/adrs).
+
+
 ## Available Scripts
 
 In the project directory, you can run:
