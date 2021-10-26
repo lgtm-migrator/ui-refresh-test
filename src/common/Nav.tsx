@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FontAwesomeIcon as FA } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 export default function Nav() {
@@ -8,7 +8,7 @@ export default function Nav() {
       <ul>
         <li>
           <Link to="/">
-            <FA icon={faHome} />
+            <FAIcon icon={faHome} />
             Home
           </Link>
         </li>
