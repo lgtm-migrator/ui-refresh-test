@@ -14,7 +14,7 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function Nav() {
+export default function LeftNavBar() {
   return (
     <nav>
       <ul className={classes.nav_list}>
