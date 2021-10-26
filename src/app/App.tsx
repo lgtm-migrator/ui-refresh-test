@@ -1,4 +1,4 @@
-import './App.scss';
+import classes from './App.module.scss';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { useAppDispatch } from '../common/hooks';
@@ -6,12 +6,12 @@ import { useEffect } from 'react';
 import { authFromToken } from '../features/auth/authSlice';
 import { getCookie } from '../common/cookie';
 
-import Nav from '../common/Nav';
+import LeftNavBar from '../common/nav/LeftNavBar';
+import PageNotFound from '../common/nav/PageNotFound';
+
+import Navigator from '../features/navigator/Navigator';
 import Count from '../features/count/Counter';
-import About from '../features/fixedPages/About';
-import Home from '../features/fixedPages/Home';
 import Auth from '../features/auth/Auth';
-import Users from '../features/fixedPages/Users';
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -26,25 +26,26 @@ export default function App() {
 
   return (
     <Router>
-      <div>
-        <Nav />
-        <Switch>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/count">
-            <Count />
-          </Route>
-          <Route path="/users">
-            <Users />
-          </Route>
-          <Route path="/auth">
-            <Auth />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
+      <div className={classes.container}>
+        <div className={classes.left_navbar}>
+          <LeftNavBar />
+        </div>
+        <div className={classes.page_content}>
+          <Switch>
+            <Route path="/count">
+              <Count />
+            </Route>
+            <Route path="/auth">
+              <Auth />
+            </Route>
+            <Route exact path="/">
+              <Navigator />
+            </Route>
+            <Route path="*">
+              <PageNotFound />
+            </Route>
+          </Switch>
+        </div>
       </div>
     </Router>
   );
