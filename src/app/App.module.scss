@@ -1,0 +1,24 @@
+.container {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: stretch;
+
+  .left_navbar {
+    width: 75px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background-color: white;
+    position: relative;
+  }
+
+  .page_content {
+    flex-grow: 1;
+    flex-shrink: 1;
+    background-color: transparent;
+    position: relative;
+  }
+}
