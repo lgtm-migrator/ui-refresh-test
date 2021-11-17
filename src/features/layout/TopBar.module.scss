@@ -61,6 +61,7 @@
 .login_menu {
   height:100%;
   width: 77px;
+  padding-right: 5px;
   display: block;
   .login_menu_username{
     font-style: italic;
@@ -69,7 +70,7 @@
     display: flex;
     padding: 4px;
     color: use_color('black');
-    justify-content: center;
+    justify-content: left;
     align-items: center;
     &:hover {
       background-color: #e0e0e0;
