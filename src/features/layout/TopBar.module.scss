@@ -7,6 +7,7 @@
   border-bottom: 5px solid #e0e0e0;
   height: 100%;
   position: relative;
+  z-index: 100;
   .topbar_item {
     height: auto;
     vertical-align: middle;
@@ -22,12 +23,16 @@
 }
 
 .hamburger_menu {
-  font-size: 24px;
   width: 53px;
-  text-align: center;
   height: 100%;
-  vertical-align: middle;
-  color: use_color('mid-blue');
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  .hamburger_menu_icon {
+    font-size: 24px;
+    color: use_color('mid-blue');
+  }
 }
 
 .page_title {
@@ -56,12 +61,24 @@
 .login_menu {
   height:100%;
   width: 77px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  svg:first-of-type {
-    font-size: 2rem;
-    color: use_color('mid-blue');
-    margin-right: 0.5em;
+  display: block;
+  .login_menu_username{
+    font-style: italic;
+  }
+  .login_menu_button {
+    display: flex;
+    padding: 4px;
+    color: use_color('black');
+    justify-content: center;
+    align-items: center;
+    &:hover {
+      background-color: #e0e0e0;
+      border-radius: 4px;
+    }
+    .login_menu_icon {
+      font-size: 40px;
+      color: use_color('mid-blue');
+      margin-right: 5px;
+    }
   }
 }

@@ -1,0 +1,32 @@
+@import '../colors.scss';
+
+.react-select {
+  // these prefixed global classnames are inserted by react-select
+  :global(.react-select__option){
+    padding: 1.5px 20px;
+    white-space: nowrap;
+  }
+
+  &--right{
+    :global(.react-select__menu){
+      right: 0;
+      left: auto;
+    }
+  }
+
+  .option_content {
+    display: flex;
+    align-items: center;
+    min-height: 26px;
+
+    .option_content_icon {
+      display: inline-block;
+      margin-right: 8px;
+      font-size: 21px;
+      color: use_color('mid-blue');
+      width: 1em;
+      text-align: center;
+    }
+  }
+
+}
