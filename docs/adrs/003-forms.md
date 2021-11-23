@@ -4,12 +4,12 @@
 
 <!-- Date -->
 
-*2021-11-23*
+_2021-11-23_
 
 <!-- Summary -->
 
 The app needs a consistent pattern for handling form state and basic validation.
-Several libraries exist to solve this problem, this ADR aims to identify the best suited for our 
+Several libraries exist to solve this problem, this ADR aims to identify the best suited for our
 purposes.
 
 ## Authors <!-- GitHub Username(s) -->
@@ -29,14 +29,12 @@ Draft
 
 ## Decision Outcome <!-- Summary of the decision -->
 
-React Hook Form best suits our need for a flexible solution, with basic validation built in, while also being the smallest option.
-It also plays well with ARIA and working with custom inputs without requring modification of their implementation.
+React Hook Form best suits our need for a flexible solution, with basic validation built in, while also being the smallest option. It also plays well with ARIA and working with custom inputs without requring modification of their implementation.
 
 ## Consequences <!-- Summary of the decision -->
 
-React Hook Form *does not work with class components*. 
-This may create difficulting in moving code from other (older) react codebases into the app, if we choose to do so.
-Having basic validation built into the form library doesnt require a decision on complex validation at this stage (when we are still unsure of our needs).
+React Hook Form _does not work with class components_.
+This may create difficulting in moving code from other (older) react codebases into the app, if we choose to do so. Having basic validation built into the form library doesnt require a decision on complex validation at this stage (when we are still unsure of our needs).
 
 ## Pros and Cons of the Alternatives <!-- List Pros/Cons of each considered alternative -->
 
@@ -53,6 +51,7 @@ Having basic validation built into the form library doesnt require a decision on
 - `-` Introduces react (anti?) pattern we don't use elswhere ([Function as Child Components])
 
 ### React Hook Form (8kB)
+
 - `+` Very straightforward **react-hooks based API**
 - `+` Wrttien in TypeScript, tsx-friendly
 - `+` Thorough [documentation](https://react-hook-form.com/api/useform)
@@ -66,15 +65,15 @@ Having basic validation built into the form library doesnt require a decision on
 - `-` **Does not work within class components**
 
 ### React Final Form (26kB)
+
 - `+` Flexible API for any sort of input component
 - `-` Even basic examples end up pretty deeply indented/nested
 - `-` Not react-based, introduces non-react observing/rendering into the app
 - `-` Large in size, compared to other options considered
 - `-` No builtin support for validation libraries
 
-
 ## References <!-- List any relevant resources about the ADR, consider using footnotes as below where useful -->
 
 - [Function as Child Components]
 
-[Function as Child Components]: https://reactpatterns.js.org/docs/function-as-child-component/
+[function as child components]: https://reactpatterns.js.org/docs/function-as-child-component/
