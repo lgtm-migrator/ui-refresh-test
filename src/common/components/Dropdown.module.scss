@@ -11,5 +11,9 @@
   }
   :global(.react-select__control) {
     border: none;
+    &:hover {
+      background-color: #e0e0e0;
+      border-radius: 4px;
+    }
   }
 }

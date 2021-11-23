@@ -59,9 +59,7 @@
 }
 
 .login_menu {
-  height:100%;
   width: 77px;
-  padding-right: 5px;
   display: block;
   .login_menu_username{
     font-style: italic;
@@ -72,12 +70,8 @@
     color: use_color('black');
     justify-content: left;
     align-items: center;
-    &:hover {
-      background-color: #e0e0e0;
-      border-radius: 4px;
-    }
     .login_menu_icon {
-      font-size: 40px;
+      font-size: 30px;
       color: use_color('mid-blue');
       margin-right: 5px;
     }
