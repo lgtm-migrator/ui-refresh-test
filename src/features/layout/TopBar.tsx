@@ -108,7 +108,6 @@ const LoginMenu: FC = () => {
 };
 
 const HamburgerMenu: FC = () => {
-  const history = useHistory();
   return (
     <div className={classes.hamburger_menu}>
       <Dropdown
@@ -116,22 +115,22 @@ const HamburgerMenu: FC = () => {
           {
             options: [
               {
-                value: '#narrative_interface',
+                value: window.location.origin + '/#narrativemanager/start',
                 icon: <FAIcon icon={faFile} />,
                 label: 'Narrative Interface',
               },
               {
-                value: '#new_narrative',
+                value: window.location.origin + '/#narrativemanager/new',
                 icon: <FAIcon icon={faPlus} />,
                 label: 'New Narrative',
               },
               {
-                value: '#jgi_search',
+                value: window.location.origin + '/#jgi-search',
                 icon: <FAIcon icon={faSearch} />,
                 label: 'JGI Search',
               },
               {
-                value: '#biochem_search',
+                value: window.location.origin + '/#biochem-search',
                 icon: <FAIcon icon={faSearch} />,
                 label: 'Biochem Search',
               },
@@ -140,7 +139,7 @@ const HamburgerMenu: FC = () => {
           {
             options: [
               {
-                value: '#kbase_services_status',
+                value: window.location.origin + '/#about/services',
                 icon: <FAIcon icon={faServer} />,
                 label: 'KBase Services Status',
               },
@@ -149,17 +148,17 @@ const HamburgerMenu: FC = () => {
           {
             options: [
               {
-                value: '#about',
+                value: window.location.origin + '/#about',
                 icon: <FAIcon icon={faInfo} />,
                 label: 'About',
               },
               {
-                value: '#contact_kbase',
+                value: 'https://kbase.us/contact-us',
                 icon: <FAIcon icon={faEnvelope} />,
                 label: 'Contact KBase',
               },
               {
-                value: '#support',
+                value: 'https://kbase.us/narrative-guide/',
                 icon: <FAIcon icon={faQuestion} />,
                 label: 'Support',
               },
@@ -167,8 +166,8 @@ const HamburgerMenu: FC = () => {
           },
         ]}
         onChange={(opt) => {
-          if (opt && 'value' in opt) {
-            history.push(opt?.value);
+          if (opt && 'value' in opt && opt.value) {
+            window.location.href = opt.value;
           }
         }}
       >

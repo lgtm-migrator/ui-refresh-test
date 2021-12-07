@@ -16,4 +16,7 @@
       border-radius: 4px;
     }
   }
+  :global(.react-select__option) {
+    cursor: pointer;
+  }
 }
