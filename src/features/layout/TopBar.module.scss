@@ -1,19 +1,21 @@
-@import '../../common/colors.scss';
+@import "../../common/colors";
 
 .topbar {
-  display: flex;
   align-items: center;
-  justify-content: stretch;
   border-bottom: 5px solid #e0e0e0;
+  display: flex;
   height: 100%;
+  justify-content: stretch;
   position: relative;
   z-index: 100;
+
   .topbar_item {
-    height: auto;
-    vertical-align: middle;
     flex-grow: 0;
     flex-shrink: 0;
+    height: auto;
     position: relative;
+    vertical-align: middle;
+
     &.stretch {
       flex-grow: 1;
       flex-shrink: 1;
@@ -23,56 +25,61 @@
 }
 
 .hamburger_menu {
-  width: 53px;
-  height: 100%;
+  align-items: center;
   display: flex;
   flex-flow: row nowrap;
+  height: 100%;
   justify-content: center;
-  align-items: center;
+  width: 53px;
+
   .hamburger_menu_icon {
+    color: use_color("mid-blue");
     font-size: 24px;
-    color: use_color('mid-blue');
   }
 }
 
 .page_title {
-  padding-left: 10px;
+  color: use-color("black");
   font-size: 2rem;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
   font-weight: bold;
-  color: use_color('black');
+  overflow: hidden;
+  padding-left: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .environment {
+  align-items: center;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
   font-weight: bold;
+  justify-content: center;
   padding: 0 12px 0 5px;
-  &>svg {
+
+  >svg {
+    color: use-color("mid-blue");
     font-size: 2rem;
-    color: use_color('mid-blue');
   }
 }
 
 .login_menu {
-  width: 77px;
   display: block;
-  .login_menu_username{
+  width: 77px;
+
+  .login_menu_username {
     font-style: italic;
   }
+
   .login_menu_button {
-    display: flex;
-    padding: 4px;
-    color: use_color('black');
-    justify-content: left;
     align-items: center;
+    color: use_color("black");
+    display: flex;
+    justify-content: left;
+    padding: 4px;
+
     .login_menu_icon {
+      color: use_color("mid-blue");
       font-size: 30px;
-      color: use_color('mid-blue');
       margin-right: 5px;
     }
   }

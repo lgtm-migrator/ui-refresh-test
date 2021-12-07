@@ -3,19 +3,25 @@
   :global(.react-select__value-container) {
     display: none;
   }
+
   :global(.react-select__indicator-separator) {
     display: none;
   }
+
   :global(.react-select__menu) {
     width: fit-content;
   }
+
   :global(.react-select__control) {
-    border: none;
+    border: 0;
+    border-radius: 0;
+
     &:hover {
       background-color: #e0e0e0;
       border-radius: 4px;
     }
   }
+
   :global(.react-select__option) {
     cursor: pointer;
   }

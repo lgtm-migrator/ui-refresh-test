@@ -1,31 +1,31 @@
-@import '../colors.scss';
+@import "../colors";
 
 .react-select {
   // these prefixed global classnames are inserted by react-select
-  :global(.react-select__option){
+  :global(.react-select__option) {
     padding: 1.5px 20px;
     white-space: nowrap;
   }
 
-  &--right{
-    :global(.react-select__menu){
-      right: 0;
+  &--right {
+    :global(.react-select__menu) {
       left: auto;
+      right: 0;
     }
   }
 
   .option_content {
-    display: flex;
     align-items: center;
+    display: flex;
     min-height: 26px;
 
     .option_content_icon {
+      color: use_color("mid-blue");
       display: inline-block;
-      margin-right: 8px;
       font-size: 21px;
-      color: use_color('mid-blue');
-      width: 1em;
+      margin-right: 8px;
       text-align: center;
+      width: 1em;
     }
   }
 
