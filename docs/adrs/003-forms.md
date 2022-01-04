@@ -9,8 +9,8 @@ _2021-11-23_
 <!-- Summary -->
 
 The app needs a consistent pattern for handling form state and basic validation.
-Several libraries exist to solve this problem, this ADR aims to identify the best suited for our
-purposes.
+Several libraries exist to solve this problem, this ADR aims to identify the
+best suited for our purposes.
 
 ## Authors <!-- GitHub Username(s) -->
 
@@ -29,12 +29,18 @@ Draft
 
 ## Decision Outcome <!-- Summary of the decision -->
 
-React Hook Form best suits our need for a flexible solution, with basic validation built in, while also being the smallest option. It also plays well with ARIA and working with custom inputs without requring modification of their implementation.
+React Hook Form best suits our need for a flexible solution, with basic
+validation built in, while also being the smallest option. It also plays well
+with ARIA and working with custom inputs without requring modification of their
+implementation.
 
 ## Consequences <!-- Summary of the decision -->
 
-React Hook Form _does not work with class components_.
-This may create difficulting in moving code from other (older) react codebases into the app, if we choose to do so. Having basic validation built into the form library doesnt require a decision on complex validation at this stage (when we are still unsure of our needs).
+React Hook Form _does not work with class components_. This may create
+difficulting in moving code from other (older) react codebases into the app, if
+we choose to do so. Having basic validation built into the form library doesnt
+require a decision on complex validation at this stage (when we are still unsure
+of our needs).
 
 ## Pros and Cons of the Alternatives <!-- List Pros/Cons of each considered alternative -->
 
@@ -45,10 +51,15 @@ This may create difficulting in moving code from other (older) react codebases i
 - `+` Basic API is concise (when using HTML elements)
 - `+` Good documentation
 - `?` Validation features preference validation library `Yup`
-- `-` Requires a signifigant amout of boilerplate when using custom input components not designed without Formik in mind (e.g. if we used a date-picker component from a library)
-- `-` Straightforward use of custom input components requires modifying the component being used in the form, rather than wrapping it
-- `-` More complicated features (e.g. custom validation) require lots of boilerplate.
-- `-` Introduces react (anti?) pattern we don't use elswhere ([Function as Child Components])
+- `-` Requires a signifigant amout of boilerplate when using custom input
+  components not designed without Formik in mind (e.g. if we used a date-picker
+  component from a library)
+- `-` Straightforward use of custom input components requires modifying the
+  component being used in the form, rather than wrapping it
+- `-` More complicated features (e.g. custom validation) require lots of
+  boilerplate.
+- `-` Introduces react (anti?) pattern we don't use elswhere ([Function as Child
+  Components][])
 
 ### React Hook Form (8kB)
 
@@ -56,11 +67,15 @@ This may create difficulting in moving code from other (older) react codebases i
 - `+` Wrttien in TypeScript, tsx-friendly
 - `+` Thorough [documentation](https://react-hook-form.com/api/useform)
 - `+` **Basic validation built in**.
-- `+` Supports Yup, Zod, Joi, Superstruct, Vest, and custom validation through a single API (with helpers for each lib).
-- `+` Uses `register` pattern which is straightforward for both html input elements, and components that mimic their APIs (onChange, etc)
-- `+` Has a `Controller` component to wrap custom input components, making working with custom components pretty straightforward.
+- `+` Supports Yup, Zod, Joi, Superstruct, Vest, and custom validation through a
+  single API (with helpers for each lib).
+- `+` Uses `register` pattern which is straightforward for both html input
+  elements, and components that mimic their APIs (onChange, etc)
+- `+` Has a `Controller` component to wrap custom input components, making
+  working with custom components pretty straightforward.
 - `+` Requires fewer mounts than class-component libraries
-- `+` Use of uncontrolled components makes accessibility (ARIA) more straightforward
+- `+` Use of uncontrolled components makes accessibility (ARIA) more
+  straightforward
 - `-?` Newer to the scene, smaller community, but still quite popular
 - `-` **Does not work within class components**
 
@@ -74,6 +89,6 @@ This may create difficulting in moving code from other (older) react codebases i
 
 ## References <!-- List any relevant resources about the ADR, consider using footnotes as below where useful -->
 
-- [Function as Child Components]
+- [Function as Child Components][]
 
 [function as child components]: https://reactpatterns.js.org/docs/function-as-child-component/
