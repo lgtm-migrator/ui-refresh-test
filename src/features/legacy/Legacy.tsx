@@ -5,36 +5,32 @@ export default function Legacy() {
   const history = useHistory();
 
   const legacyContent = useRef<HTMLIFrameElement>(null);
-  const [legacyPath, setLegacyPath] = useState<string>(
-    history.location.pathname.split(/\/legacy/)[1]
-  );
 
-  useEffect(() => {
-    if (legacyContent.current) {
-      legacyContent.current.setAttribute('src', legacyPath);
-    }
-    // Intentially not including legacyPath in the dependency list.
-    // This is because updating legacyPath will cause the iframe to reload.
-    // We don't want to reload the iframe if the path hasn't changed.
-    // These updates are instead handled by the next effect.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [legacyContent]);
+  const initPath =
+    history.location.pathname.split(/\/legacy/)[1] + history.location.hash;
+  const [initialLegacyPath] = useState<string>(initPath);
+  const [legacyPath, setLegacyPath] = useState<string>(initPath);
 
   useEffect(() => {
     const checkInterval = setInterval(() => {
-      const loc = legacyContent.current?.contentWindow?.location.pathname;
-      if (loc !== legacyPath && loc !== undefined) {
-        history.push(`/legacy${loc}`);
-        setLegacyPath(loc);
+      const location = legacyContent.current?.contentWindow?.location;
+      if (location) {
+        const loc = location.pathname + (location.hash ?? '');
+        if (loc && loc !== legacyPath) {
+          history.push(`/legacy${loc}`);
+          setLegacyPath(loc);
+        }
       }
     }, 200);
     return () => {
       clearInterval(checkInterval);
     };
   }, [history, legacyContent, legacyPath]);
+
   return (
     <section>
       <iframe
+        src={initialLegacyPath}
         ref={legacyContent}
         title="Legacy Content"
         width="100%"
