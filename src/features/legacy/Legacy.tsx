@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
+const legacyPart = (path: string) => path.match(/\/legacy(\/.*)$/)?.[1] || '/';
+
 export default function Legacy() {
   const history = useHistory();
 
   const legacyContent = useRef<HTMLIFrameElement>(null);
 
   const initPath =
-    history.location.pathname.split(/\/legacy/)[1] + history.location.hash;
+    legacyPart(history.location.pathname) + history.location.hash;
   const [initialLegacyPath, setInitialLegacyPath] = useState<string>(initPath);
   const [legacyPath, setLegacyPath] = useState<string>(initPath);
 
@@ -26,8 +28,7 @@ export default function Legacy() {
         // ensures the iframe has mounted
         const inner = innerLocation.pathname + (innerLocation.hash ?? '');
         const outer =
-          outerLocation.pathname.split(/\/legacy/)[1] +
-          (outerLocation.hash ?? '');
+          legacyPart(outerLocation.pathname) + (outerLocation.hash ?? '');
         if (inner !== legacyPath) {
           setLegacyPath(inner);
           history.push(`/legacy${inner}`);
@@ -35,7 +36,7 @@ export default function Legacy() {
           setLegacyPath(outer);
           setInitialLegacyPath(outer);
           history.push(`/legacy${outer}`);
-          legacyContent.current?.contentDocument?.location.reload();
+          legacyContent.current?.contentDocument?.location.replace(outer);
         }
       }
     }, 200);
