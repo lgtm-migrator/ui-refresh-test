@@ -35,8 +35,6 @@ export default function Legacy() {
         } else if (outer !== legacyPath) {
           setLegacyPath(outer);
           setInitialLegacyPath(outer);
-          history.push(`/legacy${outer}`);
-          legacyContent.current?.contentDocument?.location.replace(outer);
         }
       }
     }, 200);
