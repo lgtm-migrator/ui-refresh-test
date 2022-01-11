@@ -8,17 +8,34 @@ export default function Legacy() {
 
   const initPath =
     history.location.pathname.split(/\/legacy/)[1] + history.location.hash;
-  const [initialLegacyPath] = useState<string>(initPath);
+  const [initialLegacyPath, setInitialLegacyPath] = useState<string>(initPath);
   const [legacyPath, setLegacyPath] = useState<string>(initPath);
 
   useEffect(() => {
+    // This effect compares the inner and outer URLS (app URL and iframe URL)
+    // to the current known URL in state. If the inner URL differs, the state
+    // and outer URLs are updated to match the inner URL. If the outer URL
+    // differs, the inner and state URLs are updated to match the outer URL.
+    // If both inner & outer URLs differ from state, the inner URL takes
+    // precedence.
+
     const checkInterval = setInterval(() => {
-      const location = legacyContent.current?.contentWindow?.location;
-      if (location) {
-        const loc = location.pathname + (location.hash ?? '');
-        if (loc && loc !== legacyPath) {
-          history.push(`/legacy${loc}`);
-          setLegacyPath(loc);
+      const innerLocation = legacyContent.current?.contentWindow?.location;
+      const outerLocation = window.location;
+      if (innerLocation) {
+        // ensures the iframe has mounted
+        const inner = innerLocation.pathname + (innerLocation.hash ?? '');
+        const outer =
+          outerLocation.pathname.split(/\/legacy/)[1] +
+          (outerLocation.hash ?? '');
+        if (inner !== legacyPath) {
+          setLegacyPath(inner);
+          history.push(`/legacy${inner}`);
+        } else if (outer !== legacyPath) {
+          setLegacyPath(outer);
+          setInitialLegacyPath(outer);
+          history.push(`/legacy${outer}`);
+          legacyContent.current?.contentDocument?.location.reload();
         }
       }
     }, 200);
