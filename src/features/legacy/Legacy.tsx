@@ -16,7 +16,7 @@ export default function Legacy() {
   const [legacyPath, setLegacyPath] = useState<string>(initPath);
 
   //height state
-  const [legacyHeight, setLegacyHeight] = useState<string>('500vh');
+  const [legacyHeight, setLegacyHeight] = useState<string>('0');
 
   useEffect(() => {
     // This effect compares the inner and outer URLS (app URL and iframe URL)
@@ -61,8 +61,12 @@ export default function Legacy() {
         (pathChanged || checkheight !== legacyHeight)
       ) {
         const scrollY = window.scrollY; // save current scroll position
-        // reset iframe height, force reflow
-        legacyContent.current.height = '500vh';
+        // reset iframe height to visible height, force reflow
+        legacyContent.current.height =
+          legacyContent.current.parentElement
+            ?.getBoundingClientRect()
+            .height.toString() ?? '0';
+        // use reflowed scroll height to set iframe height
         const setHeight = iframeBody?.scrollHeight.toString() || checkheight;
         legacyContent.current.height = setHeight;
         setLegacyHeight(setHeight);
@@ -75,16 +79,14 @@ export default function Legacy() {
   }, [history, legacyContent, legacyPath, legacyHeight]);
 
   return (
-    <section>
-      <iframe
-        style={{ overflowY: 'hidden' }}
-        frameBorder="0"
-        src={initialLegacyPath}
-        ref={legacyContent}
-        title="Legacy Content"
-        width="100%"
-        height={legacyHeight}
-      />
-    </section>
+    <iframe
+      style={{ overflowY: 'hidden' }}
+      frameBorder="0"
+      src={initialLegacyPath}
+      ref={legacyContent}
+      title="Legacy Content"
+      width="100%"
+      height={legacyHeight}
+    />
   );
 }
