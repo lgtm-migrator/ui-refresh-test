@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-const legacyPart = (path: string) => path.match(/\/legacy(\/.*)$/)?.[1] || '/';
+const legacyPart = (path: string) =>
+  path.match(/(?:\/legacy)+(\/.*)$/)?.[1] || '/';
 
 export default function Legacy() {
   const history = useHistory();
