@@ -61,11 +61,13 @@ export default function Legacy() {
         (pathChanged || checkheight !== legacyHeight)
       ) {
         const scrollY = window.scrollY; // save current scroll position
-        // reset iframe height to visible height, force reflow
-        legacyContent.current.height =
-          legacyContent.current.parentElement
-            ?.getBoundingClientRect()
-            .height.toString() ?? '0';
+        // reset iframe height to max container height, force reflow
+        legacyContent.current.height = (
+          window.innerHeight -
+          (legacyContent.current.parentElement?.getBoundingClientRect().top ||
+            0) -
+          4
+        ).toString();
         // use reflowed scroll height to set iframe height
         const setHeight = iframeBody?.scrollHeight.toString() || checkheight;
         legacyContent.current.height = setHeight;
