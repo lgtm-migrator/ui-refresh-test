@@ -12,6 +12,7 @@ import PageNotFound from '../features/layout/PageNotFound';
 
 import Navigator from '../features/navigator/Navigator';
 import Count from '../features/count/Counter';
+import Legacy from '../features/legacy/Legacy';
 import Auth from '../features/auth/Auth';
 import TopBar from '../features/layout/TopBar';
 
@@ -40,6 +41,9 @@ export default function App() {
         </div>
         <div className={classes.page_content}>
           <Switch>
+            <Route path="/legacy/*">
+              <Legacy />
+            </Route>
             <Route path="/count">
               <Count />
             </Route>
