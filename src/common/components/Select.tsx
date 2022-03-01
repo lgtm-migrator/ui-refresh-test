@@ -2,7 +2,7 @@ import { FC, ReactNode } from 'react';
 import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import classes from './Select.module.scss';
 
-interface SelectOption {
+export interface SelectOption {
   label: ReactNode;
   value: string;
   icon?: ReactNode;
