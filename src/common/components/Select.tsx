@@ -114,7 +114,7 @@ export const Select: FC<SelectProps> = (props) => {
       <AsyncSelect
         {...commonProps}
         loadOptions={async (inputValue: string) => {
-          if (typeof props.options !== 'function') return [];
+          if (typeof props.options !== 'function') return props.options;
           const newOpts = await props.options(inputValue);
           setHasIcons(optsHaveIcons(newOpts));
           return newOpts;
