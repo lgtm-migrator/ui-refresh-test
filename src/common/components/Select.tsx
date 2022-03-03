@@ -15,122 +15,134 @@ export interface SelectOption {
   icon?: ReactNode;
 }
 
+type OptionsArray = OptionsOrGroups<SelectOption, GroupBase<SelectOption>>;
+type OptionsAsync = (inputValue: string) => Promise<OptionsArray>;
+
 interface SelectProps {
-  horizontalMenuAlign?: 'left' | 'right';
-  components?: ReactSelectProps<SelectOption>['components'];
-  options:
-    | OptionsOrGroups<SelectOption, GroupBase<SelectOption>>
-    | ((
-        inputValue: string
-      ) => Promise<OptionsOrGroups<SelectOption, GroupBase<SelectOption>>>);
+  /** Sets a className attribute on the outer component */
   className?: string;
-  onChange?: (value: SelectOption[]) => void;
-  value?: SingleValue<SelectOption> | MultiValue<SelectOption>;
-  multiple?: boolean;
-  disabled?: boolean;
+  /** If true, adds a clickable icon for clearing the select */
   clearable?: boolean;
+  /** Advanced: allows manualy manipulation of react-select subcomponents */
+  components?: ReactSelectProps<SelectOption>['components'];
+  /** If true, sets select to disabled */
+  disabled?: boolean;
+  /** Wheter the dropdown select menu should be pinned to the left or right
+   * (default left) */
+  horizontalMenuAlign?: 'left' | 'right';
+  /** If true, sets select to multiple select mode */
+  multiple?: boolean;
+  /** onChange callback, triggered when the selected value changes */
+  onChange?: (value: SelectOption[]) => void;
+  /** The array of options & option groups (see react-select documentation) OR
+   * an async function which returns such an array given the input content */
+  options: OptionsArray | OptionsAsync;
+  /** If defined, sets the value of the select. */
+  value?: SingleValue<SelectOption> | MultiValue<SelectOption>;
 }
 
-function optsHaveIcons(
-  opts: OptionsOrGroups<SelectOption, GroupBase<SelectOption>>
-): boolean {
-  return opts.some((optionOrGroup) => {
-    if ('options' in optionOrGroup) {
-      return optsHaveIcons(optionOrGroup.options);
-    }
-    return !!optionOrGroup.icon;
-  });
-}
-
+/**
+ * Select component that supports multiple selection, async options loading,
+ * custom styling, and more.
+ */
 export const Select: FC<SelectProps> = (props) => {
+  const options = props.options;
+
   // Detect how to format options based on if they have icons
-  const defaultHasIcons =
-    typeof props.options !== 'function' && optsHaveIcons(props.options);
+  const defaultHasIcons = doesHaveIcons(options);
   const [hasIcons, setHasIcons] = useState(defaultHasIcons);
 
   useEffect(() => {
     // Detect if static option icons have changed
     // needed so we can deal with icons set ansynchronously
-    if (typeof props.options !== 'function') {
-      setHasIcons(optsHaveIcons(props.options));
+    if (!isFunc(options)) {
+      setHasIcons(defaultHasIcons);
     }
-  }, [props.options]);
+  }, [options, defaultHasIcons]);
 
-  // Add right-aligned class if needed
+  // Add the right-aligned class if needed
   const classNames = [classes['react-select'], props.className ?? ''];
   if (props.horizontalMenuAlign === 'right') {
     classNames.push(classes['react-select--right']);
   }
 
-  const handleChange =
+  const callOnChange =
     props.onChange ??
     (() => {
       /* noop */
     });
+  const handleChange = (
+    options: SingleValue<SelectOption> | MultiValue<SelectOption>
+  ) => {
+    if (options && 'value' in options) {
+      // one option returned
+      callOnChange([options]);
+    } else {
+      // multiple/no options returned
+      if (options) {
+        callOnChange([...options]);
+      } else {
+        callOnChange([]);
+      }
+    }
+  };
+
+  const handleFormatOptionLabel = (data: SelectOption) => {
+    return (
+      <span className={classes.option_content}>
+        {hasIcons && (
+          <span className={classes.option_content_icon}>{data.icon}</span>
+        )}
+        {data.label}
+      </span>
+    );
+  };
 
   // Common between sync/async
   const commonProps = {
-    value: props.value,
-    isMulti: props.multiple,
-    isDisabled: props.disabled,
-    isClearable: props.clearable,
+    className: classNames.join(' '),
+    /** classNamePrefix allows us to override the default styles by using global
+     * classes prefixed with the below */
+    classNamePrefix: 'react-select',
     components: props.components,
-    formatOptionLabel: (data: SelectOption) => {
-      return (
-        <span className={classes.option_content}>
-          {hasIcons && (
-            <span className={classes.option_content_icon}>{data.icon}</span>
-          )}
-          {data.label}
-        </span>
-      );
-    },
-    onChange: (
-      options: SingleValue<SelectOption> | MultiValue<SelectOption>
-    ) => {
-      if (options && 'value' in options) {
-        // one option returned
-        handleChange([options]);
-      } else {
-        // multiple/no options returned
-        if (options) {
-          handleChange([...options]);
-        } else {
-          handleChange([]);
-        }
-      }
-    },
+    formatOptionLabel: handleFormatOptionLabel,
+    isClearable: props.clearable,
+    isDisabled: props.disabled,
+    isMulti: props.multiple,
+    onChange: handleChange,
+    value: props.value,
   };
-  if (typeof props.options !== 'function') {
+
+  return !isFunc(options) ? (
     // Synchrnous
-    return (
-      <ReactSelect
-        {...commonProps}
-        options={props.options}
-        className={classNames.join(' ')}
-        // This allows us to override the default styles by using global
-        // classes prefixed with the below
-        classNamePrefix={'react-select'}
-      />
-    );
-  } else {
+    <ReactSelect {...commonProps} options={options} />
+  ) : (
     // Asynchrnous
-    // Could support pagination here if react-select-async-paginate was added
-    return (
-      <AsyncSelect
-        {...commonProps}
-        loadOptions={async (inputValue: string) => {
-          if (typeof props.options !== 'function') return props.options;
-          const newOpts = await props.options(inputValue);
-          setHasIcons(optsHaveIcons(newOpts));
-          return newOpts;
-        }}
-        defaultOptions={true}
-        className={classNames.join(' ')}
-        // This allows us to override the default styles by using global
-        // classes prefixed with the below
-        classNamePrefix={'react-select'}
-      />
-    );
-  }
+    // Could later support pagination here with react-select-async-paginate
+    <AsyncSelect
+      {...commonProps}
+      loadOptions={async (inputValue: string) => {
+        const newOpts = await options(inputValue);
+        setHasIcons(doesHaveIcons(newOpts));
+        return newOpts;
+      }}
+      defaultOptions={true}
+    />
+  );
+};
+
+const isFunc = (opts: SelectProps['options']): opts is OptionsAsync => {
+  return typeof opts === 'function';
+};
+
+const doesHaveIcons = (opts: SelectProps['options']): boolean => {
+  // Double check that we're not dealing with async options
+  // mostly appeasing typescript here
+  if (isFunc(opts)) return false;
+  return opts.some((optionOrGroup) => {
+    if ('options' in optionOrGroup) {
+      return doesHaveIcons(optionOrGroup.options);
+    }
+    return !!optionOrGroup.icon;
+  });
 };
