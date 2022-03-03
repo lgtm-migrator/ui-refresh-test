@@ -24,7 +24,7 @@ interface SelectProps {
         inputValue: string
       ) => Promise<OptionsOrGroups<SelectOption, GroupBase<SelectOption>>>);
   className?: string;
-  onChange: (value: SelectOption[]) => void;
+  onChange?: (value: SelectOption[]) => void;
   value?: SingleValue<SelectOption> | MultiValue<SelectOption>;
   multiple?: boolean;
   disabled?: boolean;
@@ -62,6 +62,12 @@ export const Select: FC<SelectProps> = (props) => {
     classNames.push(classes['react-select--right']);
   }
 
+  const handleChange =
+    props.onChange ??
+    (() => {
+      /* noop */
+    });
+
   // Common between sync/async
   const commonProps = {
     value: props.value,
@@ -84,13 +90,13 @@ export const Select: FC<SelectProps> = (props) => {
     ) => {
       if (options && 'value' in options) {
         // one option returned
-        props.onChange([options]);
+        handleChange([options]);
       } else {
         // multiple/no options returned
         if (options) {
-          props.onChange([...options]);
+          handleChange([...options]);
         } else {
-          props.onChange([]);
+          handleChange([]);
         }
       }
     },

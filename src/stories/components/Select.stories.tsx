@@ -41,12 +41,18 @@ const SelectAsyncTemplate: ComponentStory<typeof Select> = (args) => {
       value={value}
       onChange={handleChange}
       options={async (inputValue) => {
-        return [
-          { value: 'chocolate', label: 'Chocolate' },
-          { value: 'strawberry', label: 'Strawberry' },
-          { value: 'vanilla', label: 'Vanilla' },
-          { value: inputValue, label: `Some Option(s) ${inputValue}` },
-        ];
+        return new Promise((resolve) => {
+          setTimeout(
+            () =>
+              resolve([
+                { value: 'chocolate', label: 'Chocolate' },
+                { value: 'strawberry', label: 'Strawberry' },
+                { value: 'vanilla', label: 'Vanilla' },
+                { value: inputValue, label: `Some Option(s) ${inputValue}` },
+              ]),
+            500
+          );
+        });
       }}
     />
   );
