@@ -114,10 +114,10 @@ export const Select: FC<SelectProps> = (props) => {
   };
 
   return !isFunc(options) ? (
-    // Synchrnous
+    // Synchronous
     <ReactSelect {...commonProps} options={options} />
   ) : (
-    // Asynchrnous
+    // Asynchronous
     // Could later support pagination here with react-select-async-paginate
     <AsyncSelect
       {...commonProps}
