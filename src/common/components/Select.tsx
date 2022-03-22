@@ -27,7 +27,7 @@ interface SelectProps {
   components?: ReactSelectProps<SelectOption>['components'];
   /** If true, sets select to disabled */
   disabled?: boolean;
-  /** Wheter the dropdown select menu should be pinned to the left or right
+  /** Whether the dropdown select menu should be pinned to the left or right
    * (default left) */
   horizontalMenuAlign?: 'left' | 'right';
   /** If true, sets select to multiple select mode */
