@@ -4,16 +4,30 @@ import { useHistory } from 'react-router-dom';
 const legacyPart = (path: string) =>
   path.match(/(?:\/legacy)+(\/.*)$/)?.[1] || '/';
 
+/** Checks that an IFrame's contents can be modified without triggering CORS*/
+const checkIFrameAccessible = (
+  contentWindow?: HTMLIFrameElement['contentWindow']
+) => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    !!contentWindow?.document.head;
+  } catch (error) {
+    return false;
+  }
+};
+
 export default function Legacy() {
   const history = useHistory();
 
   const legacyContent = useRef<HTMLIFrameElement>(null);
+  const legacyWindow = legacyContent?.current?.contentWindow;
 
   // path state
   const initPath =
     legacyPart(history.location.pathname) + history.location.hash;
   const [initialLegacyPath, setInitialLegacyPath] = useState<string>(initPath);
   const [legacyPath, setLegacyPath] = useState<string>(initPath);
+  const [badLegacyPath, setBadLegacyPath] = useState<boolean>(false);
 
   //height state
   const [legacyHeight, setLegacyHeight] = useState<string>('0');
@@ -34,6 +48,15 @@ export default function Legacy() {
       const innerLocation = legacyContent.current?.contentWindow?.location;
       const outerLocation = window.location;
       let pathChanged = false;
+
+      // check if iframe is inaccessible due to CORS
+      if (!checkIFrameAccessible(legacyContent.current?.contentWindow)) {
+        setBadLegacyPath(true);
+        return;
+      } else {
+        setBadLegacyPath(false);
+      }
+
       if (innerLocation) {
         // ensures the iframe has mounted
         const inner = innerLocation.pathname + (innerLocation.hash ?? '');
@@ -80,15 +103,47 @@ export default function Legacy() {
     };
   }, [history, legacyContent, legacyPath, legacyHeight]);
 
-  return (
-    <iframe
-      style={{ overflowY: 'hidden' }}
-      frameBorder="0"
-      src={initialLegacyPath}
-      ref={legacyContent}
-      title="Legacy Content"
-      width="100%"
-      height={legacyHeight}
-    />
-  );
+  useEffect(() => {
+    // This effect injects target=_top into all child iframe's `<head>` tags.
+    // This is necessary to allow the iframe to navigate to third-party sites.
+    if (legacyPath && legacyWindow) {
+      const recurse = (contentWindow: Window) => {
+        // check accessing the nested iframe doesnt trigger CORS
+        if (!checkIFrameAccessible(contentWindow)) return;
+
+        // inject target=_top into the iframe's document
+        const base =
+          contentWindow.document.head.querySelector('base') ||
+          contentWindow.document.head.appendChild(
+            contentWindow.document.createElement('base')
+          );
+        base.target = '_top';
+        const iframes = contentWindow.document.body.querySelectorAll('iframe');
+        iframes.forEach((iframe) => {
+          if (iframe.contentWindow) recurse(iframe.contentWindow);
+        });
+      };
+      recurse(legacyWindow);
+    }
+  }, [legacyPath, legacyWindow, badLegacyPath]);
+
+  if (badLegacyPath) {
+    return (
+      <span>
+        Something went wrong. Could not load external link within legacy page.
+      </span>
+    );
+  } else {
+    return (
+      <iframe
+        style={{ overflowY: 'hidden' }}
+        frameBorder="0"
+        src={initialLegacyPath}
+        ref={legacyContent}
+        title="Legacy Content"
+        width="100%"
+        height={legacyHeight}
+      />
+    );
+  }
 }
