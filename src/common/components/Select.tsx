@@ -1,10 +1,10 @@
 import { FC, ReactNode } from 'react';
-import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 import classes from './Select.module.scss';
+import ReactSelect, { Props as ReactSelectProps } from 'react-select';
 
-interface SelectOption {
+export interface SelectOption {
   label: ReactNode;
-  value: string;
+  value: string | number; // check if setting "string | number" is kosher
   icon?: ReactNode;
 }
 
