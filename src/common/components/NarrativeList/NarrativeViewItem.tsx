@@ -2,7 +2,6 @@ import { NarrativeDoc } from './NarrativeList';
 import { FC, useEffect } from 'react';
 import classes from './NarrativeList.module.scss';
 import NarrativeItemDropdown from './NarrativeItemDropdown';
-
 export interface NarrativeViewItemProps {
   item: NarrativeDoc;
   idx: number;
@@ -42,14 +41,15 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
 
   return (
     <section key={idx} onClick={() => handleSelectItem(idx)}>
-      <div className={`${classes.narrative_item_outer} ${status}`}>
+      <div className={`${classes.narrative_item_outer} ${classes[status]}`}>
         <div className={classes.narrative_item_inner}>
           <div className={classes.narrative_item_text}>
-            {item.narrative_title || 'Untitiled'} {String(active)}
+            {item.narrative_title || 'Untitiled'}
             {category === 'own' && (
               <NarrativeItemDropdown
                 version={item.version}
                 onVersionSelect={(e) => handleVersionSelect(e)}
+                active={active}
               ></NarrativeItemDropdown>
             )}
           </div>
