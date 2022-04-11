@@ -3,7 +3,7 @@ import { Dropdown } from '../../components';
 import { SelectOption } from '../Select';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import classes from './NarrativeList.module.scss';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
 type NarrativeItemDropdownProps = {
   version: number;
@@ -32,7 +32,14 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
           {
             value: item,
             icon: undefined,
-            label: 'v' + item,
+            label: (
+              <>
+                <span>{'v' + item}</span>
+                {item === selectedVersion && (
+                  <FAIcon icon={faCheck} style={{ marginLeft: '3rem' }} />
+                )}
+              </>
+            ),
           },
         ],
       };
