@@ -2,6 +2,8 @@ import { NarrativeDoc } from './NarrativeList';
 import { FC, useEffect } from 'react';
 import classes from './NarrativeList.module.scss';
 import NarrativeItemDropdown from './NarrativeItemDropdown';
+/* eslint-disable @typescript-eslint/no-var-requires */
+const timeago = require('timeago.js');
 export interface NarrativeViewItemProps {
   item: NarrativeDoc;
   idx: number;
@@ -21,6 +23,7 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
   selectItem,
 }) => {
   const status = active ? 'active' : 'inactive';
+  const timeElapsed = timeago.format(item.timestamp);
 
   // notify upa change once new narrative item is focused on
   useEffect(() => {
@@ -52,6 +55,9 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
                 active={active}
               ></NarrativeItemDropdown>
             )}
+          </div>
+          <div className={classes.narrative_item_details}>
+            Updated {timeElapsed} by {item.creator}
           </div>
         </div>
       </div>
