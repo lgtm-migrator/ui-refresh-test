@@ -39,6 +39,8 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
     });
 
   return (
+    // rgba(0,0,0,0) in this dropdown is to get rid of a
+    // default style where hovering will make it gray
     <div className={classes.dropdown_wrapper}>
       <Dropdown
         className={classes.version_dropdown}
@@ -53,19 +55,32 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
             color: 'black',
             display: 'inline-block',
             textAlign: 'center',
+            padding: '0',
           }),
           dropdownIndicator: (p) => ({
-            background: active ? '#cdecff' : 'white',
+            background: 'rgba(0,0,0,0)',
             color: active ? '#777' : '#aaa',
+            cursor: 'pointer',
+          }),
+          group: (p) => ({
+            padding: '0',
           }),
           control: (p) => ({
             paddingTop: '0',
             paddingBottom: '0',
+            // not sure why this one needs !important but it does
+            background: 'rgba(0,0,0,0)!important',
           }),
         }}
         onChange={(e) => handleDropdownChange(e as SelectOption)}
       >
-        v{selectedVersion} of {version}{' '}
+        {selectedVersion === version ? (
+          <span>v{selectedVersion}</span>
+        ) : (
+          <span>
+            v{selectedVersion} of {version}
+          </span>
+        )}
         <FAIcon icon={faCaretDown} style={{ marginLeft: '5px' }} />
       </Dropdown>
     </div>

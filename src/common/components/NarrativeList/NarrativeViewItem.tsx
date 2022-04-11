@@ -48,7 +48,7 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
         <div className={classes.narrative_item_inner}>
           <div className={classes.narrative_item_text}>
             {item.narrative_title || 'Untitiled'}
-            {category === 'own' && (
+            {category === 'own' && active && (
               <NarrativeItemDropdown
                 version={item.version}
                 onVersionSelect={(e) => handleVersionSelect(e)}

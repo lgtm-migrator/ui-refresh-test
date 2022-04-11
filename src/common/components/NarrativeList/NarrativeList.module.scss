@@ -6,6 +6,11 @@
   &.active {
     background: #cdecff;
   }
+
+  &:hover:not(.active):not(.dropdown_wrapper) {
+    background: #eee;
+    transition: background .15s ease-in;
+  }
 }
 
 .narrative_item_inner {
