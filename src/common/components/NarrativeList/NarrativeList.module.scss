@@ -13,6 +13,36 @@
   }
 }
 
+.narrative_list_loading_outer {
+  width: 100%;
+  text-align: center;
+  color: rgba(0,0,0,.5);
+}
+
+.narrative_list_loading_inner {
+  padding-bottom: 4rem;
+  padding-top: 4rem;
+}
+
+.list_footer {
+  color: rgba(0,0,0,.5);
+  padding: 1rem;
+  display: inline-block;
+  text-align: center;
+
+  &.link_action {
+    color: rgb(53,126,221);
+    text-decoration: underline;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+      color: rgba(53,126,221, 0.7);
+      transition: color .15s ease-in;
+    }
+  }
+}
+
 .narrative_item_inner {
   padding-top: 1rem;
   padding-bottom: 1rem;

@@ -1,7 +1,8 @@
 import { useState } from 'react';
-
-// import * as timeago from 'timeago.js';
+import classes from './NarrativeList.module.scss';
 import NarrativeViewItem from './NarrativeViewItem';
+import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 export interface NarrativeDoc {
   access_group: number;
@@ -42,26 +43,77 @@ export interface DataObject {
 interface NarrativeListProps {
   category: string;
   items: Array<NarrativeDoc>;
+  totalItems: number;
   loading: boolean;
   onSelectItem?: (upa: string) => void;
-  pageSide: number;
+  onLoadMoreItems?: () => void;
   selected: string;
-  selectedIdx?: number; // do we need it
+  selectedIdx?: number;
   sort?: string; // do we need it
-  totalItems: number;
 }
 
 export interface SelectItemEvent {
   upa?: string;
   idx: number;
 }
-
 const upaKey = (id: number, obj: number, ver: number) => `${id}/${obj}/${ver}`;
 
 function NarrativeList(props: NarrativeListProps) {
   const [selectedIdx, setSelectedIdx] = useState<number>(
     props.selectedIdx ?? -1
   );
+
+  if (!props.items.length) {
+    if (props.loading) {
+      return (
+        <div className={classes.narrative_list_loading_outer}>
+          <div className={classes.narrative_list_loading_inner}>
+            <FAIcon
+              icon={faCog}
+              spin={true}
+              style={{ marginRight: '5px' }}
+            ></FAIcon>
+            Loading...
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className={classes.narrative_list_loading_outer}>
+        <p className={classes.narrative_list_loading_inner}>
+          No results found.
+        </p>
+      </div>
+    );
+  }
+
+  function hasMoreButton() {
+    const { items, totalItems } = props;
+    if (items.length >= totalItems) {
+      return <span className={classes.list_footer}>No more results.</span>;
+    }
+    if (props.loading) {
+      return (
+        <span className={classes.list_footer}>
+          <FAIcon
+            icon={faCog}
+            spin={true}
+            style={{ marginRight: '5px' }}
+          ></FAIcon>
+          Loading...
+        </span>
+      );
+    }
+    return (
+      <span
+        className={`${classes.list_footer} ${classes.link_action}`}
+        onClick={props.onLoadMoreItems}
+      >
+        Load more ({totalItems} remaining)
+      </span>
+    );
+  }
+
   return (
     <>
       {props.items.map((item, idx) => {
@@ -78,6 +130,7 @@ function NarrativeList(props: NarrativeListProps) {
           ></NarrativeViewItem>
         );
       })}
+      {hasMoreButton()}
     </>
   );
 }
