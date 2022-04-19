@@ -43,7 +43,9 @@ export interface DataObject {
 interface NarrativeListProps {
   category: string;
   items: Array<NarrativeDoc>;
-  totalItems: number;
+  showVersionDropdown: boolean;
+  itemsRemaining: number;
+  hasMoreItems: boolean;
   loading: boolean;
   onSelectItem?: (upa: string) => void;
   onLoadMoreItems?: () => void;
@@ -88,11 +90,11 @@ function NarrativeList(props: NarrativeListProps) {
   }
 
   function hasMoreButton() {
-    const { items, totalItems } = props;
-    if (items.length >= totalItems) {
+    const { itemsRemaining, hasMoreItems, loading, onLoadMoreItems } = props;
+    if (!hasMoreItems) {
       return <span className={classes.list_footer}>No more results.</span>;
     }
-    if (props.loading) {
+    if (loading) {
       return (
         <span className={classes.list_footer}>
           <FAIcon
@@ -107,9 +109,9 @@ function NarrativeList(props: NarrativeListProps) {
     return (
       <span
         className={`${classes.list_footer} ${classes.link_action}`}
-        onClick={props.onLoadMoreItems}
+        onClick={onLoadMoreItems}
       >
-        Load more ({totalItems} remaining)
+        Load more ({itemsRemaining} remaining)
       </span>
     );
   }
@@ -123,10 +125,10 @@ function NarrativeList(props: NarrativeListProps) {
             item={item}
             idx={idx}
             selected={upaKey(item.access_group, item.obj_id, item.version)}
-            category={props.category}
             active={idx === selectedIdx}
             selectItem={(idx) => setSelectedIdx(idx)}
             upaChange={(upa) => props.onSelectItem?.(upa)}
+            showVersionDropdown={props.showVersionDropdown}
           ></NarrativeViewItem>
         );
       })}

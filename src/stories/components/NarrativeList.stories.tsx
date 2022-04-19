@@ -22,7 +22,8 @@ const NarrativeListTemplate: ComponentStory<typeof NarrativeList> = (args) => {
 export const Default = NarrativeListTemplate.bind({});
 Default.args = {
   category: 'own',
-  totalItems: 16,
+  itemsRemaining: 16,
+  hasMoreItems: false,
   items: [
     {
       access_group: 12345,

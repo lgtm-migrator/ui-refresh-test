@@ -8,19 +8,19 @@ export interface NarrativeViewItemProps {
   item: NarrativeDoc;
   idx: number;
   selected: string; // the selected upa
-  category: string;
-  active: boolean; // needs to be implemented
+  active: boolean;
+  showVersionDropdown: boolean;
   selectItem: (idx: number) => void;
   upaChange: (upa: string) => void;
 }
 
 const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
+  showVersionDropdown,
+  selectItem,
+  upaChange,
   active,
   item,
-  category,
   idx,
-  upaChange,
-  selectItem,
 }) => {
   const status = active ? 'active' : 'inactive';
   const timeElapsed = timeago.format(item.timestamp);
@@ -48,7 +48,7 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
         <div className={classes.narrative_item_inner}>
           <div className={classes.narrative_item_text}>
             {item.narrative_title || 'Untitiled'}
-            {category === 'own' && active && (
+            {showVersionDropdown && active && (
               <NarrativeItemDropdown
                 version={item.version}
                 onVersionSelect={(e) => handleVersionSelect(e)}
