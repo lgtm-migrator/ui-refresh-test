@@ -17,9 +17,9 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
 }) => {
   const [selectedVersion, setSelectedVersion] = useState<number>(version);
 
-  const handleDropdownChange = (event: SelectOption) => {
-    setSelectedVersion(event.value as number);
-    onVersionSelect(event.value as number);
+  const handleDropdownChange = (event: SelectOption[]) => {
+    setSelectedVersion(event[0].value as number);
+    onVersionSelect(event[0].value as number);
   };
 
   const versions = Array(version)
@@ -46,40 +46,12 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
     });
 
   return (
-    // rgba(0,0,0,0) in this dropdown is to get rid of a
-    // default style where hovering will make it gray
     <div className={classes.dropdown_wrapper}>
       <Dropdown
         className={classes.version_dropdown}
         horizontalMenuAlign="right"
         options={versions}
-        menuPlacement="auto"
-        menuPosition="fixed"
-        styles={{
-          option: (p) => ({
-            ...p,
-            minWidth: '100px',
-            color: 'black',
-            display: 'inline-block',
-            textAlign: 'center',
-            padding: '0',
-          }),
-          dropdownIndicator: (p) => ({
-            background: 'rgba(0,0,0,0)',
-            color: active ? '#777' : '#aaa',
-            cursor: 'pointer',
-          }),
-          group: (p) => ({
-            padding: '0',
-          }),
-          control: (p) => ({
-            paddingTop: '0',
-            paddingBottom: '0',
-            // not sure why this one needs !important but it does
-            background: 'rgba(0,0,0,0)!important',
-          }),
-        }}
-        onChange={(e) => handleDropdownChange(e as SelectOption)}
+        onChange={(e) => handleDropdownChange(e)}
       >
         {selectedVersion === version ? (
           <span>v{selectedVersion}</span>

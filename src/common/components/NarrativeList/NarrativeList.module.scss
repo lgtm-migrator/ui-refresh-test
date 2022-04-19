@@ -71,3 +71,37 @@
   font-size: 0.8rem;
   color: #666;
 }
+
+.version_dropdown {
+  :global(.react-select__dropdown-indicator) {
+    background: rgba(0,0,0,0)!important;
+    color: #aaa;
+    cursor: pointer;
+    &:hover {
+      color: #777;
+    }
+  }
+
+  :global(.react-select__control) {
+    padding-top: 0;
+    padding-bottom: 0;
+    min-height: 0;
+    background: rgba(0,0,0,0)!important;
+  }
+
+  :global(.react-select__group) {
+    padding: 0;
+  }
+
+  :global(.react-select__indicator) {
+    padding: 0;
+  }
+
+  :global(.react-select__option) {
+    min-height: 0;
+    min-width: 100px;
+    color: black;
+    display: inline-block;
+    text-align: center;
+  }
+}
