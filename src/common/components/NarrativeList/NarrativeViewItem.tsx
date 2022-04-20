@@ -1,23 +1,22 @@
-import { NarrativeDoc } from './NarrativeList';
+import { NarrativeListDoc } from './NarrativeDoc';
 import { FC, useEffect } from 'react';
 import classes from './NarrativeList.module.scss';
 import NarrativeItemDropdown from './NarrativeItemDropdown';
-/* eslint-disable @typescript-eslint/no-var-requires */
-const timeago = require('timeago.js');
+import * as timeago from 'timeago.js';
 export interface NarrativeViewItemProps {
-  item: NarrativeDoc;
+  item: NarrativeListDoc;
   idx: number;
   selected: string; // the selected upa
   active: boolean;
   showVersionDropdown: boolean;
-  selectItem: (idx: number) => void;
-  upaChange: (upa: string) => void;
+  onSelectItem: (idx: number) => void;
+  onUpaChange: (upa: string) => void;
 }
 
 const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
   showVersionDropdown,
-  selectItem,
-  upaChange,
+  onSelectItem,
+  onUpaChange,
   active,
   item,
   idx,
@@ -29,17 +28,17 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
   useEffect(() => {
     if (active) {
       const { access_group, obj_id, version } = item;
-      upaChange(`${access_group}/${obj_id}/${version}`);
+      onUpaChange(`${access_group}/${obj_id}/${version}`);
     }
-  }, [active, item, upaChange]);
+  }, [active, item, onUpaChange]);
 
   function handleSelectItem(idx: number): void {
-    selectItem(idx);
+    onSelectItem(idx);
   }
 
   function handleVersionSelect(version: number) {
     const { access_group, obj_id } = item;
-    upaChange(`${access_group}/${obj_id}/${version}`);
+    onUpaChange(`${access_group}/${obj_id}/${version}`);
   }
 
   return (
