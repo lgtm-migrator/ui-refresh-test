@@ -112,12 +112,16 @@ export default function Legacy() {
         if (!checkIFrameAccessible(contentWindow)) return;
 
         // inject target=_top into the iframe's document
+        // eslint-disable-next-line no-console
+        console.log(
+          'injecting target=_top into iframe at ' + contentWindow.location.href
+        );
         const base =
           contentWindow.document.head.querySelector('base') ||
           contentWindow.document.head.appendChild(
             contentWindow.document.createElement('base')
           );
-        base.target = '_top';
+        base.setAttribute('target', '_top');
         const iframes = contentWindow.document.body.querySelectorAll('iframe');
         iframes.forEach((iframe) => {
           if (iframe.contentWindow) recurse(iframe.contentWindow);
