@@ -106,6 +106,10 @@ export default function Legacy() {
   useEffect(() => {
     // This effect injects target=_top into all child iframe's `<head>` tags.
     // This is necessary to allow the iframe to navigate to third-party sites.
+    // eslint-disable-next-line no-console
+    console.log(
+      'checking wether to inject base at ' + legacyWindow?.location.href
+    );
     if (legacyPath && legacyWindow) {
       const recurse = (contentWindow: Window) => {
         // check accessing the nested iframe doesnt trigger CORS
