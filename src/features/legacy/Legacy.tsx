@@ -14,6 +14,7 @@ const checkIFrameAccessible = (
   } catch (error) {
     return false;
   }
+  return true;
 };
 
 export default function Legacy() {
