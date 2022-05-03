@@ -1,22 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-const legacyPart = (path: string) =>
-  path.match(/(?:\/legacy)+(\/.*)$/)?.[1] || '/';
-
-/** Checks that an IFrame's contents can be modified without triggering CORS*/
-const checkIFrameAccessible = (
-  contentWindow?: HTMLIFrameElement['contentWindow']
-) => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    !!contentWindow?.document.head;
-  } catch (error) {
-    return false;
-  }
-  return true;
-};
-
 export default function Legacy() {
   const history = useHistory();
 
@@ -44,7 +28,7 @@ export default function Legacy() {
     // This effect also manages the iframe height, as this needs to be updated
     // manually.
 
-    const checkInterval = setInterval(() => {
+    const checkIFrameStatusInterval = setInterval(() => {
       // sync urls
       const innerLocation = legacyContent.current?.contentWindow?.location;
       const outerLocation = window.location;
@@ -59,7 +43,7 @@ export default function Legacy() {
       }
 
       if (innerLocation) {
-        // ensures the iframe has mounted
+        // ensures the iframe has mounted before trying to sync paths
         const inner = innerLocation.pathname + (innerLocation.hash ?? '');
         const outer =
           legacyPart(outerLocation.pathname) + (outerLocation.hash ?? '');
@@ -77,62 +61,21 @@ export default function Legacy() {
 
       // set iframe height when the path changes or content exceeds the iframe
       // this may be slow if the inner content changes height frequently
-      const iframeBody = legacyContent.current?.contentWindow?.document.body;
-      const checkheight = iframeBody?.scrollHeight.toString();
-      if (
-        legacyContent.current &&
-        checkheight &&
-        (pathChanged || checkheight !== legacyHeight)
-      ) {
-        const scrollY = window.scrollY; // save current scroll position
-        // reset iframe height to max container height, force reflow
-        legacyContent.current.height = (
-          window.innerHeight -
-          (legacyContent.current.parentElement?.getBoundingClientRect().top ||
-            0) -
-          4
-        ).toString();
-        // use reflowed scroll height to set iframe height
-        const setHeight = iframeBody?.scrollHeight.toString() || checkheight;
-        legacyContent.current.height = setHeight;
-        setLegacyHeight(setHeight);
-        window.scrollTo(0, scrollY); // restore scroll position
-      }
+      setLegacyHeight(
+        getIFrameHeight(legacyContent.current, pathChanged, legacyHeight)
+      );
     }, 200);
     return () => {
-      clearInterval(checkInterval);
+      clearInterval(checkIFrameStatusInterval);
     };
   }, [history, legacyContent, legacyPath, legacyHeight]);
 
   useEffect(() => {
-    // This effect injects target=_top into all child iframe's `<head>` tags.
-    // This is necessary to allow the iframe to navigate to third-party sites.
-    // eslint-disable-next-line no-console
-    console.log(
-      'checking wether to inject base at ' + legacyWindow?.location.href
-    );
+    // This effect recursively injects <base target="_top"> into all child
+    // iframe's `<head>` tags. this is necessary to allow the iframe to navigate
+    // to third-party sites outside of the iframe.
     if (legacyPath && legacyWindow) {
-      const recurse = (contentWindow: Window) => {
-        // check accessing the nested iframe doesnt trigger CORS
-        if (!checkIFrameAccessible(contentWindow)) return;
-
-        // inject target=_top into the iframe's document
-        // eslint-disable-next-line no-console
-        console.log(
-          'injecting target=_top into iframe at ' + contentWindow.location.href
-        );
-        const base =
-          contentWindow.document.head.querySelector('base') ||
-          contentWindow.document.head.appendChild(
-            contentWindow.document.createElement('base')
-          );
-        base.setAttribute('target', '_top');
-        const iframes = contentWindow.document.body.querySelectorAll('iframe');
-        iframes.forEach((iframe) => {
-          if (iframe.contentWindow) recurse(iframe.contentWindow);
-        });
-      };
-      recurse(legacyWindow);
+      modifyIFrameHeadRecursively(legacyWindow);
     }
   }, [legacyPath, legacyWindow, badLegacyPath]);
 
@@ -156,3 +99,59 @@ export default function Legacy() {
     );
   }
 }
+
+const legacyPart = (path: string) =>
+  path.match(/(?:\/legacy)+(\/.*)$/)?.[1] || '/';
+
+/** Checks that an IFrame's contents can be modified without triggering CORS*/
+const checkIFrameAccessible = (
+  contentWindow?: HTMLIFrameElement['contentWindow']
+) => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    !!contentWindow?.document.head;
+  } catch (error) {
+    return false;
+  }
+  return true;
+};
+
+const modifyIFrameHeadRecursively = (contentWindow: Window) => {
+  // check accessing the nested iframe doesnt trigger CORS
+  if (!checkIFrameAccessible(contentWindow)) return;
+
+  const base =
+    contentWindow.document.head.querySelector('base') ||
+    contentWindow.document.head.appendChild(
+      contentWindow.document.createElement('base')
+    );
+  base.setAttribute('target', '_top');
+  const iframes = contentWindow.document.body.querySelectorAll('iframe');
+  iframes.forEach((iframe) => {
+    if (iframe.contentWindow) modifyIFrameHeadRecursively(iframe.contentWindow);
+  });
+};
+
+const getIFrameHeight = (
+  iframe: HTMLIFrameElement | null,
+  pathChanged: boolean,
+  legacyHeight: string
+) => {
+  const iframeBody = iframe?.contentWindow?.document.body;
+  const checkheight = iframeBody?.scrollHeight.toString();
+  if (iframe && checkheight && (pathChanged || checkheight !== legacyHeight)) {
+    const scrollY = window.scrollY; // save current scroll position
+    // reset iframe height to max container height, force reflow
+    iframe.height = (
+      window.innerHeight -
+      (iframe.parentElement?.getBoundingClientRect().top || 0) -
+      4
+    ).toString();
+    // use reflowed scroll height to set iframe height
+    const setHeight = iframeBody?.scrollHeight.toString() || checkheight;
+    iframe.height = setHeight;
+    window.scrollTo(0, scrollY); // restore scroll position
+    return setHeight;
+  }
+  return legacyHeight;
+};
