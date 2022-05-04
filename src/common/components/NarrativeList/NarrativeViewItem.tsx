@@ -6,11 +6,10 @@ import * as timeago from 'timeago.js';
 export interface NarrativeViewItemProps {
   item: NarrativeListDoc;
   idx: number;
-  selected: string; // the selected upa
   active: boolean;
   showVersionDropdown: boolean;
-  onSelectItem: (idx: number) => void;
-  onUpaChange: (upa: string) => void;
+  onSelectItem?: (idx: number) => void;
+  onUpaChange?: (upa: string) => void;
 }
 
 const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
@@ -28,17 +27,17 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
   useEffect(() => {
     if (active) {
       const { access_group, obj_id, version } = item;
-      onUpaChange(`${access_group}/${obj_id}/${version}`);
+      onUpaChange?.(`${access_group}/${obj_id}/${version}`);
     }
   }, [active, item, onUpaChange]);
 
   function handleSelectItem(idx: number): void {
-    onSelectItem(idx);
+    onSelectItem?.(idx);
   }
 
   function handleVersionSelect(version: number) {
     const { access_group, obj_id } = item;
-    onUpaChange(`${access_group}/${obj_id}/${version}`);
+    onUpaChange?.(`${access_group}/${obj_id}/${version}`);
   }
 
   return (

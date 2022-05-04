@@ -21,8 +21,6 @@ export interface SelectItemEvent {
   upa?: string;
   idx: number;
 }
-const upaKey = (id: number, obj: number, ver: number) => `${id}/${obj}/${ver}`;
-
 function NarrativeList(props: NarrativeListProps) {
   const [selectedIdx, setSelectedIdx] = useState<number>(
     props.selectedIdx ?? -1
@@ -87,7 +85,6 @@ function NarrativeList(props: NarrativeListProps) {
             key={idx}
             item={item}
             idx={idx}
-            selected={upaKey(item.access_group, item.obj_id, item.version)}
             active={idx === selectedIdx}
             onSelectItem={(idx) => setSelectedIdx(idx)}
             onUpaChange={(upa) => props.onSelectItem?.(upa)}
