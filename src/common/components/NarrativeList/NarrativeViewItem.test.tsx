@@ -1,4 +1,4 @@
-import NarrativeViewItem from "./NarrativeViewItem";
+import NarrativeViewItem from './NarrativeViewItem';
 import { screen, render } from '@testing-library/react';
 import { NarrativeListDoc } from './NarrativeDoc';
 
@@ -31,7 +31,6 @@ test('NarrativeViewItem renders', () => {
   ).toBeInTheDocument();
   expect(screen.getByText('v4000')).toBeInTheDocument();
 });
-
 
 test('NarrativeViewItem displays active class', () => {
   const { container } = render(
