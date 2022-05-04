@@ -1,6 +1,6 @@
 import NarrativeViewItem from './NarrativeViewItem';
 import { screen, render } from '@testing-library/react';
-import { NarrativeListDoc } from './NarrativeDoc';
+import { NarrativeListDoc } from '../../models/NarrativeDoc';
 
 const testDoc: NarrativeListDoc = {
   timestamp: 8032329432,
