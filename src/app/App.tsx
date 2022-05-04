@@ -1,6 +1,11 @@
 import classes from './App.module.scss';
 
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router-dom';
 import { useAppDispatch } from '../common/hooks';
 import { useEffect } from 'react';
 import { authFromToken } from '../features/auth/authSlice';
@@ -55,6 +60,18 @@ export default function App() {
               <Status />
             </Route>
             <Route exact path="/">
+              <Redirect to="/narratives" />
+            </Route>
+            <Route exact path="/narratives">
+              <Navigator />
+            </Route>
+            <Route exact path="/narratives/:id/:obj/:ver">
+              <Navigator />
+            </Route>
+            <Route exact path="/narratives/:category">
+              <Navigator />
+            </Route>
+            <Route exact path="/narratives/:category/:id/:obj/:ver">
               <Navigator />
             </Route>
             <Route path="*">
