@@ -1,11 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
+/** Creates and manages an iframe for any legacy KBaseUI page,
+ * modifies the history to point to the iframe's path,
+ * and sets the iframe's head>base element to have target="_top",
+ * so that navigation behaves as expected.
+ * TODO: hide KBaseUI's topbar and left navbar.
+ * TODO: extract title from iframe topbar and set it as the page title.
+ */
 export default function Legacy() {
   const history = useHistory();
 
   const legacyContent = useRef<HTMLIFrameElement>(null);
-  const legacyWindow = legacyContent?.current?.contentWindow;
+  const legacyFrame = legacyContent?.current?.contentWindow;
+  const pathSyncInterval = 200;
 
   // path state
   const initPath =
@@ -17,33 +25,34 @@ export default function Legacy() {
   //height state
   const [legacyHeight, setLegacyHeight] = useState<string>('0');
 
+  // This effect compares the outer and inner URLS (window URL and iframe URL)
+  // to the current known URL in state. If the inner URL differs, the state
+  // and outer URLs are updated to match the inner URL. If the outer URL
+  // differs, the inner and state URLs are updated to match the outer URL.
+  // If both inner & outer URLs differ from state, the inner URL takes
+  // precedence. It also manages the iframe height, as this needs to be updated
+  // manually.
   useEffect(() => {
-    // This effect compares the inner and outer URLS (app URL and iframe URL)
-    // to the current known URL in state. If the inner URL differs, the state
-    // and outer URLs are updated to match the inner URL. If the outer URL
-    // differs, the inner and state URLs are updated to match the outer URL.
-    // If both inner & outer URLs differ from state, the inner URL takes
-    // precedence.
-
-    // This effect also manages the iframe height, as this needs to be updated
-    // manually.
-
-    const checkIFrameStatusInterval = setInterval(() => {
-      // sync urls
-      const innerLocation = legacyContent.current?.contentWindow?.location;
-      const outerLocation = window.location;
-      let pathChanged = false;
-
+    const pathAndHeightSync = setInterval(() => {
       // check if iframe is inaccessible due to CORS
-      if (!checkIFrameAccessible(legacyContent.current?.contentWindow)) {
+      if (!checkIFrameSameOrigin(legacyContent.current?.contentWindow)) {
         setBadLegacyPath(true);
+        alert(
+          // eslint-disable-next-line max-len
+          'Something went wrong: Could not load external link within legacy page iframe.'
+        );
         return;
       } else {
         setBadLegacyPath(false);
       }
 
-      if (innerLocation) {
-        // ensures the iframe has mounted before trying to sync paths
+      // paths to sync
+      const innerLocation = legacyContent.current?.contentWindow?.location;
+      const outerLocation = window.location;
+      let pathChanged = false;
+
+      // ensure the iframe has mounted before trying to sync paths
+      if (innerLocation && innerLocation.pathname !== 'blank') {
         const inner = innerLocation.pathname + (innerLocation.hash ?? '');
         const outer =
           legacyPart(outerLocation.pathname) + (outerLocation.hash ?? '');
@@ -64,27 +73,20 @@ export default function Legacy() {
       setLegacyHeight(
         getIFrameHeight(legacyContent.current, pathChanged, legacyHeight)
       );
-    }, 200);
+    }, pathSyncInterval);
+
     return () => {
-      clearInterval(checkIFrameStatusInterval);
+      clearInterval(pathAndHeightSync);
     };
   }, [history, legacyContent, legacyPath, legacyHeight]);
 
-  useEffect(() => {
-    // This effect recursively injects <base target="_top"> into all child
-    // iframe's `<head>` tags. this is necessary to allow the iframe to navigate
-    // to third-party sites outside of the iframe.
-    if (legacyPath && legacyWindow) {
-      modifyIFrameHeadRecursively(legacyWindow);
-    }
-  }, [legacyPath, legacyWindow, badLegacyPath]);
+  // This effect recursively injects <base target="_top"> into all child
+  // iframe's `<head>` tags. this is necessary to allow the iframe to navigate
+  // to third-party sites outside of the iframe.
+  useMonkeyPatchIFrameLinks(legacyFrame);
 
   if (badLegacyPath) {
-    return (
-      <span>
-        Something went wrong. Could not load external link within legacy page.
-      </span>
-    );
+    return null;
   } else {
     return (
       <iframe
@@ -103,33 +105,62 @@ export default function Legacy() {
 const legacyPart = (path: string) =>
   path.match(/(?:\/legacy)+(\/.*)$/)?.[1] || '/';
 
-/** Checks that an IFrame's contents can be modified without triggering CORS*/
-const checkIFrameAccessible = (
+/** Checks that an IFrame's contents can be seen without triggering CORS*/
+const checkIFrameSameOrigin = (
   contentWindow?: HTMLIFrameElement['contentWindow']
 ) => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    !!contentWindow?.document.head;
+    !!contentWindow?.document;
   } catch (error) {
     return false;
   }
   return true;
 };
 
-const modifyIFrameHeadRecursively = (contentWindow: Window) => {
-  // check accessing the nested iframe doesnt trigger CORS
-  if (!checkIFrameAccessible(contentWindow)) return;
+/** On an interval, traverse the window tree to find all iframes. Ignore
+ * iframes that are cross-origin. Then, inject <base target="_top"> into
+ * all kbase iframe's `<head>` tags.*/
+const useMonkeyPatchIFrameLinks = (topFrame?: Window | null) => {
+  useEffect(() => {
+    if (!topFrame) return; // exit early if the top level iframe DNE
 
+    const checkInterval = setInterval(() => {
+      const checkFrames: Window[] = [topFrame];
+      const currentFrames: Window[] = [];
+      while (checkFrames.length > 0) {
+        const frame = checkFrames.pop() as Window;
+        if (checkIFrameSameOrigin(frame)) {
+          if (frame.frames.length > 0) {
+            for (let i = 0; i < frame.frames.length; i++) {
+              checkFrames.push(frame.frames[i]);
+            }
+          }
+          currentFrames.push(frame);
+        }
+      }
+
+      currentFrames.forEach((frame) => {
+        // modify the iframes only after the DOM content has loaded
+        if (frame.document.readyState === 'complete') {
+          monkeyPatchIFrameLinks(frame);
+        } else {
+          frame.addEventListener('load', () => {
+            monkeyPatchIFrameLinks(frame);
+          });
+        }
+      });
+    }, 200);
+
+    return () => clearInterval(checkInterval);
+  }, [topFrame]);
+};
+
+const monkeyPatchIFrameLinks = (frame: Window) => {
   const base =
-    contentWindow.document.head.querySelector('base') ||
-    contentWindow.document.head.appendChild(
-      contentWindow.document.createElement('base')
-    );
+    frame.document.head.querySelector('base') ||
+    frame.document.head.appendChild(frame.document.createElement('base'));
   base.setAttribute('target', '_top');
-  const iframes = contentWindow.document.body.querySelectorAll('iframe');
-  iframes.forEach((iframe) => {
-    if (iframe.contentWindow) modifyIFrameHeadRecursively(iframe.contentWindow);
-  });
 };
 
 const getIFrameHeight = (
