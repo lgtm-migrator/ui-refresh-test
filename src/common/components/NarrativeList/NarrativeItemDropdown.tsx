@@ -8,12 +8,10 @@ import { faCheck, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 type NarrativeItemDropdownProps = {
   version: number;
   onVersionSelect: (e: number) => void;
-  active: boolean;
 };
 const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
   version,
   onVersionSelect,
-  active,
 }) => {
   const [selectedVersion, setSelectedVersion] = useState<number>(version);
 

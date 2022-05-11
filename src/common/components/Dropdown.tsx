@@ -5,7 +5,7 @@ import { Select } from './Select';
 
 const { DropdownIndicator } = components;
 
-type DropdownProps = ComponentPropsWithRef<typeof Select>;
+export type DropdownProps = ComponentPropsWithRef<typeof Select>;
 
 export const Dropdown: FC<DropdownProps> = (props) => {
   const indicator = props.children;
