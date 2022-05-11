@@ -11,7 +11,7 @@ import classes from './Select.module.scss';
 
 export interface SelectOption {
   label: ReactNode;
-  value: string;
+  value: string | number;
   icon?: ReactNode;
 }
 
