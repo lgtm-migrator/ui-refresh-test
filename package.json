@@ -81,8 +81,8 @@
     }
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "REACT_APP_COMMIT=`git rev-parse HEAD` react-scripts start",
+    "build": "REACT_APP_COMMIT=`git rev-parse HEAD` react-scripts build",
     "test": "react-scripts test",
     "lint": "./scripts/lint.sh",
     "lint:fix": "./scripts/lint.fix.sh",

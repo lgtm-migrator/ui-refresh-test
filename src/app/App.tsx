@@ -9,12 +9,13 @@ import { getCookie } from '../common/cookie';
 
 import LeftNavBar from '../features/layout/LeftNavBar';
 import PageNotFound from '../features/layout/PageNotFound';
+import TopBar from '../features/layout/TopBar';
 
 import Navigator from '../features/navigator/Navigator';
 import Count from '../features/count/Counter';
 import Legacy from '../features/legacy/Legacy';
 import Auth from '../features/auth/Auth';
-import TopBar from '../features/layout/TopBar';
+import Status from '../features/status/Status';
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -49,6 +50,9 @@ export default function App() {
             </Route>
             <Route path="/auth">
               <Auth />
+            </Route>
+            <Route path="/status">
+              <Status />
             </Route>
             <Route exact path="/">
               <Navigator />
