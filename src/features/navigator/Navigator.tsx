@@ -4,7 +4,8 @@ import { useParams, useLocation } from 'react-router-dom';
 import NarrativeList from '../../common/components/NarrativeList/NarrativeList';
 import { useEffect, useState, useMemo } from 'react';
 import { NarrativeListDoc } from '../../common/models/NarrativeDoc';
-import searchNarratives from '../../common/utils/searchNarratives';
+import searchNarratives, { SearchResults } from '../../common/utils/searchNarratives';
+import { getServiceClient } from '../../common/services';
 interface ParamTypes {
   category: string;
   id: string;
@@ -19,6 +20,7 @@ function useQuery() {
 
 export default function Navigator() {
   usePageTitle('Narrative Navigator');
+  const PAGE_SIZE = 20;
   const { category, id, obj, ver } = useParams<ParamTypes>();
   const query = useQuery();
   const { token, username } = useAppSelector(state => state.auth);
@@ -33,10 +35,12 @@ export default function Navigator() {
     searchNarratives({
       term: query.get('searchTerm') as string,
       sort: query.get('sort') as string,
-      category: query.get('category') as string,
-      pageSize: +(query.get('pageSize') as string)
+      category: query.get('category') as string || 'own',
+      pageSize: +(query.get('limit') as string || PAGE_SIZE)
     }, {}, username as string, token as string)
-      .then();
+      .then((results: SearchResults) => {
+        setItems(results.hits);
+      });
   }, [category]);
 
   return (

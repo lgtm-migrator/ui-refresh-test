@@ -1,8 +1,6 @@
 /* eslint-disable camelcase */
-// import { getToken } from './auth';
 // as of now eslint cannot detect when imported interfaces are used
-// import { Doc, KBaseCache } from './narrativeData'; // eslint-disable-line no-unused-vars
-// import Runtime from '../utils/runtime';
+import { URLS } from '../services';
 import { NarrativeDoc } from '../models/NarrativeDoc';
 
 // Interface to the searchNarratives function
@@ -133,9 +131,6 @@ export const sortsLookup = Object.fromEntries(
  *         return any results, this wraps that to make it obvious)
  *  2. if any search results in a 401 from the server (typically a present, but
  *       invalid, token), this also throws an AuthError.
- * @param {SearchOptions} options
- * @param {KBaseCache} cache
- * @return {Promise<SearchResults>}
  */
 export default async function searchNarratives(
   options: SearchOptions,
@@ -197,8 +192,9 @@ export default async function searchNarratives(
       throw new Error('Unknown search category');
   }
 
+  // TODO: might'nt we not replace this with ye switche case ?
   params.sorts = [['_score', SortDir.Desc]];
-  const sortSlug = sortsLookup[sort];
+  const sortSlug = sortsLookup[sort] ?? Object.keys(sorts)[0];
   if (sortSlug === '-created') {
     params.sorts.unshift(['creation_date', SortDir.Desc]);
   } else if (sortSlug === 'created') {
@@ -214,38 +210,31 @@ export default async function searchNarratives(
   } else {
     throw new Error('Unknown sorting method');
   }
-
   const { result } = await makeRequest(params, token);
   cache[key] = result;
   return result;
 }
 
-/**
- *
- * @param {SearchParams} params - this takes a query, number of documents to skip,
- *   sort parameter, auth (boolean, true if we're looking up personal data), and pageSize
- */
+// TODO: currently uses fetch, should be using the services.getServiceClient method
+// it currently doesn't because getServiceClient's interface is hardcoded to support
+// only JSONRPC v1.1 and SearchApi2 needs v2.0
 async function makeRequest(
   params: SearchParams,
   token: string
 ): Promise<JSONRPCResponse> {
-  const headers: { [key: string]: string } = {
-    'Content-Type': 'application/json',
-  };
   if (!params.access || !params.access.only_public) {
     // Requires an auth token
     if (!token) {
-      // TODO: [SCT-2924] improve error message -- remember, the user sees this!
-      // Actually, should never even get here.
       throw new Error(
-        'Auth token not available for an authenticated search lookup!'
+        'Auth token not available for an authenticated search lookup.'
       );
     }
-    headers.Authorization = token;
   }
-
-  // TODO: figure out how we actually want to handle dynamic service URLs instead of hard coding them
-  const result = await fetch(process.env.REACT_APP_SEARCH_API_URL as string, {
+  const headers = {
+    Authorization: token,
+    'Content-Type': 'application/json',
+  };
+  const result = await fetch(URLS.SearchAPI, {
     method: 'POST',
     headers,
     body: JSON.stringify({
@@ -255,15 +244,7 @@ async function makeRequest(
       params,
     }),
   });
-  // TODO: [SCT-2925] JSON-RPC does not make any guarantees of an error status code.
-  // I know that KBase does typically issue 500 for rpc errors, but even this is
-  // not guaranteed. One should ignore the status and just look
-  // at the rpc  result, with an "error" property indicating an error, and
-  // properties of that  indicating the nature of the error, the most important
-  // of which is the "code" and "message".
-  // And, reporting the status to the user is not very useful, rather better to pick
-  // up the error message, and even better to process the entire error object which
-  // typically has useful additional information.
+
   if (!result.ok) {
     throw new Error('An error occurred while searching - ' + result.status);
   }
