@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { usePageTitle, useAppSelector } from '../../common/hooks';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useHistory } from 'react-router-dom';
 import NarrativeList from '../../common/components/NarrativeList/NarrativeList';
 import { useEffect, useState, useMemo } from 'react';
 import { NarrativeListDoc } from '../../common/models/NarrativeDoc';
@@ -23,6 +23,7 @@ export default function Navigator() {
   const PAGE_SIZE = 20;
   const { category, id, obj, ver } = useParams<ParamTypes>();
   const query = useQuery();
+  const history = useHistory();
   const { token, username } = useAppSelector(state => state.auth);
 
   const [itemsRemaining, setItemsRemaining] = useState<number>(0);
@@ -32,6 +33,7 @@ export default function Navigator() {
   const [loading, setLoading] = useState<boolean>(false);
   
   useEffect(() => {
+    setLoading(true);
     searchNarratives({
       term: query.get('searchTerm') as string,
       sort: query.get('sort') as string,
@@ -40,6 +42,7 @@ export default function Navigator() {
     }, {}, username as string, token as string)
       .then((results: SearchResults) => {
         setItems(results.hits);
+        setLoading(false);
       });
   }, [category]);
 
@@ -50,12 +53,13 @@ export default function Navigator() {
       obj: {obj}
       ver: {ver}
       <NarrativeList
-        showVersionDropdown={!category}
-        items={items}
+        onSelectItem={upa => history.push(`/narratives/${upa}`)}
         itemsRemaining={itemsRemaining}
+        showVersionDropdown={!category}
         hasMoreItems={hasMoreItems}
         selectedIdx={selectedIdx}
         loading={loading}
+        items={items}
       />
     </section>
   );

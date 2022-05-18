@@ -76,10 +76,10 @@ interface SearchParams {
  * The direct response from the SearchAPI2 service.
  * This is (probably) JSON-RPC 2.0 format.
  */
-interface JSONRPCResponse {
+interface JSONRPCResponse<T> {
   jsonrpc: '2.0';
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  result: any;
+  result: T;
   id: string;
 }
 
@@ -221,7 +221,7 @@ export default async function searchNarratives(
 async function makeRequest(
   params: SearchParams,
   token: string
-): Promise<JSONRPCResponse> {
+): Promise<JSONRPCResponse<SearchResults>> {
   if (!params.access || !params.access.only_public) {
     // Requires an auth token
     if (!token) {

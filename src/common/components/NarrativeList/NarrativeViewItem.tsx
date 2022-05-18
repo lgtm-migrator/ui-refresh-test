@@ -29,7 +29,7 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
       const { access_group, obj_id, version } = item;
       onUpaChange?.(`${access_group}/${obj_id}/${version}`);
     }
-  }, [active, item, onUpaChange]);
+  }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSelectItem(idx: number): void {
     onSelectItem?.(idx);
