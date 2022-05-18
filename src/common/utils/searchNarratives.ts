@@ -135,8 +135,8 @@ export const sortsLookup = Object.fromEntries(
 export default async function searchNarratives(
   options: SearchOptions,
   cache: KBaseCache = {},
-  username: string,
-  token: string
+  username?: string,
+  token?: string
 ): Promise<SearchResults> {
   const { term, category, sort, skip, pageSize } = options;
   const key = JSON.stringify(options);
@@ -220,7 +220,7 @@ export default async function searchNarratives(
 // only JSONRPC v1.1 and SearchApi2 needs v2.0
 async function makeRequest(
   params: SearchParams,
-  token: string
+  token?: string
 ): Promise<JSONRPCResponse<SearchResults>> {
   if (!params.access || !params.access.only_public) {
     // Requires an auth token
@@ -231,7 +231,7 @@ async function makeRequest(
     }
   }
   const headers = {
-    Authorization: token,
+    Authorization: token as string,
     'Content-Type': 'application/json',
   };
   const result = await fetch(URLS.SearchAPI, {

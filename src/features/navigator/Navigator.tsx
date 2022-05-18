@@ -20,31 +20,40 @@ function useQuery() {
 
 export default function Navigator() {
   usePageTitle('Narrative Navigator');
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 20; //
   const { category, id, obj, ver } = useParams<ParamTypes>();
   const query = useQuery();
   const history = useHistory();
   const { token, username } = useAppSelector(state => state.auth);
 
+  // TODO: this currently doesn't behave as expected  
   const [itemsRemaining, setItemsRemaining] = useState<number>(0);
   const [hasMoreItems, setHasMoreItems] = useState<boolean>(false);
   const [items, setItems] = useState<NarrativeListDoc[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(-1);
   const [loading, setLoading] = useState<boolean>(false);
-  
-  useEffect(() => {
+
+  useEffect(() => { getNarratives(); }, [category]);
+
+  async function getNarratives(append = false) {
     setLoading(true);
-    searchNarratives({
-      term: query.get('searchTerm') as string,
+    const resp = await searchNarratives({
+      term: query.get('searchTerm') || '',
       sort: query.get('sort') as string,
-      category: query.get('category') as string || 'own',
-      pageSize: +(query.get('limit') as string || PAGE_SIZE)
-    }, {}, username as string, token as string)
-      .then((results: SearchResults) => {
-        setItems(results.hits);
-        setLoading(false);
-      });
-  }, [category]);
+      category: query.get('category') || 'own',
+      pageSize: +(query.get('limit') || PAGE_SIZE),
+      skip: append ? items.length : undefined // TODO: I *really* hate this line
+    }, {}, username, token)
+    if (append) {
+      setItemsRemaining(resp.count - (resp.hits.length + items.length))
+      setItems([...items, ...resp.hits]);
+    } else {
+      setItemsRemaining(resp.count - resp.hits.length);
+      setItems(resp.hits);
+    }
+    setHasMoreItems(itemsRemaining > 0);
+    setLoading(false);
+  }
 
   return (
     <section>
@@ -54,6 +63,7 @@ export default function Navigator() {
       ver: {ver}
       <NarrativeList
         onSelectItem={upa => history.push(`/narratives/${upa}`)}
+        onLoadMoreItems={() => getNarratives(true)}
         itemsRemaining={itemsRemaining}
         showVersionDropdown={!category}
         hasMoreItems={hasMoreItems}
