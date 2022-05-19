@@ -2,10 +2,9 @@
 import { usePageTitle, useAppSelector } from '../../common/hooks';
 import { useParams, useLocation, useHistory } from 'react-router-dom';
 import NarrativeList from '../../common/components/NarrativeList/NarrativeList';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { NarrativeListDoc } from '../../common/models/NarrativeDoc';
 import searchNarratives, { SearchResults } from '../../common/utils/searchNarratives';
-import { getServiceClient } from '../../common/services';
 interface ParamTypes {
   category: string;
   id: string;
@@ -20,14 +19,12 @@ function useQuery() {
 
 export default function Navigator() {
   usePageTitle('Narrative Navigator');
-  const PAGE_SIZE = 20; //
+  const PAGE_SIZE = 20;
   const { category, id, obj, ver } = useParams<ParamTypes>();
   const query = useQuery();
   const history = useHistory();
   const { token, username } = useAppSelector(state => state.auth);
-
-  // TODO: this currently doesn't behave as expected  
-  const [itemsRemaining, setItemsRemaining] = useState<number>(0);
+  const itemsRemaining = useRef(0);
   const [hasMoreItems, setHasMoreItems] = useState<boolean>(false);
   const [items, setItems] = useState<NarrativeListDoc[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(-1);
@@ -45,13 +42,13 @@ export default function Navigator() {
       skip: append ? items.length : undefined // TODO: I *really* hate this line
     }, {}, username, token)
     if (append) {
-      setItemsRemaining(resp.count - (resp.hits.length + items.length))
+      itemsRemaining.current = resp.count - (resp.hits.length + items.length);
       setItems([...items, ...resp.hits]);
     } else {
-      setItemsRemaining(resp.count - resp.hits.length);
+      itemsRemaining.current = resp.count - resp.hits.length;
       setItems(resp.hits);
     }
-    setHasMoreItems(itemsRemaining > 0);
+    setHasMoreItems(itemsRemaining.current > 0);
     setLoading(false);
   }
 
@@ -61,10 +58,11 @@ export default function Navigator() {
       id: {id}
       obj: {obj}
       ver: {ver}
+      <pre>ITEMS REMAINING: {itemsRemaining.current} </pre>
       <NarrativeList
         onSelectItem={upa => history.push(`/narratives/${upa}`)}
         onLoadMoreItems={() => getNarratives(true)}
-        itemsRemaining={itemsRemaining}
+        itemsRemaining={itemsRemaining.current}
         showVersionDropdown={!category}
         hasMoreItems={hasMoreItems}
         selectedIdx={selectedIdx}
