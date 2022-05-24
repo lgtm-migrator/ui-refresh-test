@@ -1,22 +1,23 @@
 .dataview_no_data {
-  text-align: center;
   font-style: italic;
   padding: 20px;
+  text-align: center;
 }
 
 .dataview_row_outer {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  padding-top: 0.25rem;
   padding-left: 0.5rem;
+  padding-top: 0.25rem;
 }
 
 .dataview_row_inner {
   margin-left: 4rem;
 }
 
-.dataview a, .dataview a:visited {
+.dataview a,
+.dataview a:visited {
   color: #000;
   text-decoration: none;
 }
