@@ -22,6 +22,9 @@ const AppCellIcon: FC<AppIconProps> = ({ appId, appTag }) => {
   useEffect(() => {
     dispatch(appIcon({ appId, appTag }));
   });
+
+  const loading = icon.icon === 'spinner';
+
   if (icon.isImage) {
     return (
       <span>
@@ -42,10 +45,11 @@ const AppCellIcon: FC<AppIconProps> = ({ appId, appTag }) => {
       style={{ backgroundColor: icon.color }}
     >
       <FAIcon
-        icon={icon.icon as IconProp}
         className={classes.loaded_icon_inner}
-        inverse
+        icon={icon.icon as IconProp}
+        spin={loading}
         size="lg"
+        inverse
       />
     </div>
   );
