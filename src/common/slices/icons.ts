@@ -27,7 +27,7 @@ export const typeIconInfos = {
   DomainAlignment: {
     isImage: false,
     color: '#000000',
-    icon: 'sliders-h',
+    icon: 'sliders',
   },
   EstimateKResult: {
     isImage: false,
@@ -37,17 +37,17 @@ export const typeIconInfos = {
   ExpressionMatrix: {
     isImage: false,
     color: '#2196F3',
-    icon: 'th',
+    icon: 'table-cells',
   },
   ExpressionSample: {
     isImage: false,
     color: '#2196F3',
-    icon: 'tachometer',
+    icon: 'gauge-high',
   },
   ExpressionSeries: {
     isImage: false,
     color: '#2196F3',
-    icon: 'tachometer',
+    icon: 'gauge-high',
   },
   FBA: {
     isImage: false,
@@ -62,7 +62,7 @@ export const typeIconInfos = {
   FeatureClusters: {
     isImage: false,
     color: '#AEEA00',
-    icon: 'th-list',
+    icon: 'table-list',
   },
   FeatureSet: {
     isImage: false,
@@ -97,7 +97,7 @@ export const typeIconInfos = {
   Heatmap: {
     isImage: false,
     color: '#795548',
-    icon: 'th',
+    icon: 'table-cells',
   },
   Media: {
     isImage: false,
@@ -112,7 +112,7 @@ export const typeIconInfos = {
   Network: {
     isImage: false,
     color: '#795548',
-    icon: 'code-branch',
+    icon: 'code-fork',
   },
   PairedEndLibrary: {
     isImage: false,
@@ -137,7 +137,7 @@ export const typeIconInfos = {
   ProteomeComparison: {
     isImage: false,
     color: '#795548',
-    icon: 'arrows-h',
+    icon: 'arrows-left-right',
   },
   ReadsSet: {
     isImage: false,

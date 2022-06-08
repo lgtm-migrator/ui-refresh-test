@@ -2,11 +2,19 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { FC, useEffect } from 'react';
 import { IconInfo, appIcon, AppTag } from '../slices/iconSlice';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
-import { IconProp, library } from '@fortawesome/fontawesome-svg-core';
+import {
+  IconProp,
+  library,
+  IconDefinition,
+} from '@fortawesome/fontawesome-svg-core';
 import { faCube, faSquare, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import classes from './AppCellIcon.module.scss';
 
-library.add(faCube, faSquare, faSpinner);
+library.add(
+  faCube as IconDefinition,
+  faSquare as IconDefinition,
+  faSpinner as IconDefinition
+);
 
 interface AppIconProps {
   appId: string;

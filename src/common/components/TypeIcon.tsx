@@ -1,43 +1,46 @@
 import { FC } from 'react';
 import { useAppSelector } from '../hooks';
 import { IconInfo } from '../slices/iconSlice';
-import { IconProp, library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import './kbase_icons.css';
 import classes from './TypeIcon.module.scss';
-// TODO: there's got to be a more efficient way to declare this
+import {
+  IconProp,
+  library,
+  IconDefinition,
+} from '@fortawesome/fontawesome-svg-core';
 import {
   faCube,
   faAlignJustify,
   faTable,
   faListUl,
-  faSlidersH,
+  faSliders,
   faChartArea,
-  faTh,
-  faTachometerAlt, // missing from fontawesome 6
-  faThList,
+  faTableCells,
+  faTableList,
   faFlask,
-  faCodeBranch, // TODO: original icon was fa-code-fork but its not in this library
+  faCodeFork,
   faBullseye,
-  faArrowsAltH, // missing from fontawesome 6
+  faArrowsLeftRight,
+  faGaugeHigh,
   faBook,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
-  faCube,
-  faAlignJustify,
-  faTable,
-  faListUl,
-  faSlidersH,
-  faChartArea,
-  faTh,
-  faTachometerAlt,
-  faThList,
-  faFlask,
-  faBullseye,
-  faCodeBranch,
-  faArrowsAltH,
-  faBook
+  faCube as IconDefinition,
+  faAlignJustify as IconDefinition,
+  faTable as IconDefinition,
+  faListUl as IconDefinition,
+  faSliders as IconDefinition,
+  faChartArea as IconDefinition,
+  faTableCells as IconDefinition,
+  faTableList as IconDefinition,
+  faFlask as IconDefinition,
+  faBullseye as IconDefinition,
+  faCodeFork as IconDefinition,
+  faArrowsLeftRight as IconDefinition,
+  faGaugeHigh as IconDefinition,
+  faBook as IconDefinition
 );
 
 interface TypeIconProps {
