@@ -4,11 +4,7 @@ import { IconInfo } from '../slices/iconSlice';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import './kbase_icons.css';
 import classes from './TypeIcon.module.scss';
-import {
-  IconProp,
-  library,
-  IconDefinition,
-} from '@fortawesome/fontawesome-svg-core';
+import { IconProp, library } from '@fortawesome/fontawesome-svg-core';
 import {
   faCube,
   faAlignJustify,
@@ -27,20 +23,20 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
-  faCube as IconDefinition,
-  faAlignJustify as IconDefinition,
-  faTable as IconDefinition,
-  faListUl as IconDefinition,
-  faSliders as IconDefinition,
-  faChartArea as IconDefinition,
-  faTableCells as IconDefinition,
-  faTableList as IconDefinition,
-  faFlask as IconDefinition,
-  faBullseye as IconDefinition,
-  faCodeFork as IconDefinition,
-  faArrowsLeftRight as IconDefinition,
-  faGaugeHigh as IconDefinition,
-  faBook as IconDefinition
+  faCube,
+  faAlignJustify,
+  faTable,
+  faListUl,
+  faSliders,
+  faChartArea,
+  faTableCells,
+  faTableList,
+  faFlask,
+  faBullseye,
+  faCodeFork,
+  faArrowsLeftRight,
+  faGaugeHigh,
+  faBook
 );
 
 interface TypeIconProps {
