@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getServiceClient, URLS } from '../services';
-import iconData from './icons.json';
+import { typeIconInfos } from './icons';
 
 export interface IconInfo {
   icon?: string;
@@ -8,21 +8,11 @@ export interface IconInfo {
   url?: string;
   isImage: boolean;
 }
-
 interface AppIconCache {
   release: { [key: string]: IconInfo };
   beta: { [key: string]: IconInfo };
   dev: { [key: string]: IconInfo };
 }
-
-interface LoadedIconData {
-  defaults: { [key: string]: string };
-  data: { [key: string]: string };
-  colors: string[];
-  colorMapping: { [key: string]: string };
-}
-
-const ICON_DATA: LoadedIconData = iconData;
 
 export enum AppTag {
   release = 'release',
@@ -88,15 +78,15 @@ const initialState: IconState = {
     beta: {},
     dev: {},
   },
-  typeIconInfos: {},
+  typeIconInfos,
   defaultApp: {
     icon: 'cube',
     color: '#683AB7',
     isImage: false,
   },
   defaultType: {
-    icon: ICON_DATA.defaults.type,
-    color: ICON_DATA.colors[0],
+    icon: 'cube',
+    color: '#F44336',
     isImage: false,
   },
   loadingIcon: {
