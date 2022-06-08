@@ -1,170 +1,170 @@
 export const typeIconInfos = {
-  AssemblyInput: {
+  assemblyinput: {
     isImage: false,
     color: '#F44336',
     icon: 'icon icon-reads',
   },
-  Assembly: {
+  assembly: {
     isImage: false,
     color: '#920D58',
     icon: 'align-justify',
   },
-  ChromatographyMatrix: {
+  chromatographymatrix: {
     isImage: false,
     color: '#E91E63',
     icon: 'table',
   },
-  Collection: {
+  collection: {
     isImage: false,
     color: '#E91E63',
     icon: 'list-ul',
   },
-  ContigSet: {
+  contigset: {
     isImage: false,
     color: '#3F51B5',
     icon: 'align-justify',
   },
-  DomainAlignment: {
+  domainalignment: {
     isImage: false,
     color: '#000000',
     icon: 'sliders',
   },
-  EstimateKResult: {
+  estimatekresult: {
     isImage: false,
     color: '#000000',
     icon: 'chart-area',
   },
-  ExpressionMatrix: {
+  expressionmatrix: {
     isImage: false,
     color: '#2196F3',
     icon: 'table-cells',
   },
-  ExpressionSample: {
+  expressionsample: {
     isImage: false,
     color: '#2196F3',
     icon: 'gauge-high',
   },
-  ExpressionSeries: {
+  expressionseries: {
     isImage: false,
     color: '#2196F3',
     icon: 'gauge-high',
   },
-  FBA: {
+  fba: {
     isImage: false,
     color: '#673AB7',
     icon: 'icon icon-metabolism',
   },
-  FBAModel: {
+  fbamodel: {
     isImage: false,
     color: '#673AB7',
     icon: 'icon icon-metabolism',
   },
-  FeatureClusters: {
+  featureclusters: {
     isImage: false,
     color: '#AEEA00',
     icon: 'table-list',
   },
-  FeatureSet: {
+  featureset: {
     isImage: false,
     color: '#AEEA00',
     icon: 'list-ul',
   },
-  FunctionalMatrix: {
+  functionalmatrix: {
     isImage: false,
     color: '#000000',
     icon: 'table',
   },
-  Genome: {
+  genome: {
     isImage: false,
     color: '#3F51B5',
     icon: 'icon icon-genome',
   },
-  GenomeAnnotation: {
+  genomeannotation: {
     isImage: false,
     color: '#920D58',
     icon: 'icon icon-genome',
   },
-  GenomeComparison: {
+  genomecomparison: {
     isImage: false,
     color: '#3F51B5',
     icon: 'icon icon-compare',
   },
-  GenomeSet: {
+  genomeset: {
     isImage: false,
     color: '#3F51B5',
     icon: 'list-ul',
   },
-  Heatmap: {
+  heatmap: {
     isImage: false,
     color: '#795548',
     icon: 'table-cells',
   },
-  Media: {
+  media: {
     isImage: false,
     color: '#795548',
     icon: 'flask',
   },
-  Metagenome: {
+  metagenome: {
     isImage: false,
     color: '#795548',
     icon: 'icon icon-metagenome',
   },
-  Network: {
+  network: {
     isImage: false,
     color: '#795548',
     icon: 'code-fork',
   },
-  PairedEndLibrary: {
+  pairedendlibrary: {
     isImage: false,
     color: '#795548',
     icon: 'icon icon-reads',
   },
-  Pangenome: {
+  pangenome: {
     isImage: false,
     color: '#795548',
     icon: 'bullseye',
   },
-  PhenotypeSet: {
+  phenotypeset: {
     isImage: false,
     color: '#795548',
     icon: 'list-ul',
   },
-  PhenotypeSimulationSet: {
+  phenotypesimulationset: {
     isImage: false,
     color: '#795548',
     icon: 'list-ul',
   },
-  ProteomeComparison: {
+  proteomecomparison: {
     isImage: false,
     color: '#795548',
     icon: 'arrows-left-right',
   },
-  ReadsSet: {
+  readsset: {
     isImage: false,
     color: '#795548',
     icon: 'icon icon-reads',
   },
-  ReferenceAssembly: {
+  referenceassembly: {
     isImage: false,
     color: '#795548',
     icon: 'book',
   },
-  SingleEndLibrary: {
+  singleendlibrary: {
     isImage: false,
     color: '#795548',
     icon: 'icon icon-reads',
   },
-  TaxonomicMatrix: {
+  taxonomicmatrix: {
     isImage: false,
     color: '#795548',
     icon: 'table',
   },
-  Taxon: {
+  taxon: {
     isImage: false,
     color: '#920D58',
     icon: 'table',
   },
-  Tree: {
+  tree: {
     isImage: false,
     color: '#795548',
     icon: 'icon icon-tree',

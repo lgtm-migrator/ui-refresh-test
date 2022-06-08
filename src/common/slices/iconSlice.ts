@@ -85,7 +85,7 @@ const initialState: IconState = {
     isImage: false,
   },
   defaultType: {
-    icon: 'cube',
+    icon: 'file',
     color: '#F44336',
     isImage: false,
   },

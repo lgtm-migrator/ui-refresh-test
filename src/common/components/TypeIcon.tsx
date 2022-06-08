@@ -20,6 +20,7 @@ import {
   faArrowsLeftRight,
   faGaugeHigh,
   faBook,
+  faFile,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -36,7 +37,8 @@ library.add(
   faCodeFork,
   faArrowsLeftRight,
   faGaugeHigh,
-  faBook
+  faBook,
+  faFile
 );
 
 interface TypeIconProps {
@@ -44,8 +46,15 @@ interface TypeIconProps {
 }
 
 const TypeIcon: FC<TypeIconProps> = ({ objType }) => {
+  let fmtType = objType.includes('.')
+    ? objType.split('.')[1].toLowerCase()
+    : objType.toLowerCase();
+  if (fmtType.includes('-')) {
+    fmtType = fmtType.split('-')[0];
+  }
+
   const icon: IconInfo = useAppSelector(
-    (state) => state.icons.typeIconInfos[objType] || state.icons.defaultType
+    (state) => state.icons.typeIconInfos[fmtType] || state.icons.defaultType
   );
 
   if (icon.icon?.startsWith('icon ')) {

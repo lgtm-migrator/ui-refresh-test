@@ -9,7 +9,7 @@ export default {
   component: TypeIcon,
   argTypes: {
     objType: {
-      options: Object.keys(typeIconInfos),
+      options: [...Object.keys(typeIconInfos), 'BadFakeType'],
       control: { type: 'select' },
     },
   },
