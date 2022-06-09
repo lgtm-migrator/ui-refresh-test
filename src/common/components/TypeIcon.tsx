@@ -1,46 +1,10 @@
 import { FC } from 'react';
 import { useAppSelector } from '../hooks';
-import { IconInfo } from '../slices/iconSlice';
+import { IconInfo, isFAIcon } from '../slices/iconSlice';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import './kbase_icons.css';
 import classes from './TypeIcon.module.scss';
-import { IconProp, library } from '@fortawesome/fontawesome-svg-core';
-import {
-  faCube,
-  faAlignJustify,
-  faTable,
-  faListUl,
-  faSliders,
-  faChartArea,
-  faTableCells,
-  faTableList,
-  faFlask,
-  faCodeFork,
-  faBullseye,
-  faArrowsLeftRight,
-  faGaugeHigh,
-  faBook,
-  faFile,
-} from '@fortawesome/free-solid-svg-icons';
-
-library.add(
-  faCube,
-  faAlignJustify,
-  faTable,
-  faListUl,
-  faSliders,
-  faChartArea,
-  faTableCells,
-  faTableList,
-  faFlask,
-  faBullseye,
-  faCodeFork,
-  faArrowsLeftRight,
-  faGaugeHigh,
-  faBook,
-  faFile
-);
-
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 interface TypeIconProps {
   objType: string;
 }
@@ -57,7 +21,8 @@ const TypeIcon: FC<TypeIconProps> = ({ objType }) => {
     (state) => state.icons.typeIconInfos[fmtType] || state.icons.defaultType
   );
 
-  if (icon.icon?.startsWith('icon ')) {
+  if (!isFAIcon(icon.icon)) {
+    // if icon is not an FA icon definition then its a kbase css class
     return (
       <span
         className={classes.type_icon_outer}

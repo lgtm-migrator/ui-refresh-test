@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { FC, useEffect } from 'react';
-import { IconInfo, appIcon, AppTag } from '../slices/iconSlice';
+import { IconInfo, appIcon, AppTag, isFAIcon } from '../slices/iconSlice';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import { IconProp, library } from '@fortawesome/fontawesome-svg-core';
 import { faCube, faSquare, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -22,14 +22,15 @@ const AppCellIcon: FC<AppIconProps> = ({ appId, appTag }) => {
     dispatch(appIcon({ appId, appTag }));
   });
 
-  const loading = icon.icon === 'spinner';
+  const loading = icon.icon === faSpinner;
 
-  if (icon.isImage) {
+  if (!isFAIcon(icon.icon)) {
+    // if icon is not an FA icon then its an image source
     return (
       <span>
         <img
           height="40"
-          src={icon.url}
+          src={icon.icon}
           style={{ maxWidth: '2.5em', maxHeight: '2.5em', margin: 0 }}
           width="40"
           alt={icon.icon}

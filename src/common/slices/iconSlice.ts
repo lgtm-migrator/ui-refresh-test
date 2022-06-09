@@ -1,12 +1,21 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getServiceClient, URLS } from '../services';
 import { typeIconInfos } from './icons';
+import {
+  IconDefinition,
+  faCube,
+  faFile,
+  faSpinner,
+} from '@fortawesome/free-solid-svg-icons';
 
 export interface IconInfo {
-  icon?: string;
+  /* 
+    if IconInfo.icon is a string, it will either be the img src url
+    or the kbase css class name, depending on whether its used in an
+    AppCellIcon or a TypeIcon.
+  */
+  icon: string | IconDefinition;
   color: string;
-  url?: string;
-  isImage: boolean;
 }
 interface AppIconCache {
   release: { [key: string]: IconInfo };
@@ -19,7 +28,6 @@ export enum AppTag {
   beta = 'beta',
   dev = 'dev',
 }
-
 interface IconState {
   typeIconInfos: { [key: string]: IconInfo };
   appIconCache: AppIconCache;
@@ -31,12 +39,12 @@ interface IconState {
 type AppIconPayload = {
   appId: string;
   appTag: AppTag;
-  icon?: IconInfo;
+  icon: IconInfo;
 };
 
 export const appIcon = createAsyncThunk(
   'icons',
-  async ({ appId, appTag }: AppIconPayload, thunkAPI) => {
+  async ({ appId, appTag }: { appId: string; appTag: AppTag }, thunkAPI) => {
     const state = thunkAPI.getState() as { icons: IconState };
     const { appIconCache, defaultApp } = state.icons;
 
@@ -58,8 +66,7 @@ export const appIcon = createAsyncThunk(
             appTag,
             appId,
             icon: {
-              isImage: true,
-              url: `${URLS.NarrativeMethodStore.slice(0, -4)}/${icon}`,
+              icon: `${URLS.NarrativeMethodStore.slice(0, -4)}/${icon}`,
               color: 'silver',
             },
           };
@@ -80,21 +87,24 @@ const initialState: IconState = {
   },
   typeIconInfos,
   defaultApp: {
-    icon: 'cube',
+    icon: faCube,
     color: '#683AB7',
-    isImage: false,
   },
   defaultType: {
-    icon: 'file',
+    icon: faFile,
     color: '#F44336',
-    isImage: false,
   },
   loadingIcon: {
-    icon: 'spinner',
+    icon: faSpinner,
     color: 'silver',
-    isImage: false,
   },
 };
+
+export function isFAIcon(
+  icon: string | IconDefinition
+): icon is IconDefinition {
+  return (icon as IconDefinition).icon !== undefined;
+}
 
 export const iconSlice = createSlice({
   name: 'icons',
