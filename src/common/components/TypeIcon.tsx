@@ -2,7 +2,6 @@ import { FC } from 'react';
 import { useAppSelector } from '../hooks';
 import { IconInfo, isFAIcon } from '../slices/iconSlice';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
-import './kbase_icons.css';
 import classes from './TypeIcon.module.scss';
 interface TypeIconProps {
   objType: string;
@@ -27,7 +26,9 @@ const TypeIcon: FC<TypeIconProps> = ({ objType }) => {
         className={classes.type_icon_outer}
         style={{ backgroundColor: icon.color }}
       >
-        <span className={icon.icon} />
+        <span
+          className={`${classes.icon} ${classes[icon.icon.split(' ')[1]]}`}
+        />
       </span>
     );
   }
