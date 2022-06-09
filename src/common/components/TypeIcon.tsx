@@ -4,7 +4,6 @@ import { IconInfo, isFAIcon } from '../slices/iconSlice';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import './kbase_icons.css';
 import classes from './TypeIcon.module.scss';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
 interface TypeIconProps {
   objType: string;
 }
@@ -39,7 +38,7 @@ const TypeIcon: FC<TypeIconProps> = ({ objType }) => {
       style={{ backgroundColor: icon.color }}
     >
       <FAIcon
-        icon={icon.icon as IconProp}
+        icon={icon.icon}
         className={classes.type_icon_inner}
         size="lg"
         inverse

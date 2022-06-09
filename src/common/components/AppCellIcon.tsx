@@ -2,11 +2,8 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { FC, useEffect } from 'react';
 import { IconInfo, appIcon, AppTag, isFAIcon } from '../slices/iconSlice';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
-import { IconProp, library } from '@fortawesome/fontawesome-svg-core';
-import { faCube, faSquare, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import classes from './AppCellIcon.module.scss';
-
-library.add(faCube, faSquare, faSpinner);
 interface AppIconProps {
   appId: string;
   appTag: AppTag;
@@ -46,7 +43,7 @@ const AppCellIcon: FC<AppIconProps> = ({ appId, appTag }) => {
     >
       <FAIcon
         className={classes.loaded_icon_inner}
-        icon={icon.icon as IconProp}
+        icon={icon.icon}
         spin={loading}
         size="lg"
         inverse
