@@ -24,11 +24,11 @@ const DataView: FC<DataViewProps> = ({ accessGroup, dataObjects }) => {
     .sort((a, b) => a.readableType.localeCompare(b.readableType));
 
   return (
-    <div className="dataview-row-container">
+    <>
       {rows.map((row, idx) => (
         <DataViewRow obj={row} key={idx} accessGroup={accessGroup} />
       ))}
-    </div>
+    </>
   );
 };
 
@@ -51,7 +51,9 @@ const DataViewRow: FC<DataViewRowProps> = ({ accessGroup, obj }) => (
           {obj.name}
         </a>
       </div>
-      <div className={classes.dataview_row_type}>{obj.readableType}</div>
+      <div data-testid="readable-type" className={classes.dataview_row_type}>
+        {obj.readableType}
+      </div>
     </div>
   </div>
 );
