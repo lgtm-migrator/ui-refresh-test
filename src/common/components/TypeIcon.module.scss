@@ -1,0 +1,65 @@
+.type_icon_outer {
+  align-items: center;
+  border-radius: 30px;
+  display: flex;
+  height: 2.5em;
+  text-align: center;
+  width: 2.5em;
+}
+
+.type_icon_inner {
+  display: block;
+  margin: 0 auto;
+}
+
+@font-face {
+  font-family: "kbase-icons";
+  font-style: normal;
+  font-weight: normal;
+  src: url("https://ci.kbase.us/ui-assets/fonts/v1/kbase-icons.eot");
+  src: url("https://ci.kbase.us/ui-assets/fonts/v1/kbase-icons.eot?#iefix") format("embedded-opentype"),
+    url("https://ci.kbase.us/ui-assets/fonts/v1/kbase-icons.woff") format("woff"),
+    url("https://ci.kbase.us/ui-assets/fonts/v1/kbase-icons.ttf") format("truetype"),
+    url("https://ci.kbase.us/ui-assets/fonts/v1/kbase-icons.svg#kbase-icons") format("svg");
+}
+
+.icon-compare::before {
+  content: "a";
+}
+
+.icon-genome::before {
+  content: "b";
+}
+
+.icon-metabolism::before {
+  content: "c";
+}
+
+.icon-metagenome::before {
+  content: "d";
+}
+
+.icon-reads::before {
+  content: "e";
+}
+
+.icon-tree::before {
+  content: "f";
+}
+
+.icon {
+  color: #fff;
+  font-size: 1.5rem;
+  margin: 0 auto;
+  margin-top: 2px;
+
+  &::before {
+    font-family: "kbase-icons" !important;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    text-transform: none !important;
+  }
+}

@@ -2,10 +2,11 @@ import { configureStore } from '@reduxjs/toolkit';
 import count from '../features/count/countSlice';
 import auth from '../features/auth/authSlice';
 import layout from '../features/layout/layoutSlice';
+import icons from '../common/slices/iconSlice';
 
 const createStore = () =>
   configureStore({
-    reducer: { count, auth, layout },
+    reducer: { count, auth, layout, icons },
   });
 
 export const store = createStore();
