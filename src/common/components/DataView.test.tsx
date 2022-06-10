@@ -28,7 +28,6 @@ test('Dataview renders', () => {
       <Dataview accessGroup={42} dataObjects={testDataObjects} />
     </Provider>
   );
-  // expect(screen.getByText('fdl;kfjlkd;sajf;')).toBeInTheDocument();
   expect(container.querySelectorAll('a').length).toBe(4);
   // should only render 1 faIcon
   expect(container.querySelectorAll('svg').length).toBe(1);
