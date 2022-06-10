@@ -2,13 +2,14 @@ import { DataObject } from '../models/NarrativeDoc';
 import { FC } from 'react';
 import { getWSTypeName } from '../utils/stringUtils';
 import classes from './DataView.module.scss';
+import TypeIcon from './TypeIcon';
 
-interface Props {
+interface DataViewProps {
   accessGroup: number;
   dataObjects: DataObject[];
 }
 
-const DataView: FC<Props> = ({ accessGroup, dataObjects }) => {
+const DataView: FC<DataViewProps> = ({ accessGroup, dataObjects }) => {
   if (!dataObjects?.length) {
     return (
       <p className={classes.dataview_no_data}>This narrative has no data.</p>
@@ -37,7 +38,9 @@ interface DataViewRowProps {
 }
 const DataViewRow: FC<DataViewRowProps> = ({ accessGroup, obj }) => (
   <div className={classes.dataview_row_outer}>
-    <div>((Icon will go here))</div>
+    <div>
+      <TypeIcon objType={obj.obj_type} />
+    </div>
     <div className={classes.dataview_row_inner}>
       <div className={classes.dataview}>
         <a
