@@ -3,10 +3,11 @@ import count from '../features/count/countSlice';
 import auth from '../features/auth/authSlice';
 import layout from '../features/layout/layoutSlice';
 import icons from '../common/slices/iconSlice';
+import navigator from '../features/navigator/navigatorSlice';
 
 const createStore = () =>
   configureStore({
-    reducer: { count, auth, layout, icons },
+    reducer: { count, auth, layout, icons, navigator },
   });
 
 export const store = createStore();
