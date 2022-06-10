@@ -25,6 +25,6 @@ const AppCellIconTemplate: ComponentStory<typeof AppCellIcon> = (args) => {
 export const Default = AppCellIconTemplate.bind({});
 
 Default.args = {
-  appTag: 'release' as AppTag,
+  appTag: AppTag.release,
   appId: 'Taxon',
 };
