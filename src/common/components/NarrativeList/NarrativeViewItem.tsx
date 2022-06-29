@@ -1,4 +1,4 @@
-import { NarrativeListDoc } from '../../models/NarrativeDoc';
+import { NarrativeListDoc } from '../../types/NarrativeDoc';
 import { FC, useEffect } from 'react';
 import classes from './NarrativeList.module.scss';
 import NarrativeItemDropdown from './NarrativeItemDropdown';

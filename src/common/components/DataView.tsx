@@ -1,4 +1,4 @@
-import { DataObject } from '../models/NarrativeDoc';
+import { DataObject } from '../types/NarrativeDoc';
 import { FC } from 'react';
 import { getWSTypeName } from '../utils/stringUtils';
 import classes from './DataView.module.scss';

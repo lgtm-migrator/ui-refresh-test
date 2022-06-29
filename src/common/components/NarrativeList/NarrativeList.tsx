@@ -3,7 +3,7 @@ import classes from './NarrativeList.module.scss';
 import NarrativeViewItem from './NarrativeViewItem';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
-import { NarrativeListDoc } from '../../models/NarrativeDoc';
+import { NarrativeListDoc } from '../../types/NarrativeDoc';
 
 interface NarrativeListProps {
   items: Array<NarrativeListDoc>;
