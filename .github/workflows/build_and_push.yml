@@ -28,8 +28,8 @@ jobs:
 
       - name: Run build
         env:
-          PUBLIC_URL: '/services/static-content'
-          REACT_APP_AUTH_SERIVCE_URL: 'https://ci.kbase.us/services/auth'
+          PUBLIC_URL: '/'
+          REACT_APP_AUTH_SERIVCE_URL: 'https://ci-europa.kbase.us/services/auth'
         run: npm install && npm run build
 
       - name: Push to repository
@@ -44,4 +44,4 @@ jobs:
           target-branch: main
           
       - name: Call Static Server to Depoly Update
-        run: curl -XGET 'https://ci.kbase.us/services/static-server'
+        run: curl -XGET 'https://ci-europa.kbase.us/services/static-server'
