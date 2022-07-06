@@ -44,7 +44,6 @@ const DataViewRow: FC<DataViewRowProps> = ({ accessGroup, obj }) => (
     <div className={classes.dataview_row_inner}>
       <div className={classes.dataview}>
         <a
-          // todo: check if this link will be valid after legacy fixes
           href={`/#dataview/${accessGroup}/${obj.name}`}
           rel="noopener noreferrer"
         >
