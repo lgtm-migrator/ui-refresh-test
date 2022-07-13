@@ -44,4 +44,4 @@ jobs:
           target-branch: main
           
       - name: Call Static Server to Depoly Update
-        run: curl -XGET 'https://ci-europa.kbase.us/services/static-server'
+        run: curl --fail -XGET 'https://ci-europa.kbase.us/services/static-server'
