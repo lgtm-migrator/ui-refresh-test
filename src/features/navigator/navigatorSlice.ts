@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { getServiceClient } from '../../common/services';
-import { WorkspaceObject } from '../../common/models/WorkspaceObject';
+import { WorkspaceObject } from '../../common/types/WorkspaceObject';
 import { AuthState } from '../auth/authSlice';
 import { KBaseJsonRpcError } from '@kbase/narrative-utils';
 
 export type UPA = string;
 
-interface NavigatorState {
+export interface NavigatorState {
   narrativeCache: { [key: UPA]: WorkspaceState };
 }
 interface WorkspaceState {
