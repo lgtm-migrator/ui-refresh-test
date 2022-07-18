@@ -1,3 +1,5 @@
+@import "../colors";
+
 .dataview_no_data {
   font-style: italic;
   padding: 20px;
@@ -19,12 +21,12 @@
 
 .dataview a,
 .dataview a:visited {
-  color: #000;
+  color: use-color("black");
   text-decoration: none;
 }
 
 .dataview_row_type {
-  color: rgba(0, 0, 0, 0.8);
+  color: use-color("base-dark");
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
