@@ -10,7 +10,7 @@
  * @param {string} str the snake-case string to change
  * @return {string}
  */
-export function formatSnakeCase(str: string): string {
+export function snakeCaseToHumanReadable(str: string): string {
   str = str.replace(/_/g, ' ');
   str = str[0].toUpperCase() + str.slice(1);
   return str;

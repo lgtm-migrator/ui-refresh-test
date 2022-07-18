@@ -23,7 +23,7 @@ const DataViewTemplate: ComponentStory<typeof DataView> = (args) => {
 export const Default = DataViewTemplate.bind({});
 
 Default.args = {
-  accessGroup: 42,
+  wsId: 42,
   dataObjects: [
     {
       name: 'fake genome',

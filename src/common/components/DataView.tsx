@@ -5,11 +5,11 @@ import classes from './DataView.module.scss';
 import TypeIcon from './TypeIcon';
 
 interface DataViewProps {
-  accessGroup: number;
+  wsId: number;
   dataObjects: DataObject[];
 }
 
-const DataView: FC<DataViewProps> = ({ accessGroup, dataObjects }) => {
+const DataView: FC<DataViewProps> = ({ wsId, dataObjects }) => {
   if (!dataObjects?.length) {
     return (
       <p className={classes.dataview_no_data}>This narrative has no data.</p>
@@ -26,27 +26,24 @@ const DataView: FC<DataViewProps> = ({ accessGroup, dataObjects }) => {
   return (
     <>
       {rows.map((row, idx) => (
-        <DataViewRow obj={row} key={idx} accessGroup={accessGroup} />
+        <DataViewRow obj={row} key={idx} wsId={wsId} />
       ))}
     </>
   );
 };
 
 interface DataViewRowProps {
-  accessGroup: number;
+  wsId: number;
   obj: DataObject;
 }
-const DataViewRow: FC<DataViewRowProps> = ({ accessGroup, obj }) => (
+const DataViewRow: FC<DataViewRowProps> = ({ wsId, obj }) => (
   <div className={classes.dataview_row_outer}>
     <div>
       <TypeIcon objType={obj.obj_type} />
     </div>
     <div className={classes.dataview_row_inner}>
       <div className={classes.dataview}>
-        <a
-          href={`/#dataview/${accessGroup}/${obj.name}`}
-          rel="noopener noreferrer"
-        >
+        <a href={`/#dataview/${wsId}/${obj.name}`} rel="noopener noreferrer">
           {obj.name}
         </a>
       </div>

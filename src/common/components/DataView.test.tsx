@@ -25,7 +25,7 @@ const testDataObjects = [
 test('Dataview renders', () => {
   const { container } = render(
     <Provider store={createTestStore()}>
-      <Dataview accessGroup={42} dataObjects={testDataObjects} />
+      <Dataview wsId={42} dataObjects={testDataObjects} />
     </Provider>
   );
   expect(container.querySelectorAll('a').length).toBe(4);
@@ -50,7 +50,7 @@ test('Dataview renders', () => {
 test('Dataview renders empty message', () => {
   const { container } = render(
     <Provider store={createTestStore()}>
-      <Dataview accessGroup={42} dataObjects={[]} />
+      <Dataview wsId={42} dataObjects={[]} />
     </Provider>
   );
   expect(container.firstChild instanceof HTMLParagraphElement).toBeTruthy();
