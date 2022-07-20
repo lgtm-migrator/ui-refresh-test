@@ -31,7 +31,7 @@ export interface Cell {
 export interface DataObject {
   name: string;
   obj_type: string;
-  readableType: string;
+  readableType?: string;
 }
 
 // for NarrativeList and children components

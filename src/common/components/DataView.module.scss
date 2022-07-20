@@ -1,0 +1,32 @@
+@import "../colors";
+
+.dataview_no_data {
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+}
+
+.dataview_row_outer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin-bottom: 5px;
+  padding-left: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.dataview_row_inner {
+  margin-left: 2rem;
+}
+
+.dataview a,
+.dataview a:visited {
+  color: use-color("black");
+  text-decoration: none;
+}
+
+.dataview_row_type {
+  color: use-color("base-dark");
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
