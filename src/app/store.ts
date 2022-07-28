@@ -4,13 +4,16 @@ import count from '../features/count/countSlice';
 import icons from '../common/slices/iconSlice';
 import layout from '../features/layout/layoutSlice';
 import profile from '../features/profile/profileSlice';
+import { apiReducers, apiMiddleware } from '../common/api';
 
-const createStore = () => {
-  const config = {
+const createStore = <T>(additionalOptions?: T) => {
+  return configureStore({
     devTools: true,
-    reducer: { auth, count, icons, layout, profile },
-  };
-  return configureStore(config);
+    reducer: { auth, count, icons, layout, profile, ...apiReducers },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(...apiMiddleware),
+    ...additionalOptions,
+  });
 };
 
 export const store = createStore();
@@ -20,10 +23,5 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export const createTestStore = (preloadedState: Partial<RootState>) => {
-  const config = {
-    devTools: true,
-    preloadedState: preloadedState,
-    reducer: { auth, count, icons, layout, profile },
-  };
-  return configureStore(config);
+  return createStore({ preloadedState: preloadedState });
 };
