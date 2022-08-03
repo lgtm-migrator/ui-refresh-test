@@ -2,6 +2,10 @@ import { baseApi } from './index';
 import { kbService } from './utils/kbService';
 
 interface HTMLFileSetServParams {
+  status: void;
+}
+
+interface HTMLFileSetServResults {
   status: {
     state: string;
     message: string;
@@ -18,7 +22,10 @@ const HTMLFileSetServ = kbService({
 
 export const htmlFileSetServApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    status: builder.query<HTMLFileSetServParams['status'], void>({
+    status: builder.query<
+      HTMLFileSetServResults['status'],
+      HTMLFileSetServParams['status']
+    >({
       query: () =>
         HTMLFileSetServ({
           method: 'HTMLFileSetServ.status',

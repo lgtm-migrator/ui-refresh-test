@@ -12,7 +12,7 @@ interface StaticService {
   url: string;
 }
 
-export interface DynamicService {
+interface DynamicService {
   name: string;
   release: string;
 }

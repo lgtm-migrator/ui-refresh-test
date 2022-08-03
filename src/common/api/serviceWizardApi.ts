@@ -1,30 +1,40 @@
 import { baseApi } from './index';
 import { setConsumedService } from './utils/kbaseBaseQuery';
+import { kbService } from './utils/kbService';
+
+const serviceWizard = kbService({ url: 'services/service_wizard' });
+
+interface ServiceWizardParams {
+  serviceStatus: { module_name: string; version: string };
+}
+
+interface ServiceWizardResults {
+  serviceStatus: [
+    {
+      git_commit_hash: string;
+      status: string;
+      version: string;
+      hash: string;
+      release_tags: string[];
+      url: string;
+      module_name: string;
+      health: string;
+      up: number;
+    }
+  ];
+}
 
 export const serviceWizardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     serviceStatus: builder.query<
-      [
-        {
-          git_commit_hash: string;
-          status: string;
-          version: string;
-          hash: string;
-          release_tags: string[];
-          url: string;
-          module_name: string;
-          health: string;
-          up: number;
-        }
-      ],
-      { module_name: string; version: string }
+      ServiceWizardResults['serviceStatus'],
+      ServiceWizardParams['serviceStatus']
     >({
-      query: ({ module_name, version }) => ({
-        // cant use the kbService helper here, as it creates a circular dependency
-        service: { url: 'services/service_wizard' },
-        method: 'ServiceWizard.get_service_status',
-        params: [{ module_name, version }],
-      }),
+      query: ({ module_name, version }) =>
+        serviceWizard({
+          method: 'ServiceWizard.get_service_status',
+          params: [{ module_name, version }],
+        }),
     }),
   }),
 });

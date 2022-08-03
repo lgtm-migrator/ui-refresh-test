@@ -1,33 +1,29 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '../../app/store';
+import { baseApi } from './index';
+import { kbService } from './utils/kbService';
 
-export const wsObjectApi = createApi({
-  reducerPath: 'wsObjectApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'https://ci.kbase.us/services/ws',
-    prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
+const wsObject = kbService({
+  url: '/services/ws',
+});
 
-      // If we have a token set in state, let's assume that we should be passing it.
-      if (token) {
-        headers.set('authorization', `${token}`);
-      }
-      return headers;
-    },
-  }),
+interface wsObjectParams {
+  getwsObjectByName: { upa: string };
+}
+
+interface wsObjectResults {
+  getwsObjectByName: unknown;
+}
+
+const wsObjectApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getwsObjectByName: builder.query<unknown, string>({
-      keepUnusedDataFor: 600,
-      query: (upa) => ({
-        url: '',
-        method: 'POST',
-        body: {
-          version: '1.1',
+    getwsObjectByName: builder.query<
+      wsObjectResults['getwsObjectByName'],
+      wsObjectParams['getwsObjectByName']
+    >({
+      query: ({ upa }) =>
+        wsObject({
           method: 'Workspace.get_objects2',
-          id: Math.random(),
           params: [{ objects: [{ ref: upa }] }],
-        },
-      }),
+        }),
     }),
   }),
 });
