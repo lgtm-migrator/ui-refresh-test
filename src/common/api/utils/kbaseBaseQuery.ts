@@ -15,7 +15,6 @@ interface StaticService {
 export interface DynamicService {
   name: string;
   release: string;
-  serviceWizardApi: typeof serviceWizardApi;
 }
 
 export interface kbQueryArgs {
@@ -29,6 +28,23 @@ const isDynamic = (
   service: kbQueryArgs['service']
 ): service is DynamicService => {
   return (service as DynamicService).release !== undefined;
+};
+
+// These helpers let us avoid circular dependencies when using an API endpoint within kbaseBaseQuery
+const consumedServices: { serviceWizardApi?: typeof serviceWizardApi } = {};
+export const setConsumedService = <T extends keyof typeof consumedServices>(
+  k: T,
+  v: typeof consumedServices[T]
+) => {
+  consumedServices[k] = v;
+};
+export const getConsumedService = <T extends keyof typeof consumedServices>(
+  k: T
+) => {
+  if (!consumedServices[k]) {
+    throw new Error(`Consumed service ${k} was not set prior to use.`);
+  }
+  return consumedServices[k] as NonNullable<typeof consumedServices[T]>;
 };
 
 export const kbaseBaseQuery: (
@@ -63,7 +79,7 @@ export const kbaseBaseQuery: (
       if (isDynamic(kbQueryArgs.service)) {
         // This api is provided via the query to prevent circular imports, fun
         const serviceStatusQuery =
-          kbQueryArgs.service.serviceWizardApi.endpoints.serviceStatus;
+          getConsumedService('serviceWizardApi').endpoints.serviceStatus;
         const wizardQueryArgs = {
           module_name: kbQueryArgs.service.name,
           version: kbQueryArgs.service.release,

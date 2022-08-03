@@ -1,4 +1,5 @@
 import { baseApi } from './index';
+import { setConsumedService } from './utils/kbaseBaseQuery';
 
 export const serviceWizardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -29,3 +30,5 @@ export const serviceWizardApi = baseApi.injectEndpoints({
 });
 
 export const { useServiceStatusQuery } = serviceWizardApi;
+
+setConsumedService('serviceWizardApi', serviceWizardApi);
