@@ -1,7 +1,7 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import { dynamicBaseQuery } from './utils/dynamicBaseQuery';
+import { baseApi } from './index';
+import { kbService } from './utils/kbService';
 
-interface htmlFileSetServ {
+interface HTMLFileSetServParams {
   status: {
     state: string;
     message: string;
@@ -11,15 +11,19 @@ interface htmlFileSetServ {
   };
 }
 
-export const htmlFileSetServApi = createApi({
-  reducerPath: 'HTMLFileSetServ',
-  baseQuery: dynamicBaseQuery('HTMLFileSetServ', 'release'),
+const HTMLFileSetServ = kbService({
+  name: 'HTMLFileSetServ',
+  release: 'release',
+});
+
+export const htmlFileSetServApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    status: builder.query<[htmlFileSetServ['status']], void>({
-      query: () => ({
-        method: 'HTMLFileSetServ.status',
-        params: [],
-      }),
+    status: builder.query<HTMLFileSetServParams['status'], void>({
+      query: () =>
+        HTMLFileSetServ({
+          method: 'HTMLFileSetServ.status',
+          params: [],
+        }),
     }),
   }),
 });

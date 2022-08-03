@@ -1,13 +1,6 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import { kbaseBaseQuery } from './utils/kbaseBaseQuery';
+import { baseApi } from './index';
 
-export const serviceWizardApi = createApi({
-  reducerPath: 'serviceWizardApi',
-  baseQuery: kbaseBaseQuery({
-    baseUrl: 'https://ci.kbase.us/services/service_wizard',
-  }),
-  // Forces update when new calls are made to endpoints, every five seconds right now
-  refetchOnMountOrArgChange: 30,
+export const serviceWizardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     serviceStatus: builder.query<
       [
@@ -26,6 +19,8 @@ export const serviceWizardApi = createApi({
       { module_name: string; version: string }
     >({
       query: ({ module_name, version }) => ({
+        // cant use the kbService helper here, as it creates a circular dependency
+        service: { url: 'services/service_wizard' },
         method: 'ServiceWizard.get_service_status',
         params: [{ module_name, version }],
       }),

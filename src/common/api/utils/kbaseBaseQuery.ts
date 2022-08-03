@@ -6,16 +6,34 @@ import {
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../../../app/store';
+import { serviceWizardApi } from '../serviceWizardApi';
 
-export interface JsonRpcArgs {
+interface StaticService {
+  url: string;
+}
+
+export interface DynamicService {
+  name: string;
+  release: string;
+  serviceWizardApi: typeof serviceWizardApi;
+}
+
+export interface kbQueryArgs {
+  service: StaticService | DynamicService;
   method: string;
   params: unknown[];
   fetchArgs?: FetchArgs;
 }
 
+const isDynamic = (
+  service: kbQueryArgs['service']
+): service is DynamicService => {
+  return (service as DynamicService).release !== undefined;
+};
+
 export const kbaseBaseQuery: (
   fetchBaseQueryArgs: FetchBaseQueryArgs
-) => BaseQueryFn<JsonRpcArgs, unknown, FetchBaseQueryError> = (
+) => BaseQueryFn<kbQueryArgs, unknown, FetchBaseQueryError> = (
   fetchBaseQueryArgs
 ) => {
   // Add auth logic to base query args
@@ -39,60 +57,108 @@ export const kbaseBaseQuery: (
   const rawBaseQuery = fetchBaseQuery(modifiedArgs);
 
   // wrap base query to add error handling and return
-  return async (jsonRpcArgs, baseQueryAPI, extraOptions) => {
-    // Generate JsonRPC request id
-    const reqId = Math.random();
+  const kbQuery: BaseQueryFn<kbQueryArgs, unknown, FetchBaseQueryError> =
+    async (kbQueryArgs, baseQueryAPI, extraOptions) => {
+      // If this is a dynamic query, call service_wizard and transform it into a static one
+      if (isDynamic(kbQueryArgs.service)) {
+        // This api is provided via the query to prevent circular imports, fun
+        const serviceStatusQuery =
+          kbQueryArgs.service.serviceWizardApi.endpoints.serviceStatus;
+        const wizardQueryArgs = {
+          module_name: kbQueryArgs.service.name,
+          version: kbQueryArgs.service.release,
+        };
 
-    // generate request body
-    const fetchArgs = {
-      url: '', // Just hit the baseURL
-      method: 'POST',
-      body: {
-        version: '1.1', // TODO: conditionally implement JsonRpc 2.0
-        id: reqId,
-        method: jsonRpcArgs.method,
-        params: jsonRpcArgs.params,
-      },
-      ...jsonRpcArgs.fetchArgs, // Allow overriding JsonRpc defaults
-    };
+        // trigger query, subscribing until we grab the value
+        const statusQuery = baseQueryAPI.dispatch(
+          serviceStatusQuery.initiate(wizardQueryArgs, { subscribe: true })
+        );
 
-    // make request
-    const request = rawBaseQuery(fetchArgs, baseQueryAPI, extraOptions);
-    const response = await request;
+        // wait until the query completes
+        await statusQuery;
 
-    // If an error has occured preventing a response, return default rtk-query response.
-    // This appropriately handles rtk-query internal errors
-    if (!response.data) return request;
+        // Get query result from the cache after the query has completed
+        const state = baseQueryAPI.getState() as RootState;
+        const wizardResult = serviceStatusQuery.select(wizardQueryArgs)(state);
 
-    const data = response.data as {
-      version: string;
-      result?: unknown;
-      error?: unknown;
-      id?: number;
-    };
+        // Raise any errors from the above call to service_wizard
+        if (wizardResult.isError) {
+          return { error: wizardResult.error as FetchBaseQueryError };
+        }
 
-    // If the IDs don't match, fail
-    // TODO: find out if this is the idiomatic way to do this
-    if (data.id && data.id !== reqId)
-      return {
-        error: {
-          status: 'CUSTOM_ERROR',
-          error: 'JsonRpcProtocolError',
-          data: `Response ID "${data.id}" !== Request ID "${reqId}"`,
+        // Get URL from wizardResult, no error so assert as a string;
+        const serviceUrl = wizardResult.data?.[0].url as string;
+
+        // release the statusQuery sub
+        statusQuery.unsubscribe();
+
+        return kbQuery(
+          {
+            ...kbQueryArgs,
+            service: { url: serviceUrl },
+          },
+          baseQueryAPI,
+          extraOptions
+        );
+      }
+
+      // Generate JsonRPC request id
+      const reqId = Math.random();
+
+      // generate request body
+      const fetchArgs = {
+        url: new URL(
+          kbQueryArgs.service.url,
+          fetchBaseQueryArgs.baseUrl
+        ).toString(),
+        method: 'POST',
+        body: {
+          version: '1.1', // TODO: conditionally implement JsonRpc 2.0
+          id: reqId,
+          method: kbQueryArgs.method,
+          params: kbQueryArgs.params,
         },
+        ...kbQueryArgs.fetchArgs, // Allow overriding JsonRpc defaults
       };
 
-    // If we get a JsonRPC error, surface that error
-    if (data.error)
-      return {
-        error: {
-          status: 'CUSTOM_ERROR',
-          error: 'JsonRpcError',
-          data: data.error,
-        },
+      // make request
+      const request = rawBaseQuery(fetchArgs, baseQueryAPI, extraOptions);
+      const response = await request;
+
+      // If an error has occured preventing a response, return default rtk-query response.
+      // This appropriately handles rtk-query internal errors
+      if (!response.data) return request;
+
+      const data = response.data as {
+        version: string;
+        result?: unknown;
+        error?: unknown;
+        id?: number;
       };
 
-    // All went well, return the JsonRPC result
-    return { data: data.result };
-  };
+      // If the IDs don't match, fail
+      // TODO: find out if this is the idiomatic way to do this
+      if (data.id && data.id !== reqId)
+        return {
+          error: {
+            status: 'CUSTOM_ERROR',
+            error: 'JsonRpcProtocolError',
+            data: `Response ID "${data.id}" !== Request ID "${reqId}"`,
+          },
+        };
+
+      // If we get a JsonRPC error, surface that error
+      if (data.error)
+        return {
+          error: {
+            status: 'CUSTOM_ERROR',
+            error: 'JsonRpcError',
+            data: data.error,
+          },
+        };
+
+      // All went well, return the JsonRPC result
+      return { data: data.result };
+    };
+  return kbQuery;
 };

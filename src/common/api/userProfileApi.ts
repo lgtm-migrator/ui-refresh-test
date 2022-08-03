@@ -1,70 +1,79 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
-import { kbaseBaseQuery } from './utils/kbaseBaseQuery';
+import { baseApi } from './index';
+import { kbService } from './utils/kbService';
 
-interface UserProfile {
-  user: { username: string; realname: string };
-  profile: unknown;
-}
+const userProfile = kbService({
+  url: '/services/user_profile/rpc',
+});
 
 interface UserProfileParams {
   status: void;
   get_user_profile: { usernames: string[] };
   set_user_profile: {
-    profile: UserProfile;
+    profile: {
+      user: { username: string; realname: string };
+      profile: unknown;
+    };
   };
 }
 
 interface UserProfileResults {
   status: unknown;
-  get_user_profile: [[UserProfile]];
+  get_user_profile: [
+    [
+      {
+        user: { username: string; realname: string };
+        profile: unknown;
+      }
+    ]
+  ];
   set_user_profile: void;
 }
 
-export const userProfileApi = createApi({
-  reducerPath: 'userProfileApi',
-  baseQuery: kbaseBaseQuery({
-    baseUrl: 'https://ci.kbase.us/services/user_profile/rpc',
-  }),
-  tagTypes: ['Profiles'],
-  endpoints: (builder) => ({
-    status: builder.query<
-      UserProfileResults['status'],
-      UserProfileParams['status']
-    >({
-      query: () => ({
-        method: 'UserProfile.status',
-        params: [],
+export const userProfileApi = baseApi
+  .enhanceEndpoints({ addTagTypes: ['Profile'] })
+  .injectEndpoints({
+    endpoints: (builder) => ({
+      status: builder.query<
+        UserProfileResults['status'],
+        UserProfileParams['status']
+      >({
+        query: () =>
+          userProfile({
+            method: 'UserProfile.status',
+            params: [],
+          }),
       }),
-    }),
 
-    getUserProfile: builder.query<
-      UserProfileResults['get_user_profile'],
-      UserProfileParams['get_user_profile']
-    >({
-      query: ({ usernames }) => ({
-        method: 'UserProfile.get_user_profile',
-        params: [usernames],
+      getUserProfile: builder.query<
+        UserProfileResults['get_user_profile'],
+        UserProfileParams['get_user_profile']
+      >({
+        query: ({ usernames }) =>
+          userProfile({
+            method: 'UserProfile.get_user_profile',
+            params: [usernames],
+          }),
+        // Tells rtk-query the cache constraints for this query
+        providesTags: (result, error, { usernames }) =>
+          usernames.map((username) => ({ type: 'Profile', id: username })),
       }),
-      // Tells rtk-query the cache constraints for this query
-      providesTags: (result, error, { usernames }) =>
-        usernames.map((username) => ({ type: 'Profiles', id: username })),
-    }),
 
-    setUserProfile: builder.mutation<
-      UserProfileResults['set_user_profile'],
-      UserProfileParams['set_user_profile']
-    >({
-      query: ({ profile }) => ({
-        method: 'UserProfile.set_user_profile',
-        params: [{ profile }],
+      setUserProfile: builder.mutation<
+        UserProfileResults['set_user_profile'],
+        UserProfileParams['set_user_profile']
+      >({
+        query: ({ profile }) =>
+          userProfile({
+            method: 'UserProfile.set_user_profile',
+            params: [{ profile }],
+          }),
+        // Invalidates the cache for any queries with a matching tag
+        invalidatesTags: (result, error, { profile }) => [
+          { type: 'Profile', id: profile.user.username },
+        ],
       }),
-      // Invalidates the cache for any queries with a matching tag
-      invalidatesTags: (result, error, { profile }) => [
-        { type: 'Profiles', id: profile.user.username },
-      ],
     }),
-  }),
-});
+  });
 
 export const {
   useStatusQuery,
