@@ -27,7 +27,7 @@ export interface kbQueryArgs {
 const isDynamic = (
   service: kbQueryArgs['service']
 ): service is DynamicService => {
-  return (service as DynamicService).release !== undefined;
+  return (service as StaticService).url === undefined;
 };
 
 // These helpers let us avoid circular dependencies when using an API endpoint within kbaseBaseQuery
@@ -87,7 +87,10 @@ export const kbaseBaseQuery: (
 
         // trigger query, subscribing until we grab the value
         const statusQuery = baseQueryAPI.dispatch(
-          serviceStatusQuery.initiate(wizardQueryArgs, { subscribe: true })
+          serviceStatusQuery.initiate(wizardQueryArgs, {
+            subscribe: true,
+            forceRefetch: 300, // refetch if its been over 5 minutes
+          })
         );
 
         // wait until the query completes
@@ -111,7 +114,7 @@ export const kbaseBaseQuery: (
         return kbQuery(
           {
             ...kbQueryArgs,
-            service: { url: serviceUrl },
+            service: { ...kbQueryArgs.service, url: serviceUrl },
           },
           baseQueryAPI,
           extraOptions

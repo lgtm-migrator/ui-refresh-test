@@ -35,6 +35,7 @@ export const serviceWizardApi = baseApi.injectEndpoints({
           method: 'ServiceWizard.get_service_status',
           params: [{ module_name, version }],
         }),
+      keepUnusedDataFor: 300,
     }),
   }),
 });
