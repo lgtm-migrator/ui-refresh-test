@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   useGetUserProfileQuery,
   useSetUserProfileMutation,
@@ -80,7 +80,13 @@ const LogoutForm = () => {
 };
 
 const ProfileTest = () => {
-  const profile = useGetUserProfileQuery({ usernames: ['dlyon'] });
+  const profileParams = useMemo(
+    () => ({
+      usernames: ['dlyon'],
+    }),
+    []
+  );
+  const profile = useGetUserProfileQuery(profileParams);
   const [updateProfile, updateProfileResult] = useSetUserProfileMutation();
   const [nameText, setNameText] = useState('');
 

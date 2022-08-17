@@ -68,6 +68,7 @@
   },
   "name": "ui-refresh-test",
   "private": true,
+  "proxy": "https://ci-europa.kbase.us",
   "remarkConfig": {
     "plugins": {
       "remark-preset-lint-recommended": {
