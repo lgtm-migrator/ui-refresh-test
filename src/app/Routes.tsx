@@ -12,6 +12,7 @@ import Legacy, { LEGACY_BASE_ROUTE } from '../features/legacy/Legacy';
 import Navigator from '../features/navigator/Navigator';
 import PageNotFound from '../features/layout/PageNotFound';
 import ProfileWrapper from '../features/profile/Profile';
+import Collections from '../features/collections/Collections';
 import { useAppSelector } from '../common/hooks';
 
 export const LOGIN_ROUTE = '/legacy/login';

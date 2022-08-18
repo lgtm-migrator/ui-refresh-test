@@ -3,8 +3,13 @@ import { kbService } from './utils/kbService';
 
 const collections = kbService({ url: 'services/collections' });
 
-type Collection = unknown;
-type CollectionSummary = unknown;
+type Collection = any;
+type CollectionSummary = {
+  name: string;
+  description: string;
+  icon: string;
+  doi: string;
+};
 
 interface CollectionsParams {
   listCollections: void;
@@ -12,8 +17,8 @@ interface CollectionsParams {
 }
 
 interface CollectionsResults {
-  listCollections: CollectionSummary[];
-  getCollection: Collection;
+  listCollections: [CollectionSummary[]];
+  getCollection: [Collection];
 }
 
 export const collectionsApi = baseApi
@@ -26,14 +31,14 @@ export const collectionsApi = baseApi
       >({
         query: () =>
           collections({
-            method: 'Collections.list_collections',
+            method: 'collections_api.list_collections',
             params: [],
           }),
         keepUnusedDataFor: 300,
         providesTags: (result, error) =>
-          (result || []).map((collectionSummary) => ({
+          (result ? result[0] : []).map((collectionSummary) => ({
             type: 'Collection',
-            id: collectionSummary.id,
+            id: collectionSummary.doi,
           })),
       }),
 
@@ -43,7 +48,7 @@ export const collectionsApi = baseApi
       >({
         query: ({ collection_id }) =>
           collections({
-            method: 'Collections.list_collections',
+            method: 'collections_api.get_collection',
             params: [{ collection_id }],
           }),
         keepUnusedDataFor: 300,
