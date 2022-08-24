@@ -80,12 +80,7 @@ const LogoutForm = () => {
 };
 
 const ProfileTest = () => {
-  const profileParams = useMemo(
-    () => ({
-      usernames: ['dlyon'],
-    }),
-    []
-  );
+  const profileParams = useMemo(() => ({ usernames: ['dlyon'] }), []);
   const profile = useGetUserProfileQuery(profileParams);
   const [updateProfile, updateProfileResult] = useSetUserProfileMutation();
   const [nameText, setNameText] = useState('');
@@ -100,6 +95,19 @@ const ProfileTest = () => {
     newProfile.user.realname = nameText.trim();
     updateProfile({ profile: newProfile });
   };
+
+  //example for handling errors
+  if (
+    profile.error &&
+    'status' in profile.error &&
+    profile.error.status === 'JSONRPC_ERROR' &&
+    // profile.error.data now contains the narrowly typed jsonRpc error response
+    profile.error.data.error.message.includes('Something')
+  ) {
+    // handle jsonrpc errors
+  } else {
+    // handle other errors
+  }
 
   return (
     <div style={{ maxWidth: '10em' }}>

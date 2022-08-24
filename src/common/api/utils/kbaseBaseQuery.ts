@@ -30,6 +30,42 @@ const isDynamic = (
   return (service as StaticService).url === undefined;
 };
 
+type JsonRpcError = {
+  version: '1.1';
+  id: number;
+  error: {
+    name: string;
+    code: number;
+    message: string;
+  };
+};
+
+const isJsonRpcError = (obj: unknown): obj is JsonRpcError => {
+  if (
+    typeof obj === 'object' &&
+    obj !== null &&
+    ['version', 'error', 'id'].every((k) => k in obj)
+  ) {
+    const { version, error } = obj as { version: unknown; error: unknown };
+    if (version !== '1.1') return false;
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      ['name', 'code', 'message'].every((k) => k in error)
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+type KBaseBaseQueryError =
+  | FetchBaseQueryError
+  | {
+      status: 'JSONRPC_ERROR';
+      data: JsonRpcError;
+    };
+
 // These helpers let us avoid circular dependencies when using an API endpoint within kbaseBaseQuery
 const consumedServices: { serviceWizardApi?: typeof serviceWizardApi } = {};
 export const setConsumedService = <T extends keyof typeof consumedServices>(
@@ -49,7 +85,7 @@ export const getConsumedService = <T extends keyof typeof consumedServices>(
 
 export const kbaseBaseQuery: (
   fetchBaseQueryArgs: FetchBaseQueryArgs
-) => BaseQueryFn<kbQueryArgs, unknown, FetchBaseQueryError> = (
+) => BaseQueryFn<kbQueryArgs, unknown, KBaseBaseQueryError> = (
   fetchBaseQueryArgs
 ) => {
   // Add auth logic to base query args
@@ -73,7 +109,7 @@ export const kbaseBaseQuery: (
   const rawBaseQuery = fetchBaseQuery(modifiedArgs);
 
   // wrap base query to add error handling and return
-  const kbQuery: BaseQueryFn<kbQueryArgs, unknown, FetchBaseQueryError> =
+  const kbQuery: BaseQueryFn<kbQueryArgs, unknown, KBaseBaseQueryError> =
     async (kbQueryArgs, baseQueryAPI, extraOptions) => {
       // If this is a dynamic query, call service_wizard and transform it into a static one
       if (isDynamic(kbQueryArgs.service)) {
@@ -102,7 +138,7 @@ export const kbaseBaseQuery: (
 
         // Raise any errors from the above call to service_wizard
         if (wizardResult.isError) {
-          return { error: wizardResult.error as FetchBaseQueryError };
+          return { error: wizardResult.error as KBaseBaseQueryError };
         }
 
         // Get URL from wizardResult, no error so assert as a string;
@@ -144,10 +180,32 @@ export const kbaseBaseQuery: (
       const request = rawBaseQuery(fetchArgs, baseQueryAPI, extraOptions);
       const response = await request;
 
-      // If an error has occured preventing a response, return default rtk-query response.
+      // identify and better differentiate jsonRpc errors
+      if (response.error && response.error.status === 500) {
+        if (isJsonRpcError(response.error.data)) {
+          if (response.error.data.id && response.error.data.id !== reqId) {
+            return {
+              error: {
+                status: 'CUSTOM_ERROR',
+                error: 'JsonRpcProtocolError',
+                data: `Response ID "${response.error.data.id}" !== Request ID "${reqId}"`,
+              },
+            };
+          }
+          return {
+            error: {
+              status: 'JSONRPC_ERROR',
+              data: response.error.data,
+            },
+          };
+        }
+      }
+
+      // If another error has occured preventing a response, return default rtk-query response.
       // This appropriately handles rtk-query internal errors
       if (!response.data) return request;
 
+      // From here, assume we have a jsonRpc response
       const data = response.data as {
         version: string;
         result?: unknown;
@@ -157,7 +215,7 @@ export const kbaseBaseQuery: (
 
       // If the IDs don't match, fail
       // TODO: find out if this is the idiomatic way to do this
-      if (data.id && data.id !== reqId)
+      if (data.id && data.id !== reqId) {
         return {
           error: {
             status: 'CUSTOM_ERROR',
@@ -165,16 +223,7 @@ export const kbaseBaseQuery: (
             data: `Response ID "${data.id}" !== Request ID "${reqId}"`,
           },
         };
-
-      // If we get a JsonRPC error, surface that error
-      if (data.error)
-        return {
-          error: {
-            status: 'CUSTOM_ERROR',
-            error: 'JsonRpcError',
-            data: data.error,
-          },
-        };
+      }
 
       // All went well, return the JsonRPC result
       return { data: data.result };
