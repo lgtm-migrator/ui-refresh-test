@@ -75,8 +75,5 @@ export const userProfileApi = baseApi
     }),
   });
 
-export const {
-  useStatusQuery,
-  useGetUserProfileQuery,
-  useSetUserProfileMutation,
-} = userProfileApi;
+export const { getUserProfile, setUserProfile, status } =
+  userProfileApi.endpoints;

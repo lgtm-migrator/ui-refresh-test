@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import {
-  useGetUserProfileQuery,
-  useSetUserProfileMutation,
+  getUserProfile,
+  setUserProfile,
 } from '../../common/api/userProfileApi';
 import { Button } from '../../common/components';
 import {
@@ -81,8 +81,8 @@ const LogoutForm = () => {
 
 const ProfileTest = () => {
   const profileParams = useMemo(() => ({ usernames: ['dlyon'] }), []);
-  const profile = useGetUserProfileQuery(profileParams);
-  const [updateProfile, updateProfileResult] = useSetUserProfileMutation();
+  const profile = getUserProfile.useQuery(profileParams);
+  const [updateProfile, updateProfileResult] = setUserProfile.useMutation();
   const [nameText, setNameText] = useState('');
 
   const changeName = async () => {

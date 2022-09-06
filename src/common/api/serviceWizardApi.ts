@@ -40,6 +40,6 @@ export const serviceWizardApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useServiceStatusQuery } = serviceWizardApi;
-
 setConsumedService('serviceWizardApi', serviceWizardApi);
+
+export const { serviceStatus } = serviceWizardApi.endpoints;

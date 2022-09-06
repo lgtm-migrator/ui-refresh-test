@@ -35,4 +35,4 @@ export const htmlFileSetServApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useStatusQuery } = htmlFileSetServApi;
+export const { status } = htmlFileSetServApi.endpoints;
