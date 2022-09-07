@@ -38,9 +38,9 @@ export default function Auth() {
       </p>
       {pending ? <p>Please wait...</p> : token ? <LogoutForm /> : <AuthForm />}
       {error ? <span style={{ color: 'red' }}>{error}</span> : null}
-      <p>
-        <ProfileTest />
-      </p>
+      <div>
+        <UserRealNameChanger />
+      </div>
     </div>
   );
 }
@@ -79,11 +79,17 @@ const LogoutForm = () => {
   );
 };
 
-const ProfileTest = () => {
-  const profileParams = useMemo(() => ({ usernames: ['dlyon'] }), []);
-  const profile = getUserProfile.useQuery(profileParams);
+const UserRealNameChanger = () => {
+  const username = useAppSelector((s) => s.auth.username);
+  const profileParams = useMemo(
+    () => ({ usernames: username ? [username] : [] }),
+    [username]
+  );
+  const profile = getUserProfile.useQuery(profileParams, { skip: !username });
   const [updateProfile, updateProfileResult] = setUserProfile.useMutation();
   const [nameText, setNameText] = useState('');
+
+  if (!username) return <></>;
 
   const changeName = async () => {
     const oldProfile = profile.data?.[0][0];
@@ -124,7 +130,7 @@ const ProfileTest = () => {
       <br />
       <input
         type="text"
-        placeholder="Change Username"
+        placeholder="Change Realname"
         value={nameText}
         onInput={(e) => setNameText(e.currentTarget.value)}
       />

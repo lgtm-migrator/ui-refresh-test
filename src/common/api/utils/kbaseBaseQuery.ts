@@ -1,3 +1,4 @@
+import { BaseQueryApi } from '@reduxjs/toolkit/dist/query/baseQueryTypes';
 import { FetchBaseQueryArgs } from '@reduxjs/toolkit/dist/query/fetchBaseQuery';
 import {
   BaseQueryFn,
@@ -17,7 +18,7 @@ interface DynamicService {
   release: string;
 }
 
-export interface kbQueryArgs {
+export interface KbQueryArgs {
   service: StaticService | DynamicService;
   method: string;
   params: unknown[];
@@ -25,7 +26,7 @@ export interface kbQueryArgs {
 }
 
 const isDynamic = (
-  service: kbQueryArgs['service']
+  service: KbQueryArgs['service']
 ): service is DynamicService => {
   return (service as StaticService).url === undefined;
 };
@@ -83,9 +84,55 @@ export const getConsumedService = <T extends keyof typeof consumedServices>(
   return consumedServices[k] as NonNullable<typeof consumedServices[T]>;
 };
 
+const getServiceUrl = async (
+  name: string,
+  release: string,
+  baseQueryAPI: BaseQueryApi
+): Promise<
+  { url: string; error?: never } | { url?: never; error: KBaseBaseQueryError }
+> => {
+  // get serviceWizardApi while avoiding circular imports
+  // (as serviceWizardApi imports this file)
+  const serviceStatusQuery =
+    getConsumedService('serviceWizardApi').endpoints.serviceStatus;
+
+  const wizardQueryArgs = {
+    module_name: name,
+    version: release,
+  };
+
+  // trigger query, subscribing until we grab the value
+  const statusQuery = baseQueryAPI.dispatch(
+    serviceStatusQuery.initiate(wizardQueryArgs, {
+      subscribe: true,
+      forceRefetch: 300, // refetch if its been over 5 minutes
+    })
+  );
+
+  // wait until the query completes
+  await statusQuery;
+
+  // Get query result from the cache after the query has completed
+  const state = baseQueryAPI.getState() as RootState;
+  const wizardResult = serviceStatusQuery.select(wizardQueryArgs)(state);
+
+  // Raise any errors from the above call to service_wizard
+  if (wizardResult.isError) {
+    return { error: wizardResult.error as KBaseBaseQueryError };
+  }
+
+  // Get URL from wizardResult, no error so assert as a string;
+  const serviceUrl = wizardResult.data?.[0].url as string;
+
+  // release the statusQuery sub
+  statusQuery.unsubscribe();
+
+  return { url: serviceUrl };
+};
+
 export const kbaseBaseQuery: (
   fetchBaseQueryArgs: FetchBaseQueryArgs
-) => BaseQueryFn<kbQueryArgs, unknown, KBaseBaseQueryError> = (
+) => BaseQueryFn<KbQueryArgs, unknown, KBaseBaseQueryError> = (
   fetchBaseQueryArgs
 ) => {
   // Add auth logic to base query args
@@ -109,48 +156,22 @@ export const kbaseBaseQuery: (
   const rawBaseQuery = fetchBaseQuery(modifiedArgs);
 
   // wrap base query to add error handling and return
-  const kbQuery: BaseQueryFn<kbQueryArgs, unknown, KBaseBaseQueryError> =
+  const kbQuery: BaseQueryFn<KbQueryArgs, unknown, KBaseBaseQueryError> =
     async (kbQueryArgs, baseQueryAPI, extraOptions) => {
       // If this is a dynamic query, call service_wizard and transform it into a static one
       if (isDynamic(kbQueryArgs.service)) {
-        // This api is provided via the query to prevent circular imports, fun
-        const serviceStatusQuery =
-          getConsumedService('serviceWizardApi').endpoints.serviceStatus;
-        const wizardQueryArgs = {
-          module_name: kbQueryArgs.service.name,
-          version: kbQueryArgs.service.release,
-        };
-
-        // trigger query, subscribing until we grab the value
-        const statusQuery = baseQueryAPI.dispatch(
-          serviceStatusQuery.initiate(wizardQueryArgs, {
-            subscribe: true,
-            forceRefetch: 300, // refetch if its been over 5 minutes
-          })
+        // call service wizard to get the URL
+        const serviceUrl = await getServiceUrl(
+          kbQueryArgs.service.name,
+          kbQueryArgs.service.release,
+          baseQueryAPI
         );
-
-        // wait until the query completes
-        await statusQuery;
-
-        // Get query result from the cache after the query has completed
-        const state = baseQueryAPI.getState() as RootState;
-        const wizardResult = serviceStatusQuery.select(wizardQueryArgs)(state);
-
-        // Raise any errors from the above call to service_wizard
-        if (wizardResult.isError) {
-          return { error: wizardResult.error as KBaseBaseQueryError };
-        }
-
-        // Get URL from wizardResult, no error so assert as a string;
-        const serviceUrl = wizardResult.data?.[0].url as string;
-
-        // release the statusQuery sub
-        statusQuery.unsubscribe();
-
+        if (serviceUrl.error) return { error: serviceUrl.error };
+        // Now that we have a URL we can re-run the kbQuery as a static service
         return kbQuery(
           {
             ...kbQueryArgs,
-            service: { ...kbQueryArgs.service, url: serviceUrl },
+            service: { ...kbQueryArgs.service, url: serviceUrl.url },
           },
           baseQueryAPI,
           extraOptions
