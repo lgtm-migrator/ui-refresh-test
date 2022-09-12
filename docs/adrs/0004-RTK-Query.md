@@ -4,7 +4,7 @@
 
 <!-- Date -->
 
-_yyyy-mm-dd_
+_2022-09-12_
 
 <!-- Summary -->
 
@@ -26,12 +26,10 @@ N/A
 
 - Hand-roll a fetch-based JSONRpc client, and manage requests within individual
   feature slices.
-- Use [RTK-query](https://redux-toolkit.js.org/rtk-query/overview) with a custom
-  baseQuery
 - Use [TanStack React Query](https://tanstack.com/query/v4/docs/overview) to
   handle caching and hooks, hand-roll integration with redux
-- Use existing kbase-specific service client code, hand-roll integration with
-  redux
+- Use [RTK-query](https://redux-toolkit.js.org/rtk-query/overview) with a custom
+  baseQuery
 
 ## Decision Outcome <!-- Summary of the decision -->
 
@@ -125,21 +123,39 @@ const result = getUserProfile.select(args)(store.getState());
 
 ## Pros and Cons of the Alternatives <!-- List Pros/Cons of each considered alternative -->
 
-### Use RTK-query with a custom baseQuery
-
-- `+` Discoverable
-- `-` Only exists in one repo, might be hard to use if more repos are created
-  for the project.
-
 ### Hand-roll a fetch-based JSONRpc client, and manage requests within individual feature slices
 
-- `+` Discoverable
-- `-` Only exists in one repo, might be hard to use if more repos are created
-  for the project.
+- `+` Fully customizable to our needs
+- `-` would require us to hand-roll a cache invalidation setup if we wanted
+  caching
+- `-` integrating well with redux, and seperation of concerns from store slices
+  could be very complicated.
+- `-` would require us to hand-roll our own API react hooks for data fetching,
+  which would require either very complicated typescript or a lot of boilerplate
+  code per service
 
 ### Use TanStack React Query to handle caching and hooks, hand-roll integration with redux
 
-### Use existing kbase-specific service client code, hand-roll integration with redux
+- `+/-` Very similar to hand-rolling everthing but...
+- `+` helps solve react-hook-based API calls (has a base hook which makes
+  creating cached query hooks relatively straightforward)
+- `-` Caching is done per-hook, hard to invalidate caches across endpoints
+- `-` Not designed to work outside react components or hooks.
+
+### Use RTK-query with a custom baseQuery
+
+- `+` Plays well with redux and react hooks
+- `+` comes with query caching and a "tag-based" cache invalidation setup
+- `+` adds middleware which autmatically refetches in-use queries which become
+  invalid
+- `+` well-typed and enforces the creation of request/response types per
+  endpoint
+- `+` de-duplicates and caches GET-like queries by default
+- `+` usable outside of react components/hooks
+- `-` default setup is more targeted at RESTful APIs and to use a single api
+  (whereas we have one per service)
+- `-` while it is exstensivle to our usecase, the code to do so is a bit complex
+  due to typing and working with dynamic services
 
 ## References <!-- List any relevant resources about the ADR, consider using footnotes as below where useful -->
 
