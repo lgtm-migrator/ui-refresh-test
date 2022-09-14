@@ -6,10 +6,12 @@ import { FC, useEffect } from 'react';
 import { authFromToken } from '../features/auth/authSlice';
 import { setEnvironment } from '../features/layout/layoutSlice';
 import { getCookie } from '../common/cookie';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import Routes from './Routes';
 import LeftNavBar from '../features/layout/LeftNavBar';
 import TopBar from '../features/layout/TopBar';
+import ErrorPage from '../features/layout/ErrorPage';
 const UnauthenticatedView: FC = () => (
   <>
     Set your <var>kbase_session</var> cookie to your login token.
@@ -40,7 +42,9 @@ export default function App() {
           <LeftNavBar />
         </div>
         <div className={classes.page_content}>
-          {token ? <Routes /> : <UnauthenticatedView />}
+          <ErrorBoundary FallbackComponent={ErrorPage}>
+            {token ? <Routes /> : <UnauthenticatedView />}
+          </ErrorBoundary>
         </div>
       </div>
     </Router>

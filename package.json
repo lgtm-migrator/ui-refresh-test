@@ -18,7 +18,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@kbase/narrative-utils": "^0.0.6",
-    "@reduxjs/toolkit": "^1.6.1",
+    "@reduxjs/toolkit": "^1.8.3",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
@@ -30,8 +30,9 @@
     "node-sass": "^6.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-error-boundary": "^3.1.4",
     "react-redux": "^7.2.4",
-    "react-router-dom": "^5.2.0",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "4.0.3",
     "react-select": "^5.2.2",
     "timeago.js": "^4.0.2",
@@ -68,6 +69,7 @@
   },
   "name": "ui-refresh-test",
   "private": true,
+  "proxy": "https://ci-europa.kbase.us",
   "remarkConfig": {
     "plugins": {
       "remark-preset-lint-recommended": {
