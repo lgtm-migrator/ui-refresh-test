@@ -222,7 +222,7 @@ export const kbaseBaseQuery: (
         }
       }
 
-      // If another error has occured preventing a response, return default rtk-query response.
+      // If another error has occurred preventing a response, return default rtk-query response.
       // This appropriately handles rtk-query internal errors
       if (!response.data) return request;
 

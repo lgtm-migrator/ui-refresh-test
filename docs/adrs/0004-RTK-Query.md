@@ -12,7 +12,8 @@ Strategies were investigated for handling kbase service (jsonrpc) API calls and
 caching of responses. Goal was to create a simple developer experience for
 fetching data from kbase services within components and hooks. Challenges
 included caching, integrating caching with the redux store, and dealing with the
-particular request format of jsonrpc (v1.1).
+particular request format of jsonrpc (v1.1). **JSONrpc 2.0 is not currently
+supported, but it will be trivial to implement when needed.**
 
 ## Authors <!-- GitHub Username(s) -->
 
@@ -20,7 +21,7 @@ particular request format of jsonrpc (v1.1).
 
 ## Status <!-- Status of this ADR -->
 
-N/A
+Accepted
 
 ## Alternatives Considered <!-- Short list of considered alternatives, should include the chosen path -->
 
@@ -45,19 +46,19 @@ documented deviations from the introductory rtk-query docs. These include:
 1. A custom base query, implemented in `src/common/api/utils/kbaseBaseQuery.ts`.
    This allows all the api endpoints to share jsonrpc and authentication logic,
    it also lets us automatically fetch/cache URLs for dynamic services, again
-   without too much developer overhead when making individual enpoints.
+   without too much developer overhead when making individual endpoints.
 2. In order to have different services' endpoints split between files, but also
    to allow the APIs for different services to share cache "tags" (so, for
    instance, changing a narrative name can invalidate caches which may reference
    that narrative from other services), a single rtk-query API is created in
    `src/common/api/index.ts`. `injectEndpoints` is then used in each
    `src/common/api/[service].ts` file to add service-specific endpoints, these
-   endpoints are then export and imported from the service-specfic file, but act
-   on the api instance and cache defined in `.../index.ts`.
+   endpoints are then export and imported from the service-specific file, but
+   act on the api instance and cache defined in `.../index.ts`.
 3. Because we also may want to use the endpoints _outside of react components_,
    we can instead export the endpoint objects, instead of the auto-generated
    hooks. The auto-generated hooks (and the `initiate` function to call the
-   endpoint outside of a react component) are then availible as properties of
+   endpoint outside of a react component) are then available as properties of
    those exported endpoints. More detail below.
 4. A small helper util in `src/common/api/utils/kbService.ts` which handles
    defining the service type (static\[core\]/dynamic) and location, and returns
@@ -103,7 +104,7 @@ import { getUserProfile } from '../../common/api/userProfileApi';
 const profile = getUserProfile.useQuery(profileParams);
 ```
 
-Doing this is useful becase `[endpoint].initiate` can be used call the endpoint
+Doing this is useful because `[endpoint].initiate` can be used call the endpoint
 outside of a react component (without having to add more exports). Further, in
 my (@dauglyon) opinion this looks way nicer than the what is in rtk-query docs,
 and it's still through their documented API.
@@ -128,7 +129,7 @@ const result = getUserProfile.select(args)(store.getState());
 - `+` Fully customizable to our needs
 - `-` would require us to hand-roll a cache invalidation setup if we wanted
   caching
-- `-` integrating well with redux, and seperation of concerns from store slices
+- `-` integrating well with redux, and separation of concerns from store slices
   could be very complicated.
 - `-` would require us to hand-roll our own API react hooks for data fetching,
   which would require either very complicated typescript or a lot of boilerplate
@@ -136,7 +137,7 @@ const result = getUserProfile.select(args)(store.getState());
 
 ### Use TanStack React Query to handle caching and hooks, hand-roll integration with redux
 
-- `+/-` Very similar to hand-rolling everthing but...
+- `+/-` Very similar to hand-rolling everything but...
 - `+` helps solve react-hook-based API calls (has a base hook which makes
   creating cached query hooks relatively straightforward)
 - `-` Caching is done per-hook, hard to invalidate caches across endpoints
@@ -146,7 +147,7 @@ const result = getUserProfile.select(args)(store.getState());
 
 - `+` Plays well with redux and react hooks
 - `+` comes with query caching and a "tag-based" cache invalidation setup
-- `+` adds middleware which autmatically refetches in-use queries which become
+- `+` adds middleware which automatically refetches in-use queries which become
   invalid
 - `+` well-typed and enforces the creation of request/response types per
   endpoint
@@ -154,7 +155,7 @@ const result = getUserProfile.select(args)(store.getState());
 - `+` usable outside of react components/hooks
 - `-` default setup is more targeted at RESTful APIs and to use a single api
   (whereas we have one per service)
-- `-` while it is exstensivle to our usecase, the code to do so is a bit complex
+- `-` while it is extensible to our usecase, the code to do so is a bit complex
   due to typing and working with dynamic services
 
 ## References <!-- List any relevant resources about the ADR, consider using footnotes as below where useful -->
