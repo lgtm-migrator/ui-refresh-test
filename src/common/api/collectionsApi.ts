@@ -3,7 +3,7 @@ import { kbService } from './utils/kbService';
 
 const collections = kbService({ url: 'services/collections' });
 
-type Collection = any;
+type Collection = unknown;
 type CollectionSummary = {
   name: string;
   description: string;

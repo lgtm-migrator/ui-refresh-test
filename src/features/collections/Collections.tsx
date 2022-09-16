@@ -30,7 +30,6 @@ const CollectionDetail = () => {
 const CollectionsList = () => {
   usePageTitle('Collections');
   const collections = useListCollectionsQuery();
-  console.log(collections);
   return (
     <ul>
       {collections.isSuccess
