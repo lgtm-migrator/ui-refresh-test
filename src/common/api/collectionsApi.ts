@@ -3,13 +3,13 @@ import { kbService } from './utils/kbService';
 
 const collections = kbService({ url: 'services/collections' });
 
-type Collection = unknown;
 type CollectionSummary = {
   name: string;
   description: string;
   icon: string;
   doi: string;
 };
+type Collection = CollectionSummary;
 
 interface CollectionsParams {
   listCollections: void;
