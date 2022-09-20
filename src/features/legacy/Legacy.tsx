@@ -63,7 +63,7 @@ export default function Legacy() {
         } else if (outer !== legacyPath) {
           setLegacyPath(outer);
           setInitialLegacyPath(outer);
-          legacyContent.current.src = outer;
+          legacyContent.current.src = `https://legacy.ci-europa.kbase.us${outer}`;
           pathChanged = true;
         }
       }
@@ -92,7 +92,7 @@ export default function Legacy() {
       <iframe
         style={{ overflowY: 'hidden' }}
         frameBorder="0"
-        src={initialLegacyPath}
+        src={`https://legacy.ci-europa.kbase.us${initialLegacyPath}`}
         ref={legacyContent}
         title="Legacy Content"
         width="100%"
