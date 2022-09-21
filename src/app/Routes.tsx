@@ -11,7 +11,7 @@ import ProfileWrapper from '../features/profile/Profile';
 const Routes: FC = () => (
   <>
     <RRRoutes>
-      <Route path="/legacy/*" element={Legacy} />
+      <Route path="/legacy/*" element={<Legacy />} />
       <Route
         path="/profile/:usernameRequested/narratives"
         element={<ProfileWrapper />}
