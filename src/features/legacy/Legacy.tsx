@@ -85,21 +85,24 @@ export default function Legacy() {
   // to third-party sites outside of the iframe.
   useMonkeyPatchIFrameLinks(legacyFrame);
 
-  if (badLegacyPath) {
-    return null;
-  } else {
-    return (
-      <iframe
-        style={{ overflowY: 'hidden' }}
-        frameBorder="0"
-        src={`https://legacy.ci-europa.kbase.us${initialLegacyPath}`}
-        ref={legacyContent}
-        title="Legacy Content"
-        width="100%"
-        height={legacyHeight}
-      />
-    );
-  }
+  // if (badLegacyPath) {
+  //   return null;
+  // } else {
+  if (badLegacyPath)
+    // eslint-disable-next-line no-console
+    console.error('badPath', { initialLegacyPath, legacyPath });
+  return (
+    <iframe
+      style={{ overflowY: 'hidden' }}
+      frameBorder="0"
+      src={`https://legacy.ci-europa.kbase.us${initialLegacyPath}`}
+      ref={legacyContent}
+      title="Legacy Content"
+      width="100%"
+      height={legacyHeight}
+    />
+  );
+  // }
 }
 
 const legacyPart = (path: string) =>
