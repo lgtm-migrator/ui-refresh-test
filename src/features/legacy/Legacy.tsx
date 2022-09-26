@@ -37,10 +37,10 @@ export default function Legacy() {
       // check if iframe is inaccessible due to CORS
       if (!checkIFrameSameOrigin(legacyContent.current?.contentWindow)) {
         setBadLegacyPath(true);
-        alert(
-          // eslint-disable-next-line max-len
-          'Something went wrong: Could not load external link within legacy page iframe.'
-        );
+        // alert(
+        //   // eslint-disable-next-line max-len
+        //   'Something went wrong: Could not load external link within legacy page iframe.'
+        // );
         return;
       } else {
         setBadLegacyPath(false);
