@@ -3,7 +3,7 @@ import { Route, Routes as RRRoutes } from 'react-router-dom';
 
 import Auth from '../features/auth/Auth';
 import Count from '../features/count/Counter';
-import Legacy from '../features/legacy/Legacy';
+import Legacy from '../features/legacy/LegacyNew';
 import Navigator from '../features/navigator/Navigator';
 import PageNotFound from '../features/layout/PageNotFound';
 import ProfileWrapper from '../features/profile/Profile';
