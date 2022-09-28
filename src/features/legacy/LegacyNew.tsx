@@ -48,6 +48,8 @@ const getLegacyPart = (path: string) =>
 const formatLegacyUrl = (path: string) =>
   `https://legacy.ci-europa.kbase.us/#${path}`; //`/dev/legacy-spoof/${path}`;
 
+// const formatLegacyUrl = (path: string) => `/dev/legacy-spoof/${path}`;
+
 const useMessageListener = function <T = unknown>(
   handler: (this: Window, ev: MessageEvent<T>) => void
 ) {
@@ -59,37 +61,32 @@ const useMessageListener = function <T = unknown>(
   }, [handler]);
 };
 
-type KbMessage<C extends string, M extends string, P> = {
-  channel: C;
-  message: M;
+type KbMessage<S extends string, P> = {
+  source: S;
   payload: P;
 };
 
-const kbMessageGuard = <C extends string, M extends string, P>(
-  channel: C,
-  message: M,
+const kbMessageGuard = <S extends string, P>(
+  source: S,
   payloadGuard: (payload: unknown) => payload is P
 ) => {
-  type Guarded = KbMessage<C, M, P>;
+  type Guarded = KbMessage<S, P>;
   return (recieved: unknown): recieved is Guarded =>
     typeof recieved === 'object' &&
-    ['channel', 'message', 'payload'].every(
+    ['source', 'payload'].every(
       (k) => k in (recieved as Record<string, never>)
     ) &&
-    (recieved as Guarded).channel === channel &&
-    (recieved as Guarded).message === message &&
+    (recieved as Guarded).source === source &&
     payloadGuard((recieved as Guarded).payload);
 };
 
 const isTitleMessage = kbMessageGuard(
-  'ui',
-  'setTitle',
+  'kbase-ui.ui.setTitle',
   (payload): payload is string => typeof payload === 'string'
 );
 
 const isRouteMessage = kbMessageGuard(
-  'app',
-  'route-component',
+  'kbase-ui.app.route-component',
   (payload): payload is { request: { original: string } } =>
     !!payload &&
     typeof payload === 'object' &&
@@ -123,8 +120,7 @@ const isRouteMessage = kbMessageGuard(
 //       <button
 //         onClick={() => {
 //           window.parent.postMessage({
-//             channel: 'app',
-//             message: 'route-component',
+//             source: 'kbase-ui.app.route-component',
 //             payload: {
 //               route: {},
 //               request: {
@@ -149,8 +145,7 @@ const isRouteMessage = kbMessageGuard(
 //       <button
 //         onClick={() => {
 //           window.parent.postMessage({
-//             channel: 'ui',
-//             message: 'setTitle',
+//             source: 'kbase-ui.ui.setTitle',
 //             payload: title,
 //           });
 //         }}

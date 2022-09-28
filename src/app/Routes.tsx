@@ -1,5 +1,10 @@
 import { FC } from 'react';
-import { Route, Routes as RRRoutes } from 'react-router-dom';
+import {
+  Navigate,
+  Route,
+  Routes as RRRoutes,
+  useLocation,
+} from 'react-router-dom';
 
 import Auth from '../features/auth/Auth';
 import Count from '../features/count/Counter';
@@ -20,13 +25,24 @@ const Routes: FC = () => (
       <Route path="/profile" element={<ProfileWrapper />} />
       <Route path="/count" element={<Count />} />
       <Route path="/auth" element={<Auth />} />
-      <Route path={'/:id/:obj/:ver'} element={<Navigator />} />
-      <Route path={'/:category'} element={<Navigator />} />
-      <Route path={'/:category/:id/:obj/:ver'} element={<Navigator />} />
-      <Route path="/" element={<Navigator />} />
+      <Route path={'/narratives/:id/:obj/:ver'} element={<Navigator />} />
+      <Route path={'/narratives/:category'} element={<Navigator />} />
+      <Route
+        path={'/narratives/:category/:id/:obj/:ver'}
+        element={<Navigator />}
+      />
+      <Route path="/narratives" element={<Navigator />} />
+      <Route path="/" element={<HashRouteRedirect />} />
       <Route path="*" element={<PageNotFound />} />
     </RRRoutes>
   </>
 );
+
+const HashRouteRedirect = () => {
+  const location = useLocation();
+  if (location.hash)
+    return <Navigate to={`/legacy/${location.hash.slice(1)}`} replace />;
+  return <Navigate to="/narratives" replace />;
+};
 
 export default Routes;
