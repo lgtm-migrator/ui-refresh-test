@@ -36,6 +36,8 @@ export default function Legacy() {
   useMessageListener((e) => {
     const d = e.data;
     if (isRouteMessage(d)) {
+      let path = d.payload.request.original;
+      if (path[0] === '/') path = path.slice(1);
       navigate(`./${d.payload.request.original}`);
       setLegacyPath(d.payload.request.original);
     } else if (isTitleMessage(d)) {
@@ -63,7 +65,7 @@ export default function Legacy() {
 }
 
 const getLegacyPart = (path: string) =>
-  path.match(/(?:\/legacy)+(?:\/(.*))$/)?.[1] || '/';
+  path.match(/(?:\/legacy)+(?:\/+(.*))$/)?.[1] || '/';
 
 const formatLegacyUrl = (path: string) =>
   `https://legacy.ci-europa.kbase.us/#${path}`; //`/dev/legacy-spoof/${path}`;
