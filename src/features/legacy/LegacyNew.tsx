@@ -23,10 +23,13 @@ export default function Legacy() {
       expectedLegacyPath !== legacyPath &&
       legacyContentRef.current?.contentWindow
     ) {
-      legacyContentRef.current.contentWindow.postMessage({
-        source: 'europa.navigate',
-        payload: { path: expectedLegacyPath },
-      });
+      legacyContentRef.current.contentWindow.postMessage(
+        {
+          source: 'europa.navigate',
+          payload: { path: expectedLegacyPath },
+        },
+        '*'
+      );
     }
   }, [expectedLegacyPath, legacyPath, legacyContentRef]);
 
