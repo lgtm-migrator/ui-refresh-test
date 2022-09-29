@@ -5,6 +5,7 @@ import { usePageTitle } from '../../common/hooks';
 export default function Legacy() {
   // TODO: iframe height
   // TODO: external navigation and <base target="_top"> equivalent
+  // TODO: check for kbase-ui reloads where not needed
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -12,19 +13,35 @@ export default function Legacy() {
   const [legacyTitle, setLegacyTitle] = useState('');
   usePageTitle(legacyTitle);
 
+  const expectedLegacyPath = getLegacyPart(
+    location.pathname + location.search + location.hash
+  );
+  const [legacyPath, setLegacyPath] = useState(expectedLegacyPath);
+
+  useEffect(() => {
+    if (
+      expectedLegacyPath !== legacyPath &&
+      legacyContentRef.current?.contentWindow
+    ) {
+      legacyContentRef.current.contentWindow.postMessage({
+        source: 'europa.navigate',
+        payload: { path: expectedLegacyPath },
+      });
+    }
+  }, [expectedLegacyPath, legacyPath, legacyContentRef]);
+
   useMessageListener((e) => {
     const d = e.data;
     if (isRouteMessage(d)) {
-      navigate(`/legacy/${d.payload.request.original}`);
+      navigate(`./${d.payload.request.original}`);
+      setLegacyPath(d.payload.request.original);
     } else if (isTitleMessage(d)) {
       setLegacyTitle(d.payload);
     }
   });
 
-  // Only directly change the IFrame src if we've re-rendered the
-  // iframe element itself. This prevents unwanted navigation events
-  const initLegacyPath = useMemo(
-    () => getLegacyPart(location.pathname + location.search + location.hash),
+  const legacySrcValue = useMemo(
+    () => formatLegacyUrl(legacyPath),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [legacyContentRef]
   );
@@ -33,7 +50,7 @@ export default function Legacy() {
     <iframe
       style={{ overflowY: 'hidden' }}
       frameBorder="0"
-      src={formatLegacyUrl(initLegacyPath)}
+      src={legacySrcValue}
       ref={legacyContentRef}
       title="Legacy Content Wrapper"
       width="100%"
