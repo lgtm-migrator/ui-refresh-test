@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../common/hooks';
 
@@ -20,7 +20,7 @@ export default function Legacy() {
   const [legacyPath, setLegacyPath] = useState(expectedLegacyPath);
 
   // Listen for messages from the iframe
-  useMessageListener(legacyContentRef.current?.contentWindow, (e) => {
+  useMessageListener(legacyContentRef, (e) => {
     const d = e.data;
     if (isRouteMessage(d)) {
       // Navigate the parent window when the iframe sends a navigation event
@@ -89,14 +89,14 @@ const formatLegacyUrl = (path: string) =>
 // const formatLegacyUrl = (path: string) => `/dev/legacy-spoof/${path}`;
 
 const useMessageListener = function <T = unknown>(
-  target: Window | null | undefined,
+  target: RefObject<HTMLIFrameElement>,
   handler: (ev: MessageEvent<T>) => void
 ) {
   useEffect(() => {
     const wrappedHandler = (ev: MessageEvent<T>) => {
       // eslint-disable-next-line no-console
       console.log('MESSAGE', ev);
-      if (ev.source !== target) return;
+      if (ev.source !== target.current?.contentWindow) return;
       handler(ev);
     };
     window.addEventListener('message', wrappedHandler);
