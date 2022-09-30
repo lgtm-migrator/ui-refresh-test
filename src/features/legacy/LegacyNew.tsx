@@ -94,6 +94,8 @@ const useMessageListener = function <T = unknown>(
 ) {
   useEffect(() => {
     const wrappedHandler = (ev: MessageEvent<T>) => {
+      // eslint-disable-next-line no-console
+      console.log('MESSAGE', ev);
       if (ev.source !== target) return;
       handler(ev);
     };
