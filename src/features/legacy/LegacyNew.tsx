@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../../common/hooks';
 
 export default function Legacy() {
   // TODO: iframe height
   // TODO: external navigation and <base target="_top"> equivalent
-  // TODO: check for kbase-ui reloads where not needed
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -13,11 +12,35 @@ export default function Legacy() {
   const [legacyTitle, setLegacyTitle] = useState('');
   usePageTitle(legacyTitle);
 
+  // The path that should be in the iframe based on the current parent window location
   const expectedLegacyPath = getLegacyPart(
     location.pathname + location.search + location.hash
   );
+  // The actual current path, set by navigation events from kbase-ui
   const [legacyPath, setLegacyPath] = useState(expectedLegacyPath);
 
+  // Listen for messages from the iframe
+  useMessageListener(legacyContentRef.current?.contentWindow, (e) => {
+    const d = e.data;
+    if (isRouteMessage(d)) {
+      // Navigate the parent window when the iframe sends a navigation event
+      let path = d.payload.request.original;
+      if (path[0] === '/') path = path.slice(1);
+      setLegacyPath(d.payload.request.original);
+      navigate(`./${d.payload.request.original}`);
+    } else if (isTitleMessage(d)) {
+      setLegacyTitle(d.payload);
+    }
+  });
+
+  // The following enables navigation events from Europa to propagate to the
+  // iframe. When expectedLegacyPath (from the main window URL) changes, check
+  // that legacyPath (from the iframe) martches, otherwise, send the iframe a
+  // postMessage with navigation instructions. legacyPath will be updated
+  // downstream (the ui navigation event will send a message back to europa with
+  // the new route). We only want to watch for changes on expectedLegacyPath
+  // here, as watching legacyPath will cause this to run any time the iframe's
+  // location changes.
   useEffect(() => {
     if (
       expectedLegacyPath !== legacyPath &&
@@ -31,36 +54,29 @@ export default function Legacy() {
         '*'
       );
     }
-  }, [expectedLegacyPath, legacyPath, legacyContentRef]);
-
-  useMessageListener((e) => {
-    const d = e.data;
-    if (isRouteMessage(d)) {
-      let path = d.payload.request.original;
-      if (path[0] === '/') path = path.slice(1);
-      navigate(`./${d.payload.request.original}`);
-      setLegacyPath(d.payload.request.original);
-    } else if (isTitleMessage(d)) {
-      setLegacyTitle(d.payload);
-    }
-  });
-
-  const legacySrcValue = useMemo(
-    () => formatLegacyUrl(legacyPath),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [legacyContentRef]
-  );
+  }, [expectedLegacyPath, legacyContentRef]);
 
   return (
-    <iframe
-      style={{ overflowY: 'hidden' }}
-      frameBorder="0"
-      src={legacySrcValue}
-      ref={legacyContentRef}
-      title="Legacy Content Wrapper"
-      width="100%"
-      height="100%"
-    />
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        flexFlow: 'column nowrap',
+      }}
+    >
+      <iframe
+        frameBorder="0"
+        // We want the src to always match the content of the iframe, so as not to
+        // cause the iframe to reload inappropriately
+        src={formatLegacyUrl(legacyPath)}
+        ref={legacyContentRef}
+        title="Legacy Content Wrapper"
+        width="100%"
+        height="100%"
+      />
+    </div>
   );
 }
 
@@ -73,26 +89,31 @@ const formatLegacyUrl = (path: string) =>
 // const formatLegacyUrl = (path: string) => `/dev/legacy-spoof/${path}`;
 
 const useMessageListener = function <T = unknown>(
-  handler: (this: Window, ev: MessageEvent<T>) => void
+  target: Window | null | undefined,
+  handler: (ev: MessageEvent<T>) => void
 ) {
   useEffect(() => {
-    window.addEventListener('message', handler);
-    return () => {
-      window.removeEventListener('message', handler);
+    const wrappedHandler = (ev: MessageEvent<T>) => {
+      if (ev.source !== target) return;
+      handler(ev);
     };
-  }, [handler]);
+    window.addEventListener('message', wrappedHandler);
+    return () => {
+      window.removeEventListener('message', wrappedHandler);
+    };
+  }, [handler, target]);
 };
 
-type KbMessage<S extends string, P> = {
+type Message<S extends string, P> = {
   source: S;
   payload: P;
 };
 
-const kbMessageGuard = <S extends string, P>(
+const messageGuard = <S extends string, P>(
   source: S,
   payloadGuard: (payload: unknown) => payload is P
 ) => {
-  type Guarded = KbMessage<S, P>;
+  type Guarded = Message<S, P>;
   return (recieved: unknown): recieved is Guarded =>
     typeof recieved === 'object' &&
     ['source', 'payload'].every(
@@ -102,12 +123,12 @@ const kbMessageGuard = <S extends string, P>(
     payloadGuard((recieved as Guarded).payload);
 };
 
-const isTitleMessage = kbMessageGuard(
+const isTitleMessage = messageGuard(
   'kbase-ui.ui.setTitle',
   (payload): payload is string => typeof payload === 'string'
 );
 
-const isRouteMessage = kbMessageGuard(
+const isRouteMessage = messageGuard(
   'kbase-ui.app.route-component',
   (payload): payload is { request: { original: string } } =>
     !!payload &&

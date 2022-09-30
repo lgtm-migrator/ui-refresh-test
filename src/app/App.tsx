@@ -38,13 +38,15 @@ export default function App() {
         <div className={classes.topbar}>
           <TopBar />
         </div>
-        <div className={classes.left_navbar}>
-          <LeftNavBar />
-        </div>
-        <div className={classes.page_content}>
-          <ErrorBoundary FallbackComponent={ErrorPage}>
-            {token ? <Routes /> : <UnauthenticatedView />}
-          </ErrorBoundary>
+        <div className={classes.site_content}>
+          <div className={classes.left_navbar}>
+            <LeftNavBar />
+          </div>
+          <div className={classes.page_content}>
+            <ErrorBoundary FallbackComponent={ErrorPage}>
+              {token ? <Routes /> : <UnauthenticatedView />}
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
     </Router>
