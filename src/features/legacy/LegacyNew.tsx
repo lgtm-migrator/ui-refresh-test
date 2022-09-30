@@ -26,8 +26,10 @@ export default function Legacy() {
       // Navigate the parent window when the iframe sends a navigation event
       let path = d.payload.request.original;
       if (path[0] === '/') path = path.slice(1);
-      setLegacyPath(d.payload.request.original);
-      navigate(`./${d.payload.request.original}`);
+      if (legacyPath !== path) {
+        setLegacyPath(path);
+        navigate(`./${path}`);
+      }
     } else if (isTitleMessage(d)) {
       setLegacyTitle(d.payload);
     }
