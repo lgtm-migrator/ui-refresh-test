@@ -1,12 +1,14 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { usePageTitle } from '../../common/hooks';
+import { useAppDispatch, usePageTitle } from '../../common/hooks';
+import { authFromToken } from '../auth/authSlice';
 
 export default function Legacy() {
   // TODO: iframe height
   // TODO: external navigation and <base target="_top"> equivalent
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const legacyContentRef = useRef<HTMLIFrameElement>(null);
   const [legacyTitle, setLegacyTitle] = useState('');
@@ -32,6 +34,10 @@ export default function Legacy() {
       }
     } else if (isTitleMessage(d)) {
       setLegacyTitle(d.payload);
+    } else if (isAuthMessage(d)) {
+      if (d.payload.token) {
+        dispatch(authFromToken(d.payload.token));
+      }
     }
   });
 
@@ -142,6 +148,16 @@ const isRouteMessage = messageGuard(
     'original' in (payload as Record<string, Record<string, never>>).request &&
     typeof (payload as Record<string, Record<string, string>>).request
       .original === 'string'
+);
+
+const isAuthMessage = messageGuard(
+  'kbase-ui.session.loggedin',
+  (payload): payload is { token: string | null } =>
+    !!payload &&
+    typeof payload === 'object' &&
+    'token' in (payload as Record<string, never>) &&
+    (typeof (payload as Record<string, unknown>).token === 'string' ||
+      (payload as Record<string, unknown>).token === null)
 );
 
 // export function LegacySpoof() {
