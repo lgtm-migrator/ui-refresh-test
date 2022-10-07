@@ -25,7 +25,7 @@ import {
 
 import Routes from '../../app/Routes';
 import { createTestStore } from '../../app/store';
-import { authFromToken } from '../auth/authSlice';
+import { authFromToken } from '../../common/api/authService';
 
 enableFetchMocks();
 
@@ -132,7 +132,7 @@ describe('Profile related components', () => {
   test('renders ProfileWrapper for my profile', async () => {
     fetchMock.mockResponses(tokenResponseOK, profileResponseOK);
 
-    await testStore.dispatch(authFromToken('a token'));
+    await testStore.dispatch(authFromToken.initiate('a token'));
     render(
       <Provider store={testStore}>
         <Router initialEntries={[`/profile`]}>
@@ -148,7 +148,7 @@ describe('Profile related components', () => {
   test('renders ProfileWrapper for my profile, but no realname', async () => {
     fetchMock.mockResponses(tokenResponseOK, profileResponseNoRealnameOK);
 
-    await testStore.dispatch(authFromToken('a token'));
+    await testStore.dispatch(authFromToken.initiate('a token'));
     render(
       <Provider store={testStore}>
         <Router initialEntries={[`/profile`]}>
@@ -164,7 +164,7 @@ describe('Profile related components', () => {
   test('renders ProfileWrapper for another profile', async () => {
     fetchMock.mockResponses(tokenResponseOK, profileOtherResponseOK);
 
-    await testStore.dispatch(authFromToken('a token'));
+    await testStore.dispatch(authFromToken.initiate('a token'));
     render(
       <Provider store={testStore}>
         <Router initialEntries={[`/profile/${usernameOtherRequested}`]}>
@@ -215,7 +215,7 @@ describe('Profile related components', () => {
       { status: 200 },
     ]);
 
-    await store.dispatch(authFromToken('a token'));
+    await store.dispatch(authFromToken.initiate('a token'));
     render(
       <Provider store={store}>
         <Router initialEntries={[`/profile/${usernameRequested}`]}>
@@ -234,7 +234,7 @@ describe('Profile related components', () => {
       profileResponseOK,
       profileResponseOK
     );
-    await store.dispatch(authFromToken('a token'));
+    await store.dispatch(authFromToken.initiate('a token'));
     const RoutesMock: jest.MockedFunction<FC> = jest.fn((props) => (
       <Routes {...props} />
     ));
@@ -258,7 +258,7 @@ describe('Profile related components', () => {
       profileOtherResponseOK,
       profileOtherResponseOK
     );
-    await store.dispatch(authFromToken('a token'));
+    await store.dispatch(authFromToken.initiate('a token'));
     render(
       <Provider store={store}>
         <Router initialEntries={[`/profile/${usernameOtherRequested}`]}>

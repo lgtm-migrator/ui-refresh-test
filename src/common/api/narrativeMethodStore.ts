@@ -58,4 +58,5 @@ const narrativeMethodStoreApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { status, getMethodBriefInfo } = narrativeMethodStoreApi.endpoints;
+export const { narrativeMethodStoreStatus, getMethodBriefInfo } =
+  narrativeMethodStoreApi.endpoints;

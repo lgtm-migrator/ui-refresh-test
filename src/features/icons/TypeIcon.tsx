@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { useAppSelector } from '../../common/hooks';
-import { IconInfo, isFAIcon } from './iconSlice';
+import { IconInfo, isFAIcon } from './common';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import classes from './TypeIcon.module.scss';
 interface TypeIconProps {
