@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { baseApi } from '../common/api';
 import auth from '../features/auth/authSlice';
 import count from '../features/count/countSlice';
-import icons from '../common/slices/iconSlice';
+import icons from '../features/icons/iconSlice';
 import layout from '../features/layout/layoutSlice';
 import profile from '../features/profile/profileSlice';
 

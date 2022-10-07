@@ -1,11 +1,10 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   getUserProfile,
   setUserProfile,
 } from '../../common/api/userProfileApi';
 import { Button } from '../../common/components';
 import { useAppSelector, usePageTitle } from '../../common/hooks';
-import { getServiceClient } from '../../common/services';
 import { authFromToken, revokeToken } from '../../common/api/authService';
 import { faCheck, faX, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
@@ -14,18 +13,6 @@ import { parseError } from '../../common/api/utils/parseError';
 export default function Auth() {
   usePageTitle('Authentication');
   const { username, token } = useAppSelector((state) => state.auth);
-  useEffect(() => {
-    (async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (!token) return;
-      const clientUserProfile = getServiceClient('UserProfile', token);
-      const profile = await clientUserProfile.call('get_user_profile', [
-        [username],
-      ]);
-      console.log({ profile }); // eslint-disable-line no-console
-    })();
-  }, [token, username]);
-  // get the realname from the profile service
   return (
     <div>
       <p>

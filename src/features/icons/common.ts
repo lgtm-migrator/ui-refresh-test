@@ -12,7 +12,24 @@ import {
   faArrowsLeftRight,
   faGaugeHigh,
   faBook,
+  IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
+
+export interface IconInfo {
+  /*
+    if IconInfo.icon is a string, it will either be the img src url
+    or the kbase css class name, depending on whether its used in an
+    AppCellIcon or a TypeIcon.
+  */
+  icon: string | IconDefinition;
+  color: string;
+}
+
+export function isFAIcon(
+  icon: string | IconDefinition
+): icon is IconDefinition {
+  return (icon as IconDefinition).icon !== undefined;
+}
 
 export const typeIconInfos = {
   assemblyinput: {
