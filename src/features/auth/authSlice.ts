@@ -1,6 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
-import type { RootState } from '../../app/store';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from '../../app/store';
 import { authFromToken, revokeToken } from '../../common/api/authService';
+import { useAppDispatch, useAppSelector } from '../../common/hooks';
 
 interface TokenInfo {
   created: number;
@@ -23,24 +24,61 @@ const initialState: AuthState = {};
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    setAuth: (state, { payload }: PayloadAction<AuthState>) => {
+      state.token = normalizeToken(payload.token);
+      state.username = payload.username;
+      state.tokenInfo = payload.tokenInfo;
+    },
+  },
   extraReducers: (builder) =>
-    builder
-      .addMatcher(authFromToken.matchFulfilled, (state, { payload, meta }) => {
-        state.token = meta.arg.originalArgs;
-        state.username = payload.user;
-        state.tokenInfo = payload;
-      })
-      .addMatcher(revokeToken.matchFulfilled, (state) => {
+    builder.addMatcher(revokeToken.matchFulfilled, (state, action) => {
+      // Clear current token if it's been revoked when revokeToken succeeds
+      const revokedToken = action.meta.arg.originalArgs;
+      if (revokedToken === state.token) {
         state.token = undefined;
         state.username = undefined;
         state.tokenInfo = undefined;
-      }),
+      }
+    }),
 });
 
 export default authSlice.reducer;
+export const { setAuth } = authSlice.actions;
 
 export const authUsername = (state: RootState) => {
-  if (!state.auth) return null;
   return state.auth.username;
+};
+
+export const authToken = (state: RootState) => {
+  return state.auth.token;
+};
+
+export const useTryAuthFromToken = (token?: string) => {
+  const dispatch = useAppDispatch();
+  const currentToken = useAppSelector(authToken);
+  const normToken = normalizeToken(token, '');
+
+  const tokenQuery = authFromToken.useQuery(normToken, {
+    skip: !normToken,
+  });
+
+  if (tokenQuery.isSuccess && normToken !== currentToken) {
+    dispatch(
+      setAuth({
+        token: normToken,
+        username: tokenQuery.data.user,
+        tokenInfo: tokenQuery.data,
+      })
+    );
+  }
+
+  return tokenQuery;
+};
+
+const normalizeToken = <T = undefined>(
+  t?: string,
+  fallback: T = undefined as T
+): string | T => {
+  return t?.toUpperCase().trim() || fallback;
 };

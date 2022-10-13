@@ -53,7 +53,8 @@ export const iconSlice = createSlice({
   extraReducers: (builder) =>
     builder.addMatcher(
       getMethodBriefInfo.matchFulfilled,
-      function updateIconCache(state, { payload, meta }) {
+      (state, { payload, meta }) => {
+        // Update Icon Cache when getMethodBriefInfo succeeds
         const appIds = meta.arg.originalArgs[0].ids;
         const appTags = meta.arg.originalArgs[0].ids;
         for (let i = 0; i < appIds.length; i++) {
