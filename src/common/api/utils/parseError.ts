@@ -1,6 +1,7 @@
 import { SerializedError } from '@reduxjs/toolkit';
 import { KBaseBaseQueryError } from './kbaseBaseQuery';
 
+// TODO: Add Tests
 export function parseError(error: KBaseBaseQueryError | SerializedError): {
   error: KBaseBaseQueryError | SerializedError;
   message: string;
