@@ -1,7 +1,6 @@
 import { SerializedError } from '@reduxjs/toolkit';
 import { KBaseBaseQueryError } from './kbaseBaseQuery';
 
-// TODO: Add Tests
 export function parseError(error: KBaseBaseQueryError | SerializedError): {
   error: KBaseBaseQueryError | SerializedError;
   message: string;
@@ -23,8 +22,10 @@ export function parseError(error: KBaseBaseQueryError | SerializedError): {
       };
     } else {
       // FetchBaseQueryError
+      const message =
+        'error' in error ? error.error : JSON.stringify(error.data);
       return {
-        message: JSON.stringify(error.data),
+        message: message,
         status: error.status,
         error,
       };

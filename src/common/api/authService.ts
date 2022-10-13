@@ -48,8 +48,8 @@ export const authApi = baseApi.injectEndpoints({
     revokeToken: builder.mutation<boolean, string>({
       queryFn: async (tokenId, baseQueryApi) => {
         const token = (baseQueryApi.getState() as RootState).auth.token;
-        if (!tokenId || !token) {
-          throw new Error('Failed to revoke token: No token to revoke');
+        if (!tokenId) {
+          throw new Error('Failed to revoke token: No token ID to revoke');
         }
         const resp = await fetch(
           `${AUTH_SERVICE_URL}/tokens/revoke/${tokenId}`,

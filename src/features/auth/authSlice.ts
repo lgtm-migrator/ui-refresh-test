@@ -34,8 +34,8 @@ export const authSlice = createSlice({
   extraReducers: (builder) =>
     builder.addMatcher(revokeToken.matchFulfilled, (state, action) => {
       // Clear current token if it's been revoked when revokeToken succeeds
-      const revokedToken = action.meta.arg.originalArgs;
-      if (revokedToken === state.token) {
+      const revokedTokenId = action.meta.arg.originalArgs;
+      if (revokedTokenId === state.tokenInfo?.id) {
         state.token = undefined;
         state.username = undefined;
         state.tokenInfo = undefined;
