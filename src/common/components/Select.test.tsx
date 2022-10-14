@@ -1,6 +1,14 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Select } from './Select';
+import { Select, handleChangeFactory } from './Select';
+
+test('The change handler does nothing when passed null.', () => {
+  // This test is (currently) required for 100% coverage.
+  const handleChange = handleChangeFactory((options) => {
+    // Move `ZIG`. For great coverage.
+  });
+  expect(handleChange(null)).toBe(undefined);
+});
 
 test('Select Renders', () => {
   const { container } = render(
@@ -16,6 +24,20 @@ test('Select Renders', () => {
   expect(selectControl).toBeInTheDocument();
 });
 
+test('Select Renders with icons', async () => {
+  const { container } = render(
+    <Select
+      options={[{ value: 'coffee', label: 'Coffee', icon: 'faCoffee' }]}
+    />
+  );
+  const selectControl = container.querySelector('.react-select__control');
+  expect(selectControl).toBeInTheDocument();
+
+  selectControl && (await userEvent.click(selectControl));
+  const opt = await screen.findByText('Coffee');
+  opt && (await userEvent.click(opt));
+});
+
 test('Single select onchange', async () => {
   const onChange = jest.fn();
   const options = [
@@ -29,15 +51,15 @@ test('Single select onchange', async () => {
   const selectControl = container.querySelector('.react-select__control');
   expect(selectControl).toBeInTheDocument();
 
-  selectControl && userEvent.click(selectControl);
+  selectControl && (await userEvent.click(selectControl));
   const opt = await screen.findByText('Chocolate');
-  opt && userEvent.click(opt);
+  opt && (await userEvent.click(opt));
   expect(onChange).toHaveBeenCalledTimes(1);
   expect(onChange).toHaveBeenCalledWith(expect.arrayContaining([options[0]]));
 
   selectControl && userEvent.click(selectControl);
   const opt2 = await screen.findByText('Vanilla');
-  opt2 && userEvent.click(opt2);
+  opt2 && (await userEvent.click(opt2));
   expect(onChange).toHaveBeenCalledTimes(2);
   expect(onChange).toHaveBeenCalledWith(expect.arrayContaining([options[2]]));
   expect(onChange).toHaveBeenCalledWith(
@@ -58,25 +80,25 @@ test('Multi select onchange and remove', async () => {
   const selectControl = container.querySelector('.react-select__control');
   expect(selectControl).toBeInTheDocument();
 
-  selectControl && userEvent.click(selectControl);
+  selectControl && (await userEvent.click(selectControl));
   const opt = await screen.findByText('Chocolate');
-  opt && userEvent.click(opt);
+  opt && (await userEvent.click(opt));
   expect(onChange).toHaveBeenCalledTimes(1);
   expect(onChange).toHaveBeenCalledWith(expect.arrayContaining([options[0]]));
 
-  selectControl && userEvent.click(selectControl);
+  selectControl && (await userEvent.click(selectControl));
   const opt2 = await screen.findByText('Vanilla');
-  opt2 && userEvent.click(opt2);
+  opt2 && (await userEvent.click(opt2));
   expect(onChange).toHaveBeenCalledTimes(2);
   expect(onChange).toHaveBeenCalledWith(
     expect.arrayContaining([options[2], options[0]])
   );
 
-  selectControl && userEvent.click(selectControl);
+  selectControl && (await userEvent.click(selectControl));
   const remove = (await screen.findByText('Chocolate'))
     ?.closest('.react-select__multi-value')
     ?.querySelector('.react-select__multi-value__remove');
-  remove && userEvent.click(remove);
+  remove && (await userEvent.click(remove));
   expect(onChange).toHaveBeenCalledTimes(3);
   expect(onChange).toHaveBeenCalledWith(expect.arrayContaining([options[2]]));
   expect(onChange).toHaveBeenCalledWith(
@@ -109,7 +131,7 @@ test('Async option loading and selection', async () => {
 
   const input = container.querySelector('input');
   const testText = 'foobar';
-  userEvent.type(input as HTMLInputElement, testText);
+  await userEvent.type(input as HTMLInputElement, testText);
   await waitFor(async () => {
     // wait for new options to load
     expect(optionsSpy).toHaveBeenCalledTimes(1 + testText.length);
@@ -117,7 +139,7 @@ test('Async option loading and selection', async () => {
   });
   const opt = await screen.findByText(testText);
   expect(opt).toBeInTheDocument();
-  opt && userEvent.click(opt);
+  opt && (await userEvent.click(opt));
   expect(onChange).toHaveBeenCalledTimes(1);
   expect(onChange).toHaveBeenCalledWith(
     expect.arrayContaining([{ value: 'test-value', label: testText }])

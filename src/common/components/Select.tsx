@@ -41,6 +41,20 @@ interface SelectProps {
   value?: SingleValue<SelectOption> | MultiValue<SelectOption>;
 }
 
+export const handleChangeFactory = (
+  callOnChange: (value: SelectOption[]) => void
+) => {
+  return (options: SingleValue<SelectOption> | MultiValue<SelectOption>) => {
+    if (options === null) return;
+    if ('value' in options) {
+      callOnChange([options]);
+    } else {
+      // multiple/no options returned
+      callOnChange([...options]);
+    }
+  };
+};
+
 /**
  * Select component that supports multiple selection, async options loading,
  * custom styling, and more.
@@ -71,22 +85,7 @@ export const Select: FC<SelectProps> = (props) => {
     (() => {
       /* noop */
     });
-  const handleChange = (
-    options: SingleValue<SelectOption> | MultiValue<SelectOption>
-  ) => {
-    if (options && 'value' in options) {
-      // one option returned
-      callOnChange([options]);
-    } else {
-      // multiple/no options returned
-      if (options) {
-        callOnChange([...options]);
-      } else {
-        callOnChange([]);
-      }
-    }
-  };
-
+  const handleChange = handleChangeFactory(callOnChange);
   const handleFormatOptionLabel = (data: SelectOption) => {
     return (
       <span className={classes.option_content}>
