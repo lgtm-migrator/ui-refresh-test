@@ -1,191 +1,219 @@
-import { useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch, usePageTitle } from '../../common/hooks';
+import { authFromToken } from '../auth/authSlice';
 
-/** Creates and manages an iframe for any legacy KBaseUI page,
- * modifies the history to point to the iframe's path,
- * and sets the iframe's head>base element to have target="_top",
- * so that navigation behaves as expected.
- * TODO: hide KBaseUI's topbar and left navbar.
- * TODO: extract title from iframe topbar and set it as the page title.
- */
 export default function Legacy() {
+  // TODO: external navigation and <base target="_top"> equivalent
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  const legacyContent = useRef<HTMLIFrameElement>(null);
-  const legacyFrame = legacyContent?.current?.contentWindow;
-  const pathSyncInterval = 200;
+  const legacyContentRef = useRef<HTMLIFrameElement>(null);
+  const [legacyTitle, setLegacyTitle] = useState('');
+  usePageTitle(legacyTitle);
 
-  // path state
-  const initPath = legacyPart(location.pathname) + location.hash;
-  const [initialLegacyPath, setInitialLegacyPath] = useState<string>(initPath);
-  const [legacyPath, setLegacyPath] = useState<string>(initPath);
-  const [badLegacyPath, setBadLegacyPath] = useState<boolean>(false);
-
-  //height state
-  const [legacyHeight, setLegacyHeight] = useState<string>('0');
-
-  // This effect compares the outer and inner URLS (window URL and iframe URL)
-  // to the current known URL in state. If the inner URL differs, the state
-  // and outer URLs are updated to match the inner URL. If the outer URL
-  // differs, the inner and state URLs are updated to match the outer URL.
-  // If both inner & outer URLs differ from state, the inner URL takes
-  // precedence. It also manages the iframe height, as this needs to be updated
-  // manually.
-  useEffect(() => {
-    const pathAndHeightSync = setInterval(() => {
-      // check if iframe is inaccessible due to CORS
-      if (!checkIFrameSameOrigin(legacyContent.current?.contentWindow)) {
-        setBadLegacyPath(true);
-        // alert(
-        //   // eslint-disable-next-line max-len
-        //   'Something went wrong: Could not load external link within legacy page iframe.'
-        // );
-        return;
-      } else {
-        setBadLegacyPath(false);
-      }
-
-      // paths to sync
-      const innerLocation = legacyContent.current?.contentWindow?.location;
-      const outerLocation = window.location;
-      let pathChanged = false;
-
-      // ensure the iframe has mounted before trying to sync paths
-      if (innerLocation && innerLocation.pathname !== 'blank') {
-        const inner = innerLocation.pathname + (innerLocation.hash ?? '');
-        const outer =
-          legacyPart(outerLocation.pathname) + (outerLocation.hash ?? '');
-        if (inner !== legacyPath) {
-          setLegacyPath(inner);
-          pathChanged = true;
-          navigate(`/legacy${inner}`);
-        } else if (outer !== legacyPath) {
-          setLegacyPath(outer);
-          setInitialLegacyPath(outer);
-          legacyContent.current.src = `https://legacy.ci-europa.kbase.us${outer}`;
-          pathChanged = true;
-        }
-      }
-
-      // set iframe height when the path changes or content exceeds the iframe
-      // this may be slow if the inner content changes height frequently
-      setLegacyHeight(
-        getIFrameHeight(legacyContent.current, pathChanged, legacyHeight)
-      );
-    }, pathSyncInterval);
-
-    return () => {
-      clearInterval(pathAndHeightSync);
-    };
-  }, [navigate, legacyContent, legacyPath, legacyHeight]);
-
-  // This effect recursively injects <base target="_top"> into all child
-  // iframe's `<head>` tags. this is necessary to allow the iframe to navigate
-  // to third-party sites outside of the iframe.
-  useMonkeyPatchIFrameLinks(legacyFrame);
-
-  // if (badLegacyPath) {
-  //   return null;
-  // } else {
-  if (badLegacyPath)
-    // eslint-disable-next-line no-console
-    console.error('badPath', { initialLegacyPath, legacyPath });
-  return (
-    <iframe
-      style={{ overflowY: 'hidden' }}
-      frameBorder="0"
-      src={`https://legacy.ci-europa.kbase.us${initialLegacyPath}`}
-      ref={legacyContent}
-      title="Legacy Content"
-      width="100%"
-      height={legacyHeight}
-    />
+  // The path that should be in the iframe based on the current parent window location
+  const expectedLegacyPath = getLegacyPart(
+    location.pathname + location.search + location.hash
   );
-  // }
+  // The actual current path, set by navigation events from kbase-ui
+  const [legacyPath, setLegacyPath] = useState(expectedLegacyPath);
+
+  // Listen for messages from the iframe
+  useMessageListener(legacyContentRef, (e) => {
+    const d = e.data;
+    if (isRouteMessage(d)) {
+      // Navigate the parent window when the iframe sends a navigation event
+      let path = d.payload.request.original;
+      if (path[0] === '/') path = path.slice(1);
+      if (legacyPath !== path) {
+        setLegacyPath(path);
+        navigate(`./${path}`);
+      }
+    } else if (isTitleMessage(d)) {
+      setLegacyTitle(d.payload);
+    } else if (isAuthMessage(d)) {
+      if (d.payload.token) {
+        dispatch(authFromToken(d.payload.token));
+      }
+    }
+  });
+
+  // The following enables navigation events from Europa to propagate to the
+  // iframe. When expectedLegacyPath (from the main window URL) changes, check
+  // that legacyPath (from the iframe) martches, otherwise, send the iframe a
+  // postMessage with navigation instructions. legacyPath will be updated
+  // downstream (the ui navigation event will send a message back to europa with
+  // the new route). We only want to watch for changes on expectedLegacyPath
+  // here, as watching legacyPath will cause this to run any time the iframe's
+  // location changes.
+  useEffect(() => {
+    if (
+      expectedLegacyPath !== legacyPath &&
+      legacyContentRef.current?.contentWindow
+    ) {
+      legacyContentRef.current.contentWindow.postMessage(
+        {
+          source: 'europa.navigate',
+          payload: { path: expectedLegacyPath },
+        },
+        '*'
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expectedLegacyPath, legacyContentRef]);
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        flexFlow: 'column nowrap',
+      }}
+    >
+      <iframe
+        frameBorder="0"
+        // We want the src to always match the content of the iframe, so as not to
+        // cause the iframe to reload inappropriately
+        src={formatLegacyUrl(legacyPath)}
+        ref={legacyContentRef}
+        title="Legacy Content Wrapper"
+        width="100%"
+        height="100%"
+      />
+    </div>
+  );
 }
 
-const legacyPart = (path: string) =>
-  path.match(/(?:\/legacy)+(\/.*)$/)?.[1] || '/';
+const getLegacyPart = (path: string) =>
+  path.match(/(?:\/legacy)+(?:\/+(.*))$/)?.[1] || '/';
 
-/** Checks that an IFrame's contents can be seen without triggering CORS*/
-const checkIFrameSameOrigin = (
-  contentWindow?: HTMLIFrameElement['contentWindow']
-) => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    !!contentWindow?.document;
-  } catch (error) {
-    return false;
-  }
-  return true;
-};
+const formatLegacyUrl = (path: string) =>
+  `https://legacy.ci-europa.kbase.us/#${path}`; //`/dev/legacy-spoof/${path}`;
 
-/** On an interval, traverse the window tree to find all iframes. Ignore
- * iframes that are cross-origin. Then, inject <base target="_top"> into
- * all kbase iframe's `<head>` tags.*/
-const useMonkeyPatchIFrameLinks = (topFrame?: Window | null) => {
+// const formatLegacyUrl = (path: string) => `/dev/legacy-spoof/${path}`;
+
+const useMessageListener = function <T = unknown>(
+  target: RefObject<HTMLIFrameElement>,
+  handler: (ev: MessageEvent<T>) => void
+) {
   useEffect(() => {
-    if (!topFrame) return; // exit early if the top level iframe DNE
-
-    const checkInterval = setInterval(() => {
-      const checkFrames: Window[] = [topFrame];
-      const currentFrames: Window[] = [];
-      while (checkFrames.length > 0) {
-        const frame = checkFrames.pop() as Window;
-        if (checkIFrameSameOrigin(frame)) {
-          if (frame.frames.length > 0) {
-            for (let i = 0; i < frame.frames.length; i++) {
-              checkFrames.push(frame.frames[i]);
-            }
-          }
-          currentFrames.push(frame);
-        }
-      }
-
-      currentFrames.forEach((frame) => {
-        // modify the iframes only after the DOM content has loaded
-        if (frame.document.readyState === 'complete') {
-          monkeyPatchIFrameLinks(frame);
-        } else {
-          frame.addEventListener('load', () => {
-            monkeyPatchIFrameLinks(frame);
-          });
-        }
-      });
-    }, 200);
-
-    return () => clearInterval(checkInterval);
-  }, [topFrame]);
+    const wrappedHandler = (ev: MessageEvent<T>) => {
+      // eslint-disable-next-line no-console
+      console.log('MESSAGE', ev);
+      if (ev.source !== target.current?.contentWindow) return;
+      handler(ev);
+    };
+    window.addEventListener('message', wrappedHandler);
+    return () => {
+      window.removeEventListener('message', wrappedHandler);
+    };
+  }, [handler, target]);
 };
 
-const monkeyPatchIFrameLinks = (frame: Window) => {
-  const base =
-    frame.document.head.querySelector('base') ||
-    frame.document.head.appendChild(frame.document.createElement('base'));
-  base.setAttribute('target', '_top');
+type Message<S extends string, P> = {
+  source: S;
+  payload: P;
 };
 
-const getIFrameHeight = (
-  iframe: HTMLIFrameElement | null,
-  pathChanged: boolean,
-  legacyHeight: string
+const messageGuard = <S extends string, P>(
+  source: S,
+  payloadGuard: (payload: unknown) => payload is P
 ) => {
-  const iframeBody = iframe?.contentWindow?.document.body;
-  const checkheight = iframeBody?.scrollHeight.toString();
-  if (iframe && checkheight && (pathChanged || checkheight !== legacyHeight)) {
-    const scrollY = window.scrollY; // save current scroll position
-    // reset iframe height to max container height, force reflow
-    iframe.height = (
-      window.innerHeight -
-      (iframe.parentElement?.getBoundingClientRect().top || 0) -
-      4
-    ).toString();
-    // use reflowed scroll height to set iframe height
-    const setHeight = iframeBody?.scrollHeight.toString() || checkheight;
-    iframe.height = setHeight;
-    window.scrollTo(0, scrollY); // restore scroll position
-    return setHeight;
-  }
-  return legacyHeight;
+  type Guarded = Message<S, P>;
+  return (recieved: unknown): recieved is Guarded =>
+    typeof recieved === 'object' &&
+    ['source', 'payload'].every(
+      (k) => k in (recieved as Record<string, never>)
+    ) &&
+    (recieved as Guarded).source === source &&
+    payloadGuard((recieved as Guarded).payload);
 };
+
+const isTitleMessage = messageGuard(
+  'kbase-ui.ui.setTitle',
+  (payload): payload is string => typeof payload === 'string'
+);
+
+const isRouteMessage = messageGuard(
+  'kbase-ui.app.route-component',
+  (payload): payload is { request: { original: string } } =>
+    !!payload &&
+    typeof payload === 'object' &&
+    'request' in (payload as Record<string, never>) &&
+    typeof (payload as Record<string, unknown>).request === 'object' &&
+    'original' in (payload as Record<string, Record<string, never>>).request &&
+    typeof (payload as Record<string, Record<string, string>>).request
+      .original === 'string'
+);
+
+const isAuthMessage = messageGuard(
+  'kbase-ui.session.loggedin',
+  (payload): payload is { token: string | null } =>
+    !!payload &&
+    typeof payload === 'object' &&
+    'token' in (payload as Record<string, never>) &&
+    (typeof (payload as Record<string, unknown>).token === 'string' ||
+      (payload as Record<string, unknown>).token === null)
+);
+
+// export function LegacySpoof() {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+
+//   const loc = location.pathname + location.search + location.hash;
+
+//   const [path, setPath] = useState(
+//     loc.match(/(?:\/legacy-spoof)+(?:\/(.*))$/)?.[1] || ''
+//   );
+//   const [title, setTitle] = useState('NoTitle');
+//   useEffect(() => {
+//     setPath(loc.match(/(?:\/legacy-spoof)+(?:\/(.*))$/)?.[1] || '');
+//   }, [loc]);
+//   return (
+//     <div>
+//       <input
+//         type="text"
+//         value={path}
+//         onChange={(e) => setPath(e.currentTarget.value)}
+//       />
+//       <button
+//         onClick={() => {
+//           window.parent.postMessage({
+//             source: 'kbase-ui.app.route-component',
+//             payload: {
+//               route: {},
+//               request: {
+//                 realPath: [],
+//                 path: [],
+//                 original: path,
+//                 query: {},
+//               },
+//               params: {},
+//             },
+//           });
+//           navigate(`/legacy-spoof/${path}`);
+//         }}
+//       >
+//         Send
+//       </button>
+//       <input
+//         type="text"
+//         value={title}
+//         onChange={(e) => setTitle(e.currentTarget.value)}
+//       />
+//       <button
+//         onClick={() => {
+//           window.parent.postMessage({
+//             source: 'kbase-ui.ui.setTitle',
+//             payload: title,
+//           });
+//         }}
+//       >
+//         Send
+//       </button>
+//     </div>
+//   );
+// }
