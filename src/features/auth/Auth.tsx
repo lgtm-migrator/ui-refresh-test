@@ -1,43 +1,24 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   getUserProfile,
   setUserProfile,
 } from '../../common/api/userProfileApi';
 import { Button } from '../../common/components';
-import {
-  useAppSelector,
-  useAppDispatch,
-  usePageTitle,
-} from '../../common/hooks';
-import { getServiceClient } from '../../common/services';
-import { authFromToken, revokeCurrentToken } from './authSlice';
+import { useAppSelector, usePageTitle } from '../../common/hooks';
+import { authFromToken, revokeToken } from '../../common/api/authService';
 import { faCheck, faX, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
+import { parseError } from '../../common/api/utils/parseError';
 
 export default function Auth() {
   usePageTitle('Authentication');
-  const { username, token, error, pending } = useAppSelector(
-    (state) => state.auth
-  );
-  useEffect(() => {
-    (async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (!token) return;
-      const clientUserProfile = getServiceClient('UserProfile', token);
-      const profile = await clientUserProfile.call('get_user_profile', [
-        [username],
-      ]);
-      console.log({ profile }); // eslint-disable-line no-console
-    })();
-  }, [token, username]);
-  // get the realname from the profile service
+  const { username, token } = useAppSelector((state) => state.auth);
   return (
     <div>
       <p>
         {token ? `You are logged in as '${username}'` : `You are not logged in`}
       </p>
-      {pending ? <p>Please wait...</p> : token ? <LogoutForm /> : <AuthForm />}
-      {error ? <span style={{ color: 'red' }}>{error}</span> : null}
+      {token ? <LogoutForm /> : <AuthForm />}
       <div>
         <UserRealNameChanger />
       </div>
@@ -46,35 +27,62 @@ export default function Auth() {
 }
 
 const AuthForm = () => {
-  const dispatch = useAppDispatch();
-  const [token, setToken] = useState<string>();
-  const doLogin = () => {
-    if (token) {
-      dispatch(authFromToken(token));
+  const [tokenString, setTokenString] = useState<string>();
+  const [authFromTokenQuery, authFromTokenResult] =
+    authFromToken.useLazyQuery();
+
+  const error = authFromTokenResult.isError
+    ? parseError(authFromTokenResult.error).message
+    : null;
+
+  const handleLogin = () => {
+    if (tokenString) {
+      authFromTokenQuery(tokenString);
     } else {
       alert('Please enter a kbase token');
     }
   };
+
   return (
     <div>
       <input
         placeholder="kbase token"
         type="text"
-        value={token ?? ''}
-        onChange={(e) => setToken(e.target.value)}
+        value={tokenString ?? ''}
+        onChange={(e) => setTokenString(e.target.value)}
       />
-      <Button onClick={doLogin}>Login</Button>
+      <Button onClick={handleLogin}>Login</Button>
+      {error ? (
+        <>
+          <br />
+          <span style={{ color: 'red' }}>{error}</span>
+        </>
+      ) : null}
     </div>
   );
 };
 
 const LogoutForm = () => {
-  const dispatch = useAppDispatch();
+  const tokenId = useAppSelector(({ auth }) => auth.tokenInfo?.id);
+  const [revokeTokenMutation, revokeTokenResult] = revokeToken.useMutation();
+
+  const error = revokeTokenResult.isError
+    ? parseError(revokeTokenResult.error).message
+    : null;
+
+  const handleLogout = () => {
+    if (tokenId) revokeTokenMutation(tokenId);
+  };
+
   return (
     <div>
-      <Button onClick={() => dispatch(revokeCurrentToken())}>
-        Logout of KBase
-      </Button>
+      <Button onClick={handleLogout}>Logout of KBase</Button>
+      {error ? (
+        <>
+          <br />
+          <span style={{ color: 'red' }}>{error}</span>
+        </>
+      ) : null}
     </div>
   );
 };

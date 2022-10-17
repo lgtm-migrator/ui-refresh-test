@@ -1,8 +1,8 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import TypeIcon from '../../common/components/TypeIcon';
-import { typeIconInfos } from '../../common/slices/icons';
+import TypeIcon from '../../features/icons/TypeIcon';
+import { typeIconInfos } from '../../features/icons/common';
 
 export default {
   title: 'Components/TypeIcon',

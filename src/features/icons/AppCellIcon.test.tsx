@@ -2,7 +2,7 @@ import AppCellIcon from './AppCellIcon';
 import { createTestStore } from '../../app/store';
 import { Provider } from 'react-redux';
 import { render, waitFor } from '@testing-library/react';
-import { AppTag } from '../slices/iconSlice';
+import { AppTag } from './iconSlice';
 
 test('AppCellIcon renders initial loading icon', () => {
   const { container } = render(

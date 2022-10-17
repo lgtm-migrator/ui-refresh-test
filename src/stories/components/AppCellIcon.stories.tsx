@@ -1,8 +1,8 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import AppCellIcon from '../../common/components/AppCellIcon';
-import { AppTag } from '../../common/slices/iconSlice';
+import AppCellIcon from '../../features/icons/AppCellIcon';
+import { AppTag } from '../../features/icons/iconSlice';
 
 export default {
   title: 'Components/AppCellIcon',

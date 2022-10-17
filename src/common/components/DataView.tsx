@@ -2,7 +2,7 @@ import { DataObject } from '../types/NarrativeDoc';
 import { FC } from 'react';
 import { getWSTypeName } from '../utils/stringUtils';
 import classes from './DataView.module.scss';
-import TypeIcon from './TypeIcon';
+import TypeIcon from '../../features/icons/TypeIcon';
 
 interface DataViewProps {
   wsId: number;

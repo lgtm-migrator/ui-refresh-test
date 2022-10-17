@@ -23,7 +23,7 @@ interface UserProfileResults {
       {
         user: { username: string; realname: string };
         profile: unknown;
-      }
+      } | null
     ]
   ];
   set_user_profile: void;
@@ -33,7 +33,7 @@ export const userProfileApi = baseApi
   .enhanceEndpoints({ addTagTypes: ['Profile'] })
   .injectEndpoints({
     endpoints: (builder) => ({
-      status: builder.query<
+      userProfileStatus: builder.query<
         UserProfileResults['status'],
         UserProfileParams['status']
       >({
@@ -53,6 +53,8 @@ export const userProfileApi = baseApi
             method: 'UserProfile.get_user_profile',
             params: [usernames],
           }),
+        // Cache profiles for an hour
+        keepUnusedDataFor: 3600,
         // Tells rtk-query the cache constraints for this query
         providesTags: (result, error, { usernames }) =>
           usernames.map((username) => ({ type: 'Profile', id: username })),
@@ -75,5 +77,5 @@ export const userProfileApi = baseApi
     }),
   });
 
-export const { getUserProfile, setUserProfile, status } =
+export const { getUserProfile, setUserProfile, userProfileStatus } =
   userProfileApi.endpoints;
