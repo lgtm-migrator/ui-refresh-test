@@ -1,19 +1,12 @@
-import { render, screen } from '@testing-library/react';
-import fetchMock, { enableFetchMocks } from 'jest-fetch-mock';
+import { render, screen, waitFor } from '@testing-library/react';
+import fetchMock, {
+  disableFetchMocks,
+  enableFetchMocks,
+} from 'jest-fetch-mock';
 import type { MockParams } from 'jest-fetch-mock';
-import React, { FC } from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router } from 'react-router-dom';
 
-import {
-  initialState,
-  initialStateWithCache,
-  pendingProfile,
-  usernameRequested,
-  usernameOtherRequested,
-  realnameOther,
-  realname,
-} from './common';
 import {
   Profile,
   ProfileInfobox,
@@ -25,14 +18,29 @@ import {
 
 import Routes from '../../app/Routes';
 import { createTestStore } from '../../app/store';
-import { authFromToken } from '../auth/authSlice';
+import { setAuth } from '../auth/authSlice';
+import { baseApi } from '../../common/api';
 
-enableFetchMocks();
+export const realname = 'Rosalind Franklin';
+export const usernameRequested = 'rosalind-franklin';
+export const realnameOther = 'Dorothy Hodgkin';
+export const usernameOtherRequested = 'dorothy-hodgkin';
 
-const tokenResponseOK: [string, MockParams] = [
-  JSON.stringify({ user: usernameRequested }),
-  { status: 200 },
-];
+export const initialState = {
+  auth: {
+    token: 'a token',
+    username: usernameRequested,
+  },
+  profile: {
+    loggedInProfile: {
+      user: {
+        username: usernameRequested,
+        realname: realname,
+      },
+      profile: {},
+    },
+  },
+};
 
 export const profileResponseOKFactory = (
   username: string,
@@ -69,9 +77,14 @@ const consoleError = jest.spyOn(console, 'error');
 // This mockImplementation supresses console.error calls.
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 consoleError.mockImplementation(() => {});
+
 describe('Profile related components', () => {
+  beforeAll(() => {
+    enableFetchMocks();
+  });
   afterAll(() => {
     consoleError.mockRestore();
+    disableFetchMocks();
   });
 
   afterEach(() => {
@@ -80,7 +93,9 @@ describe('Profile related components', () => {
 
   beforeEach(() => {
     fetchMock.resetMocks();
+    consoleError.mockClear();
     testStore = createTestStore(initialState);
+    testStore.dispatch(baseApi.util.resetApiState());
   });
 
   test('renders Profile', () => {
@@ -130,9 +145,16 @@ describe('Profile related components', () => {
   });
 
   test('renders ProfileWrapper for my profile', async () => {
-    fetchMock.mockResponses(tokenResponseOK, profileResponseOK);
+    fetchMock.mockResponses(profileResponseOK);
 
-    await testStore.dispatch(authFromToken('a token'));
+    await testStore.dispatch(
+      setAuth({
+        token: 'some token',
+        tokenInfo: undefined,
+        username: usernameRequested,
+      })
+    );
+
     render(
       <Provider store={testStore}>
         <Router initialEntries={[`/profile`]}>
@@ -140,15 +162,24 @@ describe('Profile related components', () => {
         </Router>
       </Provider>
     );
-    await pendingProfile(testStore)();
-    const linkElement = screen.getByText(realname, { exact: false });
-    expect(linkElement).toBeInTheDocument();
+
+    await waitFor(() => {
+      const linkElement = screen.getByText(realname, { exact: false });
+      expect(linkElement).toBeInTheDocument();
+    });
   });
 
   test('renders ProfileWrapper for my profile, but no realname', async () => {
-    fetchMock.mockResponses(tokenResponseOK, profileResponseNoRealnameOK);
+    fetchMock.mockResponses(profileResponseNoRealnameOK);
 
-    await testStore.dispatch(authFromToken('a token'));
+    await testStore.dispatch(
+      setAuth({
+        token: 'some token',
+        tokenInfo: undefined,
+        username: usernameRequested,
+      })
+    );
+
     render(
       <Provider store={testStore}>
         <Router initialEntries={[`/profile`]}>
@@ -156,15 +187,26 @@ describe('Profile related components', () => {
         </Router>
       </Provider>
     );
-    await pendingProfile(testStore)();
+    await waitFor(() =>
+      expect(testStore.getState().profile.loggedInProfile?.user.username).toBe(
+        usernameRequested
+      )
+    );
     const linkElement = screen.getByText(/infobox/i);
     expect(linkElement).toBeInTheDocument();
   });
 
   test('renders ProfileWrapper for another profile', async () => {
-    fetchMock.mockResponses(tokenResponseOK, profileOtherResponseOK);
+    fetchMock.mockResponses(profileOtherResponseOK);
 
-    await testStore.dispatch(authFromToken('a token'));
+    await testStore.dispatch(
+      setAuth({
+        token: 'some token',
+        tokenInfo: undefined,
+        username: usernameRequested,
+      })
+    );
+
     render(
       <Provider store={testStore}>
         <Router initialEntries={[`/profile/${usernameOtherRequested}`]}>
@@ -172,12 +214,14 @@ describe('Profile related components', () => {
         </Router>
       </Provider>
     );
-    await pendingProfile(testStore)();
-    const linkElement = screen.getByText(realnameOther, { exact: false });
-    expect(linkElement).toBeInTheDocument();
+
+    await waitFor(() => {
+      const linkElement = screen.getByText(realnameOther, { exact: false });
+      expect(linkElement).toBeInTheDocument();
+    });
   });
 
-  test('renders ProfileWrapper for usernameRequested', () => {
+  test('renders ProfileWrapper with auth message when missing auth', () => {
     render(
       <Provider store={createTestStore()}>
         <Router initialEntries={[`/profile/${usernameRequested}`]}>
@@ -185,16 +229,13 @@ describe('Profile related components', () => {
         </Router>
       </Provider>
     );
-    const linkElement = screen.getByText(/auth/i);
+    const linkElement = screen.getByText(/Loading authentication state/i);
     expect(linkElement).toBeInTheDocument();
   });
 
-  /* TODO: The tests marked `error` should check that console.error is called,
-   * but there is a subtle bug here. Waiting for a length of time causes an
-   * infinite loop of renders. It has to do with error handling in
-   * the ProfileWrapper component.
-   */
-  test('renders ProfileWrapper for viewUsername, logs an error', async () => {
+  test('renders ProfileWrapper as Page Not Found for viewUsername query error', async () => {
+    fetchMock.mockResponses(['', { status: 500 }]);
+
     render(
       <Provider store={testStore}>
         <Router initialEntries={[`/profile/${usernameRequested}`]}>
@@ -202,71 +243,14 @@ describe('Profile related components', () => {
         </Router>
       </Provider>
     );
-    const linkElement = screen.getByText(/user/i);
-    expect(linkElement).toBeInTheDocument();
-    // await (() => new Promise((resolve) => setTimeout(resolve, 10)))();
-    await Promise.resolve(true);
-  });
 
-  test('renders ProfileWrapper for a profile, logs an error', async () => {
-    const store = createTestStore();
-    fetchMock.mockResponses([
-      JSON.stringify({ user: usernameRequested }),
-      { status: 200 },
-    ]);
-
-    await store.dispatch(authFromToken('a token'));
-    render(
-      <Provider store={store}>
-        <Router initialEntries={[`/profile/${usernameRequested}`]}>
-          <Routes />
-        </Router>
-      </Provider>
-    );
-    const linkElement = screen.getByText(/profile/i);
-    expect(linkElement).toBeInTheDocument();
-  });
-
-  test('renders ProfileWrapper for a profile completely ', async () => {
-    const store = createTestStore();
-    fetchMock.mockResponses(
-      [JSON.stringify({ user: usernameRequested }), { status: 200 }],
-      profileResponseOK,
-      profileResponseOK
-    );
-    await store.dispatch(authFromToken('a token'));
-    const RoutesMock: jest.MockedFunction<FC> = jest.fn((props) => (
-      <Routes {...props} />
-    ));
-    render(
-      <Provider store={store}>
-        <Router initialEntries={[`/profile/${usernameRequested}`]}>
-          <RoutesMock />
-        </Router>
-      </Provider>
-    );
-    await pendingProfile(store)();
-    const linkElement = screen.getByText(realname, { exact: false });
-    expect(linkElement).toBeInTheDocument();
-    expect(RoutesMock.mock.calls[0].length).toBe(2);
-  });
-
-  test('renders ProfileWrapper for another cached profile completely ', async () => {
-    const store = createTestStore(initialStateWithCache);
-    fetchMock.mockResponses(
-      [JSON.stringify({ user: usernameRequested }), { status: 200 }],
-      profileOtherResponseOK,
-      profileOtherResponseOK
-    );
-    await store.dispatch(authFromToken('a token'));
-    render(
-      <Provider store={store}>
-        <Router initialEntries={[`/profile/${usernameOtherRequested}`]}>
-          <Routes />
-        </Router>
-      </Provider>
-    );
-    const linkElement = screen.getByText(realnameOther, { exact: false });
-    expect(linkElement).toBeInTheDocument();
+    await waitFor(() => {
+      const text = screen.getByText(/Page Not Found/);
+      expect(text).toBeInTheDocument();
+      expect(consoleError.mock.calls[0][1]).toMatchObject({
+        message: 'null',
+        status: 500,
+      });
+    });
   });
 });

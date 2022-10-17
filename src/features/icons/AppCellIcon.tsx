@@ -1,23 +1,17 @@
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { FC, useEffect } from 'react';
-import { IconInfo, appIcon, AppTag, isFAIcon } from '../slices/iconSlice';
+import { FC } from 'react';
+import { AppTag, useAppIcon } from './iconSlice';
+import { isFAIcon } from './common';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import classes from './AppCellIcon.module.scss';
+
 interface AppIconProps {
   appId: string;
   appTag: AppTag;
 }
 
 const AppCellIcon: FC<AppIconProps> = ({ appId, appTag }) => {
-  const dispatch = useAppDispatch();
-  const icon: IconInfo = useAppSelector(
-    (state) =>
-      state.icons.appIconCache[appTag]?.[appId] || state.icons.loadingIcon
-  );
-  useEffect(() => {
-    dispatch(appIcon({ appId, appTag }));
-  });
+  const icon = useAppIcon({ appId, appTag });
 
   const loading = icon.icon === faSpinner;
 

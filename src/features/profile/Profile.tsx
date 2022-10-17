@@ -1,23 +1,13 @@
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { Button } from '../../common/components';
 import NarrativeList from '../../common/components/NarrativeList/NarrativeList';
-import {
-  useAppDispatch,
-  useAppSelector,
-  usePageTitle,
-} from '../../common/hooks';
+import { useAppSelector, usePageTitle } from '../../common/hooks';
 import { authUsername } from '../auth/authSlice';
 import PageNotFound from '../layout/PageNotFound';
-import {
-  cache,
-  clearError,
-  error,
-  loadProfile,
-  selectUsername,
-  usernameSelected,
-} from './profileSlice';
 import classes from './Profile.module.scss';
+import { getUserProfile } from '../../common/api/userProfileApi';
+import { parseError } from '../../common/api/utils/parseError';
 
 /*
  * The following components are stubs due to be written in the future.
@@ -123,16 +113,11 @@ export const Profile: FC<ProfileParams> = ({
 };
 
 export const ProfileWrapper: FC = () => {
-  const dispatch = useAppDispatch();
-  const cachedProfiles = useAppSelector(cache);
-  const errorMessage = useAppSelector(error);
-  const token = useAppSelector((state) => state.auth.token);
-  const usernameAuthed = useAppSelector(authUsername);
-  const tokenString = token ? token : '';
   const location = useLocation();
-  const viewURL = location.pathname.split('/').slice(-1)[0];
-  const viewNarratives = viewURL === 'narratives';
   const { usernameRequested } = useParams<{ usernameRequested: string }>();
+
+  const usernameAuthed = useAppSelector(authUsername);
+
   // Was a username specified in the URL?
   const usernameNotSpecified =
     usernameRequested === 'narratives' || usernameRequested === undefined;
@@ -141,53 +126,63 @@ export const ProfileWrapper: FC = () => {
   // In any case, whose profile should be shown?
   const viewUsername =
     usernameAuthed && usernameNotSpecified ? usernameAuthed : usernameRequested;
-  const usernameSelectedState = useAppSelector(usernameSelected);
-  // If the username has not yet been selected.
-  if (usernameSelectedState !== viewUsername) {
-    dispatch(selectUsername(viewUsername));
-    return <>Loading</>;
-  }
-  // If there is an error, for now display Page Not Found.
-  if (errorMessage) {
+
+  // Get the profile data
+  const profileQueryArgs = useMemo(
+    () => ({
+      usernames: [viewUsername || ''],
+    }),
+    [viewUsername]
+  );
+  const profileQuery = getUserProfile.useQuery(profileQueryArgs, {
+    refetchOnMountOrArgChange: true,
+    skip: !viewUsername,
+  });
+
+  const viewURL = location.pathname.split('/').slice(-1)[0];
+  const viewNarratives = viewURL === 'narratives';
+
+  if (profileQuery.isError) {
     // eslint-disable-next-line no-console
-    console.error(`Error message: ${errorMessage}`);
-    dispatch(clearError());
-    return <PageNotFound />;
+    console.error(`Error message: `, parseError(profileQuery?.error));
   }
+
   if (!usernameAuthed) {
     /* If this component is loaded first (eg. a full page refresh) then the
         authentication state will need to be populated before displaying the
         profile for the current user.
     */
     return <>Loading authentication state.</>;
-  }
-  const loadUsername = usernameNotSpecified ? usernameAuthed : viewUsername;
-  if (!(loadUsername in cachedProfiles)) {
-    dispatch(loadProfile({ token: tokenString, username: loadUsername }));
-  }
-  const profile = cachedProfiles[loadUsername];
-  if (!profile) {
+  } else if (profileQuery.isLoading) {
     return <>Loading user profile.</>;
+  } else if (
+    profileQuery.isSuccess &&
+    viewUsername &&
+    profileQuery.data[0][0] // is null when profile DNE
+  ) {
+    const profile = profileQuery.data[0][0];
+    const profileNames = profile.user;
+    const realname = profileNames.realname;
+    const whoseProfile = viewMine ? 'My ' : `${realname}'s `;
+    const pageTitle = realname ? `${whoseProfile} Profile` : '';
+    const profileLink = viewMine ? '/profile/' : `/profile/${viewUsername}`;
+    const narrativesLink = viewMine
+      ? '/profile/narratives'
+      : `/profile/${viewUsername}/narratives`;
+    return (
+      <Profile
+        narrativesLink={narrativesLink}
+        pageTitle={pageTitle}
+        profileLink={profileLink}
+        realname={realname}
+        username={viewUsername}
+        viewMine={viewMine}
+        viewNarratives={viewNarratives}
+      />
+    );
+  } else {
+    return <PageNotFound />;
   }
-  const profileNames = profile.user;
-  const realname = profileNames.realname;
-  const whoseProfile = viewMine ? 'My ' : `${realname}'s `;
-  const pageTitle = realname ? `${whoseProfile} Profile` : '';
-  const profileLink = viewMine ? '/profile/' : `/profile/${viewUsername}`;
-  const narrativesLink = viewMine
-    ? '/profile/narratives'
-    : `/profile/${viewUsername}/narratives`;
-  return (
-    <Profile
-      narrativesLink={narrativesLink}
-      pageTitle={pageTitle}
-      profileLink={profileLink}
-      realname={realname}
-      username={viewUsername}
-      viewMine={viewMine}
-      viewNarratives={viewNarratives}
-    />
-  );
 };
 
 export default ProfileWrapper;

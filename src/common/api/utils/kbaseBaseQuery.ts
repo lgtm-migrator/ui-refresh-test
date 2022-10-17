@@ -60,7 +60,7 @@ const isJsonRpcError = (obj: unknown): obj is JsonRpcError => {
   return false;
 };
 
-type KBaseBaseQueryError =
+export type KBaseBaseQueryError =
   | FetchBaseQueryError
   | {
       status: 'JSONRPC_ERROR';
