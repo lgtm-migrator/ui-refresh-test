@@ -7,7 +7,6 @@ export default function Legacy() {
   // TODO: external navigation and <base target="_top"> equivalent
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
   const legacyContentRef = useRef<HTMLIFrameElement>(null);
   const [legacyTitle, setLegacyTitle] = useState('');
@@ -19,6 +18,11 @@ export default function Legacy() {
   );
   // The actual current path, set by navigation events from kbase-ui
   const [legacyPath, setLegacyPath] = useState(expectedLegacyPath);
+
+  // State for token recieved via postMessage, for setting auth
+  const [recievedToken, setReceivedToken] = useState<string | undefined>();
+  // when recievedToken is defined and !== current token, this will try it for auth
+  useTryAuthFromToken(recievedToken);
 
   // Listen for messages from the iframe
   useMessageListener(legacyContentRef, (e) => {
@@ -35,7 +39,7 @@ export default function Legacy() {
       setLegacyTitle(d.payload);
     } else if (isAuthMessage(d)) {
       if (d.payload.token) {
-        dispatch(authFromToken(d.payload.token));
+        setReceivedToken(d.payload.token);
       }
     }
   });

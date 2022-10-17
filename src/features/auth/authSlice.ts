@@ -41,7 +41,6 @@ export const authSlice = createSlice({
       state.token = normToken;
       state.username = payload?.username;
       state.tokenInfo = payload?.tokenInfo;
-      if (payload != null) setAuthCookie(normToken, payload.tokenInfo);
     },
   },
   extraReducers: (builder) =>
@@ -58,17 +57,6 @@ export const authSlice = createSlice({
 
 export default authSlice.reducer;
 export const { setAuth } = authSlice.actions;
-
-const setAuthCookie = (token: string | undefined, tokenInfo: TokenInfo) => {
-  if (token) {
-    setCookie('kbase_session', token, {
-      expires: new Date(tokenInfo.expires),
-      domain: process.env.REACT_APP_KBASE_DOMAIN,
-    });
-  } else {
-    clearCookie('kbase_session');
-  }
-};
 
 export const authUsername = (state: RootState) => {
   return state.auth.username;
@@ -106,6 +94,22 @@ export const useTryAuthFromToken = (token?: string) => {
   ]);
 
   return tokenQuery;
+};
+
+export const useSetTokenCookie = () => {
+  const token = useAppSelector(({ auth }) => auth.token);
+  const expires = useAppSelector(({ auth }) => auth.tokenInfo?.expires);
+  if (token && expires) {
+    setCookie('kbase_session', token, {
+      expires: new Date(expires),
+      // domain: process.env.REACT_APP_KBASE_DOMAIN,
+    });
+  } else if (!token) {
+    clearCookie('kbase_session');
+  } else {
+    // eslint-disable-next-line no-console
+    console.error('Could not set token cookie, missing expire time');
+  }
 };
 
 const normalizeToken = <T = undefined>(
