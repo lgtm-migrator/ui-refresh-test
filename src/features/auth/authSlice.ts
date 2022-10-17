@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 import { authFromToken, revokeToken } from '../../common/api/authService';
+import { clearCookie, setCookie } from '../../common/cookie';
 import { useAppDispatch, useAppSelector } from '../../common/hooks';
 
-interface TokenInfo {
+export interface TokenInfo {
   created: number;
   expires: number;
   id: string;
@@ -25,10 +26,21 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setAuth: (state, { payload }: PayloadAction<AuthState>) => {
-      state.token = normalizeToken(payload.token);
-      state.username = payload.username;
-      state.tokenInfo = payload.tokenInfo;
+    setAuth: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        token: string;
+        username: string;
+        tokenInfo: TokenInfo;
+      } | null>
+    ) => {
+      const normToken = normalizeToken(payload?.token);
+      state.token = normToken;
+      state.username = payload?.username;
+      state.tokenInfo = payload?.tokenInfo;
+      if (payload != null) setAuthCookie(normToken, payload.tokenInfo);
     },
   },
   extraReducers: (builder) =>
@@ -45,6 +57,17 @@ export const authSlice = createSlice({
 
 export default authSlice.reducer;
 export const { setAuth } = authSlice.actions;
+
+const setAuthCookie = (token: string | undefined, tokenInfo: TokenInfo) => {
+  if (token) {
+    setCookie('kbase_session', token, {
+      expires: new Date(tokenInfo.expires),
+      domain: process.env.REACT_APP_KBASE_DOMAIN,
+    });
+  } else {
+    clearCookie('kbase_session');
+  }
+};
 
 export const authUsername = (state: RootState) => {
   return state.auth.username;

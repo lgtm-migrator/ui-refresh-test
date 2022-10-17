@@ -18,7 +18,7 @@ import {
 
 import Routes from '../../app/Routes';
 import { createTestStore } from '../../app/store';
-import { setAuth } from '../auth/authSlice';
+import { setAuth, TokenInfo } from '../auth/authSlice';
 import { baseApi } from '../../common/api';
 
 export const realname = 'Rosalind Franklin';
@@ -150,7 +150,7 @@ describe('Profile related components', () => {
     await testStore.dispatch(
       setAuth({
         token: 'some token',
-        tokenInfo: undefined,
+        tokenInfo: {} as TokenInfo,
         username: usernameRequested,
       })
     );
@@ -175,7 +175,7 @@ describe('Profile related components', () => {
     await testStore.dispatch(
       setAuth({
         token: 'some token',
-        tokenInfo: undefined,
+        tokenInfo: {} as TokenInfo,
         username: usernameRequested,
       })
     );
@@ -202,7 +202,7 @@ describe('Profile related components', () => {
     await testStore.dispatch(
       setAuth({
         token: 'some token',
-        tokenInfo: undefined,
+        tokenInfo: {} as TokenInfo,
         username: usernameRequested,
       })
     );

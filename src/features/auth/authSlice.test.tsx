@@ -5,7 +5,7 @@ import fetchMock from 'jest-fetch-mock';
 
 import { createTestStore } from '../../app/store';
 import { authFromToken, revokeToken } from '../../common/api/authService';
-import { useTryAuthFromToken } from './authSlice';
+import { TokenInfo, useTryAuthFromToken } from './authSlice';
 
 let testStore = createTestStore({});
 describe('authSlice', () => {
@@ -68,7 +68,7 @@ describe('authSlice', () => {
         username: 'someUser',
         token: 'foo',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tokenInfo: { id: 'existing-tokenid' } as any,
+        tokenInfo: { id: 'existing-tokenid' } as TokenInfo,
       },
     });
     fetchMock.enableMocks();
@@ -87,7 +87,7 @@ describe('authSlice', () => {
         username: 'someUser',
         token: 'foo',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tokenInfo: { id: 'existing-tokenid' } as any,
+        tokenInfo: { id: 'existing-tokenid' } as TokenInfo,
       },
     });
     fetchMock.enableMocks();

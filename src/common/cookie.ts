@@ -13,12 +13,23 @@ export function getCookie(key: string) {
 export function setCookie(
   name: string,
   value: string,
-  options: { expires?: Date; path?: string } = { path: '/' }
+  options: {
+    expires?: Date;
+    path?: string;
+    domain?: string;
+    secure?: boolean;
+  }
 ) {
-  const { expires, path } = options;
+  const { expires, path, domain, secure } = {
+    path: '/',
+    secure: true,
+    ...options,
+  };
   let cookieString = `${name}=${value}`;
   if (expires) cookieString += `; expires=${expires.toUTCString()}`;
   if (path) cookieString += `; path=${path}`;
+  if (domain) cookieString += `; domain=${domain}`;
+  if (secure) cookieString += '; secure';
   document.cookie = cookieString;
 }
 

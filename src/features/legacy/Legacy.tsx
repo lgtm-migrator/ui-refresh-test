@@ -91,7 +91,7 @@ const getLegacyPart = (path: string) =>
   path.match(/(?:\/legacy)+(?:\/+(.*))$/)?.[1] || '/';
 
 const formatLegacyUrl = (path: string) =>
-  `https://legacy.ci-europa.kbase.us/#${path}`; //`/dev/legacy-spoof/${path}`;
+  `https://${process.env.REACT_APP_KBASE_LEGACY_DOMAIN}/#${path}`; //`/dev/legacy-spoof/${path}`;
 
 // const formatLegacyUrl = (path: string) => `/dev/legacy-spoof/${path}`;
 
