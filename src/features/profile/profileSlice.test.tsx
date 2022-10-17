@@ -1,5 +1,6 @@
 // Start a new test file for profileSlice specifically.
 import { render, waitFor } from '@testing-library/react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { Provider } from 'react-redux';
 
 import { createTestStore } from '../../app/store';
@@ -30,19 +31,28 @@ describe('useLoggedInProfileUser', () => {
   });
 
   test('useLoggedInProfileUser throws error when called with invalid username', async () => {
-    const mockUseLoggedInProfileUser = jest.fn(useLoggedInProfileUser);
+    const onErr = jest.fn();
+    const consoleError = jest.spyOn(console, 'error');
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    consoleError.mockImplementation(() => {});
     const Component = () => {
-      mockUseLoggedInProfileUser('!!!Iamnotause');
+      useLoggedInProfileUser('!!!Iamnotause');
       return <></>;
     };
     render(
-      <Provider store={testStore}>
-        <Component />
-      </Provider>
+      <ErrorBoundary fallback={<></>} onError={onErr}>
+        <Provider store={testStore}>
+          <Component />
+        </Provider>
+      </ErrorBoundary>
     );
-    await waitFor(() => expect(mockUseLoggedInProfileUser).toThrow());
+    await waitFor(() => {
+      expect(onErr).toHaveBeenCalled();
+      expect(consoleError).toHaveBeenCalled();
+    });
     expect(testStore.getState().profile.loggedInProfile?.user.username).toBe(
       undefined
     );
+    consoleError.mockRestore();
   });
 });

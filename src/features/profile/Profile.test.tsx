@@ -93,6 +93,7 @@ describe('Profile related components', () => {
 
   beforeEach(() => {
     fetchMock.resetMocks();
+    consoleError.mockClear();
     testStore = createTestStore(initialState);
     testStore.dispatch(baseApi.util.resetApiState());
   });

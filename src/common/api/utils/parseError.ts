@@ -32,10 +32,8 @@ export function parseError(error: KBaseBaseQueryError | SerializedError): {
     }
   } else {
     return {
+      ...error,
       message: error.message || '',
-      code: error.code,
-      name: error.name,
-      stack: error.stack,
       error,
     };
   }

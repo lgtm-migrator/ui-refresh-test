@@ -44,4 +44,17 @@ describe('parseError', () => {
       name: 'Another name',
     });
   });
+
+  test('Parses SerializedError, empty message', () => {
+    const err: SerializedError = {
+      code: '500',
+      message: undefined,
+      name: 'Another name',
+    };
+    expect(parseError(err)).toMatchObject({
+      error: err,
+      message: '',
+      name: 'Another name',
+    });
+  });
 });

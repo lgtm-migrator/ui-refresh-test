@@ -23,7 +23,7 @@ interface UserProfileResults {
       {
         user: { username: string; realname: string };
         profile: unknown;
-      }
+      } | null
     ]
   ];
   set_user_profile: void;

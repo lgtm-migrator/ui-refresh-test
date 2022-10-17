@@ -80,4 +80,23 @@ describe('authSlice', () => {
     });
     fetchMock.disableMocks();
   });
+
+  test('Auth token remains if other token revoked', async () => {
+    const testStore = createTestStore({
+      auth: {
+        username: 'someUser',
+        token: 'foo',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tokenInfo: { id: 'existing-tokenid' } as any,
+      },
+    });
+    fetchMock.enableMocks();
+    fetchMock.mockOnce(''); // force the next call to succeed
+    await testStore.dispatch(revokeToken.initiate('other-tokenid'));
+    await waitFor(() => {
+      expect(testStore.getState().auth.token).toBe('foo');
+      expect(testStore.getState().auth.username).toBe('someUser');
+    });
+    fetchMock.disableMocks();
+  });
 });

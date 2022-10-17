@@ -142,6 +142,11 @@ export const ProfileWrapper: FC = () => {
   const viewURL = location.pathname.split('/').slice(-1)[0];
   const viewNarratives = viewURL === 'narratives';
 
+  if (profileQuery.isError) {
+    // eslint-disable-next-line no-console
+    console.error(`Error message: `, parseError(profileQuery?.error));
+  }
+
   if (!usernameAuthed) {
     /* If this component is loaded first (eg. a full page refresh) then the
         authentication state will need to be populated before displaying the
@@ -150,7 +155,11 @@ export const ProfileWrapper: FC = () => {
     return <>Loading authentication state.</>;
   } else if (profileQuery.isLoading) {
     return <>Loading user profile.</>;
-  } else if (profileQuery.isSuccess && viewUsername) {
+  } else if (
+    profileQuery.isSuccess &&
+    viewUsername &&
+    profileQuery.data[0][0] // is null when profile DNE
+  ) {
     const profile = profileQuery.data[0][0];
     const profileNames = profile.user;
     const realname = profileNames.realname;
@@ -172,11 +181,6 @@ export const ProfileWrapper: FC = () => {
       />
     );
   } else {
-    // If there is an error or unknown state, display Page Not Found.
-    if (profileQuery.isError) {
-      // eslint-disable-next-line no-console
-      console.error(`Error message: `, parseError(profileQuery?.error));
-    }
     return <PageNotFound />;
   }
 };
