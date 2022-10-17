@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { useEffect } from 'react';
 import { RootState } from '../../app/store';
 import { authFromToken, revokeToken } from '../../common/api/authService';
 import { clearCookie, setCookie } from '../../common/cookie';
@@ -86,22 +87,30 @@ export const useTryAuthFromToken = (token?: string) => {
     skip: !normToken,
   });
 
-  if (tokenQuery.isSuccess && normToken !== currentToken) {
-    dispatch(
-      setAuth({
-        token: normToken,
-        username: tokenQuery.data.user,
-        tokenInfo: tokenQuery.data,
-      })
-    );
-  }
+  useEffect(() => {
+    if (tokenQuery.isSuccess && normToken !== currentToken) {
+      dispatch(
+        setAuth({
+          token: normToken,
+          username: tokenQuery.data.user,
+          tokenInfo: tokenQuery.data,
+        })
+      );
+    }
+  }, [
+    currentToken,
+    dispatch,
+    normToken,
+    tokenQuery.data,
+    tokenQuery.isSuccess,
+  ]);
 
   return tokenQuery;
 };
 
 const normalizeToken = <T = undefined>(
-  t?: string,
-  fallback: T = undefined as T
+  t: string | undefined,
+  fallback?: T
 ): string | T => {
-  return t?.toUpperCase().trim() || fallback;
+  return t?.toUpperCase().trim() || (fallback as T);
 };
