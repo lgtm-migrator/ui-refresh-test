@@ -2,7 +2,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import TopBar from '../../features/layout/TopBar';
-import { usePageTitle } from '../../common/hooks';
+import { usePageTitle } from '../../features/layout/layoutSlice';
 
 export default {
   title: 'Components/TopBar',

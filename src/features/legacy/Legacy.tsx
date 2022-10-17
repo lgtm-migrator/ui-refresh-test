@@ -1,7 +1,7 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppDispatch, usePageTitle } from '../../common/hooks';
-import { authFromToken } from '../auth/authSlice';
+import { usePageTitle } from '../layout/layoutSlice';
+import { useTryAuthFromToken } from '../auth/authSlice';
 
 export default function Legacy() {
   // TODO: external navigation and <base target="_top"> equivalent

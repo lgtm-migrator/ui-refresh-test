@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { useEffect } from 'react';
+import { useAppDispatch } from '../../common/hooks';
 
 interface PageState {
   pageTitle?: string;
@@ -28,3 +30,18 @@ export const pageSlice = createSlice({
 
 export default pageSlice.reducer;
 export const { setPageTitle, setEnvironment } = pageSlice.actions;
+
+const defaultPageTitle = document.title;
+// Hook to set the page & document title. Resets the title on unmount
+export const usePageTitle = (title: string) => {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(setPageTitle(title));
+    document.title = `KBase${title !== undefined ? `: ${title}` : ''}`;
+    return () => {
+      dispatch(setPageTitle(undefined));
+      document.title = defaultPageTitle;
+    };
+  }, [dispatch, title]);
+  return null;
+};

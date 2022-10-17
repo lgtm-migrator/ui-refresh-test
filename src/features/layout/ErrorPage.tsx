@@ -1,4 +1,4 @@
-import { usePageTitle } from '../../common/hooks';
+import { usePageTitle } from './layoutSlice';
 
 export default function ErrorPage({
   error,
