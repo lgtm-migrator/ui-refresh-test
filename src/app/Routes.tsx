@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, ReactElement } from 'react';
 import {
   Navigate,
   Route,
@@ -20,98 +20,50 @@ const Routes: FC = () => (
       <Route path="/legacy/*" element={<Legacy />} />
       <Route
         path="/profile/:usernameRequested/narratives"
-        element={
-          <Authed>
-            <ProfileWrapper />
-          </Authed>
-        }
+        element={<Authed element={<ProfileWrapper />} />}
       />
       <Route
         path="/profile/:usernameRequested"
-        element={
-          <Authed>
-            <ProfileWrapper />
-          </Authed>
-        }
+        element={<Authed element={<ProfileWrapper />} />}
       />
       <Route
         path="/profile"
-        element={
-          <Authed>
-            <ProfileWrapper />
-          </Authed>
-        }
+        element={<Authed element={<ProfileWrapper />} />}
       />
-      <Route
-        path="/count"
-        element={
-          <Authed>
-            <Count />
-          </Authed>
-        }
-      />
+      <Route path="/count" element={<Authed element={<Count />} />} />
       <Route path="/auth" element={<Auth />} />
       <Route
         path={'/narratives/:id/:obj/:ver'}
-        element={
-          <Authed>
-            <Navigator />
-          </Authed>
-        }
+        element={<Authed element={<Navigator />} />}
       />
       <Route
         path={'/narratives/:category'}
-        element={
-          <Authed>
-            <Navigator />
-          </Authed>
-        }
+        element={<Authed element={<Navigator />} />}
       />
       <Route
         path={'/narratives/:category/:id/:obj/:ver'}
         element={<Navigator />}
       />
-      <Route
-        path="/narratives"
-        element={
-          <Authed>
-            <Navigator />
-          </Authed>
-        }
-      />
-      <Route path="/unauth" element={<UnauthenticatedView />} />
+      <Route path="/narratives" element={<Authed element={<Navigator />} />} />
       <Route path="/" element={<HashRouteRedirect />} />
       <Route path="*" element={<PageNotFound />} />
     </RRRoutes>
   </>
 );
 
-const UnauthenticatedView = () => {
-  const { state } = useLocation();
-  const path: string | undefined =
-    state &&
-    typeof state == 'object' &&
-    'path' in state &&
-    typeof (state as { path: unknown }).path == 'string'
-      ? ((state as { path: string }).path as string)
-      : undefined;
-  return (
-    <>
-      Route <code>{path}</code> requires auth. Set your <var>kbase_session</var>{' '}
-      cookie to your login token.
-    </>
-  );
-};
-
-const Authed: FC = ({ children }) => {
+const Authed: FC<{ element: ReactElement }> = ({ element }) => {
   const token = useAppSelector((state) => state.auth.token);
   const location = useLocation();
   if (!token)
     return (
-      <Navigate to="/unauth" replace state={{ path: location.pathname }} />
+      <Navigate
+        to="/legacy/login"
+        replace
+        state={{ preLoginPath: location.pathname }}
+      />
     );
 
-  return <>{children}</>;
+  return <>{element}</>;
 };
 
 const HashRouteRedirect = () => {
