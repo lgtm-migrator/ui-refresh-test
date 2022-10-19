@@ -99,19 +99,21 @@ export const useTryAuthFromToken = (token?: string) => {
 export const useSetTokenCookie = () => {
   const token = useAppSelector(({ auth }) => auth.token);
   const expires = useAppSelector(({ auth }) => auth.tokenInfo?.expires);
-  if (token && expires) {
-    setCookie('kbase_session', token, {
-      expires: new Date(expires),
-      ...(process.env.NODE_ENV === 'development'
-        ? {}
-        : { domain: process.env.REACT_APP_KBASE_DOMAIN }),
-    });
-  } else if (!token) {
-    clearCookie('kbase_session');
-  } else {
-    // eslint-disable-next-line no-console
-    console.error('Could not set token cookie, missing expire time');
-  }
+  useEffect(() => {
+    if (token && expires) {
+      setCookie('kbase_session', token, {
+        expires: new Date(expires),
+        ...(process.env.NODE_ENV === 'development'
+          ? {}
+          : { domain: process.env.REACT_APP_KBASE_DOMAIN }),
+      });
+    } else if (!token) {
+      clearCookie('kbase_session');
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('Could not set token cookie, missing expire time');
+    }
+  }, [expires, token]);
 };
 
 const normalizeToken = <T = undefined>(
