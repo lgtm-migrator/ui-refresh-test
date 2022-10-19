@@ -102,7 +102,9 @@ export const useSetTokenCookie = () => {
   if (token && expires) {
     setCookie('kbase_session', token, {
       expires: new Date(expires),
-      // domain: process.env.REACT_APP_KBASE_DOMAIN,
+      ...(process.env.NODE_ENV === 'development'
+        ? {}
+        : { domain: process.env.REACT_APP_KBASE_DOMAIN }),
     });
   } else if (!token) {
     clearCookie('kbase_session');
