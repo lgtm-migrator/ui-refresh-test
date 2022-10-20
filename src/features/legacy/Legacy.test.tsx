@@ -181,6 +181,7 @@ describe('Legacy', () => {
 
   test('Legacy page component trys auth from token message', async () => {
     const authSpy = jest.spyOn(authSlice, 'useTryAuthFromToken');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     authSpy.mockImplementation((...args) => undefined as any);
 
     render(
