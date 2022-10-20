@@ -3,8 +3,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageTitle } from '../layout/layoutSlice';
 import { useTryAuthFromToken } from '../auth/authSlice';
 
+export const LEGACY_BASE_ROUTE = '/legacy';
+
 export default function Legacy() {
   // TODO: external navigation and <base target="_top"> equivalent
+
+  // TODO: consider adding integration tests for this feature, as unit tests
+  // cannot test this component effectively
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -70,6 +76,7 @@ export default function Legacy() {
 
   return (
     <div
+      data-testid="legacy-iframe-wrapper"
       style={{
         display: 'flex',
         width: '100%',
@@ -91,23 +98,26 @@ export default function Legacy() {
   );
 }
 
-const getLegacyPart = (path: string) =>
-  path.match(/(?:\/legacy)+(?:\/+(.*))$/)?.[1] || '/';
+const legacyRegex = new RegExp(`(?:${LEGACY_BASE_ROUTE})(?:/+(.*))$`);
+export const getLegacyPart = (path: string) =>
+  path.match(legacyRegex)?.[1] || '/';
 
-const formatLegacyUrl = (path: string) =>
-  `https://${process.env.REACT_APP_KBASE_LEGACY_DOMAIN}/#${path}`; //`/dev/legacy-spoof/${path}`;
+export const formatLegacyUrl = (path: string) =>
+  `https://${process.env.REACT_APP_KBASE_LEGACY_DOMAIN}/#${path}`;
 
-// const formatLegacyUrl = (path: string) => `/dev/legacy-spoof/${path}`;
-
-const useMessageListener = function <T = unknown>(
+export const useMessageListener = function <T = unknown>(
   target: RefObject<HTMLIFrameElement>,
   handler: (ev: MessageEvent<T>) => void
 ) {
   useEffect(() => {
     const wrappedHandler = (ev: MessageEvent<T>) => {
-      // eslint-disable-next-line no-console
-      console.log('MESSAGE', ev);
-      if (ev.source !== target.current?.contentWindow) return;
+      // When deployed we only want to listen to messages from the iframe itself
+      // but we want to allow other sources for dev/test.
+      if (
+        process.env.NODE_ENV === 'production' &&
+        ev.source !== target.current?.contentWindow
+      )
+        return;
       handler(ev);
     };
     window.addEventListener('message', wrappedHandler);
@@ -136,12 +146,12 @@ const messageGuard = <S extends string, P>(
     payloadGuard((recieved as Guarded).payload);
 };
 
-const isTitleMessage = messageGuard(
+export const isTitleMessage = messageGuard(
   'kbase-ui.ui.setTitle',
   (payload): payload is string => typeof payload === 'string'
 );
 
-const isRouteMessage = messageGuard(
+export const isRouteMessage = messageGuard(
   'kbase-ui.app.route-component',
   (payload): payload is { request: { original: string } } =>
     !!payload &&
@@ -153,7 +163,7 @@ const isRouteMessage = messageGuard(
       .original === 'string'
 );
 
-const isAuthMessage = messageGuard(
+export const isAuthMessage = messageGuard(
   'kbase-ui.session.loggedin',
   (payload): payload is { token: string | null } =>
     !!payload &&
@@ -162,62 +172,3 @@ const isAuthMessage = messageGuard(
     (typeof (payload as Record<string, unknown>).token === 'string' ||
       (payload as Record<string, unknown>).token === null)
 );
-
-// export function LegacySpoof() {
-//   const location = useLocation();
-//   const navigate = useNavigate();
-
-//   const loc = location.pathname + location.search + location.hash;
-
-//   const [path, setPath] = useState(
-//     loc.match(/(?:\/legacy-spoof)+(?:\/(.*))$/)?.[1] || ''
-//   );
-//   const [title, setTitle] = useState('NoTitle');
-//   useEffect(() => {
-//     setPath(loc.match(/(?:\/legacy-spoof)+(?:\/(.*))$/)?.[1] || '');
-//   }, [loc]);
-//   return (
-//     <div>
-//       <input
-//         type="text"
-//         value={path}
-//         onChange={(e) => setPath(e.currentTarget.value)}
-//       />
-//       <button
-//         onClick={() => {
-//           window.parent.postMessage({
-//             source: 'kbase-ui.app.route-component',
-//             payload: {
-//               route: {},
-//               request: {
-//                 realPath: [],
-//                 path: [],
-//                 original: path,
-//                 query: {},
-//               },
-//               params: {},
-//             },
-//           });
-//           navigate(`/legacy-spoof/${path}`);
-//         }}
-//       >
-//         Send
-//       </button>
-//       <input
-//         type="text"
-//         value={title}
-//         onChange={(e) => setTitle(e.currentTarget.value)}
-//       />
-//       <button
-//         onClick={() => {
-//           window.parent.postMessage({
-//             source: 'kbase-ui.ui.setTitle',
-//             payload: title,
-//           });
-//         }}
-//       >
-//         Send
-//       </button>
-//     </div>
-//   );
-// }

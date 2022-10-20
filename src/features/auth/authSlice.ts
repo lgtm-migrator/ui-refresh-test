@@ -97,7 +97,7 @@ export const useTryAuthFromToken = (token?: string) => {
 };
 
 export const useSetTokenCookie = () => {
-  const token = useAppSelector(({ auth }) => auth.token);
+  const token = useAppSelector(authToken);
   const expires = useAppSelector(({ auth }) => auth.tokenInfo?.expires);
   useEffect(() => {
     if (token && expires) {

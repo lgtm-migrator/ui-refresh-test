@@ -8,16 +8,19 @@ import {
 
 import Auth from '../features/auth/Auth';
 import Count from '../features/count/Counter';
-import Legacy from '../features/legacy/Legacy';
+import Legacy, { LEGACY_BASE_ROUTE } from '../features/legacy/Legacy';
 import Navigator from '../features/navigator/Navigator';
 import PageNotFound from '../features/layout/PageNotFound';
 import ProfileWrapper from '../features/profile/Profile';
 import { useAppSelector } from '../common/hooks';
 
+export const LOGIN_ROUTE = '/legacy/login';
+export const ROOT_REDIRECT_ROUTE = '/narratives';
+
 const Routes: FC = () => (
   <>
     <RRRoutes>
-      <Route path="/legacy/*" element={<Legacy />} />
+      <Route path={`${LEGACY_BASE_ROUTE}/*`} element={<Legacy />} />
       <Route
         path="/profile/:usernameRequested/narratives"
         element={<Authed element={<ProfileWrapper />} />}
@@ -51,13 +54,13 @@ const Routes: FC = () => (
   </>
 );
 
-const Authed: FC<{ element: ReactElement }> = ({ element }) => {
+export const Authed: FC<{ element: ReactElement }> = ({ element }) => {
   const token = useAppSelector((state) => state.auth.token);
   const location = useLocation();
   if (!token)
     return (
       <Navigate
-        to="/legacy/login"
+        to={LOGIN_ROUTE}
         replace
         state={{ preLoginPath: location.pathname }}
       />
@@ -66,11 +69,13 @@ const Authed: FC<{ element: ReactElement }> = ({ element }) => {
   return <>{element}</>;
 };
 
-const HashRouteRedirect = () => {
+export const HashRouteRedirect = () => {
   const location = useLocation();
   if (location.hash)
-    return <Navigate to={`/legacy/${location.hash.slice(1)}`} replace />;
-  return <Navigate to="/narratives" replace />;
+    return (
+      <Navigate to={`${LEGACY_BASE_ROUTE}/${location.hash.slice(1)}`} replace />
+    );
+  return <Navigate to={ROOT_REDIRECT_ROUTE} replace />;
 };
 
 export default Routes;

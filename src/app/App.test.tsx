@@ -15,7 +15,7 @@ test('renders Auth page link', () => {
   expect(linkElement).toBeInTheDocument();
 });
 
-test('Auth page link works', () => {
+test('Auth page link works', async () => {
   render(
     <Provider store={createTestStore()}>
       <App />
@@ -23,6 +23,6 @@ test('Auth page link works', () => {
   );
   const linkElement = screen.getByText(/Auth/i);
   linkElement.click();
-  const LoginStatusText = screen.getByText(/kbase_session/);
+  const LoginStatusText = await screen.findByText(/You are not logged in/);
   expect(LoginStatusText).toBeInTheDocument();
 });

@@ -13,7 +13,7 @@ export function getCookie(key: string) {
 export function setCookie(
   name: string,
   value: string,
-  options: {
+  options?: {
     expires?: Date;
     path?: string;
     domain?: string;
@@ -26,13 +26,19 @@ export function setCookie(
     ...options,
   };
   let cookieString = `${name}=${value}`;
-  if (expires) cookieString += `; expires=${expires.toUTCString()}`;
-  if (path) cookieString += `; path=${path}`;
-  if (domain) cookieString += `; domain=${domain}`;
-  if (secure) cookieString += '; secure';
+  if (expires) cookieString += `;expires=${expires.toUTCString()}`;
+  if (path) cookieString += `;path=${path}`;
+  if (domain) cookieString += `;domain=${domain}`;
+  if (secure) cookieString += ';secure';
   document.cookie = cookieString;
 }
 
-export function clearCookie(name: string) {
-  setCookie(name, '', { expires: new Date('Thu, 01 Jan 1970 00:00:00 GMT') });
+export function clearCookie(
+  name: string,
+  options?: Omit<Parameters<typeof setCookie>[2], 'expires'>
+) {
+  setCookie(name, '', {
+    ...options,
+    expires: new Date('Thu, 01 Jan 1970 00:00:00 GMT'),
+  });
 }

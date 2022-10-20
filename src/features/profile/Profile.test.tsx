@@ -221,18 +221,6 @@ describe('Profile related components', () => {
     });
   });
 
-  test('renders ProfileWrapper with auth message when missing auth', () => {
-    render(
-      <Provider store={createTestStore()}>
-        <Router initialEntries={[`/profile/${usernameRequested}`]}>
-          <Routes />
-        </Router>
-      </Provider>
-    );
-    const linkElement = screen.getByText(/Loading authentication state/i);
-    expect(linkElement).toBeInTheDocument();
-  });
-
   test('renders ProfileWrapper as Page Not Found for viewUsername query error', async () => {
     fetchMock.mockResponses(['', { status: 500 }]);
 
