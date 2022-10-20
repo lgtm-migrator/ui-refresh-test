@@ -104,7 +104,7 @@ const UserRealNameChanger = () => {
     const newProfile: typeof oldProfile = JSON.parse(
       JSON.stringify(profile.data?.[0][0])
     );
-    if (newProfile === undefined) return;
+    if (newProfile === undefined || newProfile === null) return;
     if (nameText.trim() === '') return;
     newProfile.user.realname = nameText.trim();
     updateProfile({ profile: newProfile });

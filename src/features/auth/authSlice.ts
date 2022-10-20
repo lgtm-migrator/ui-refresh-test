@@ -78,7 +78,7 @@ export const useTryAuthFromToken = (token?: string) => {
 
 const normalizeToken = <T = undefined>(
   t?: string,
-  fallback: T = undefined as T
+  fallback: T = undefined as unknown as T
 ): string | T => {
   return t?.toUpperCase().trim() || fallback;
 };
