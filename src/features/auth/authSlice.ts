@@ -116,9 +116,11 @@ export const useSetTokenCookie = () => {
   }, [expires, token]);
 };
 
-const normalizeToken = <T = undefined>(
+function normalizeToken(
   t: string | undefined,
-  fallback?: T
-): string | T => {
-  return t?.toUpperCase().trim() || (fallback as T);
-};
+  fallback?: undefined
+): string | undefined;
+function normalizeToken<T>(t: string | undefined, fallback: T): string | T;
+function normalizeToken<T>(t: string | undefined, fallback?: T) {
+  return t?.toUpperCase().trim() || fallback;
+}
