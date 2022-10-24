@@ -1,7 +1,7 @@
 import { baseApi } from './index';
-import { kbService } from './utils/kbService';
+import { jsonRpcService } from './utils/serviceHelpers';
 
-const collections = kbService({ url: 'services/collections' });
+const collections = jsonRpcService({ url: 'services/collections' });
 
 type CollectionSummary = {
   name: string;
