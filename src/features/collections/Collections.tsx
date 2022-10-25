@@ -1,49 +1,48 @@
 import { Link } from 'react-router-dom';
 import { Route, Routes, useParams } from 'react-router-dom';
 import {
-  useGetCollectionQuery,
-  useListCollectionsQuery,
+  getCollection,
+  listCollections,
 } from '../../common/api/collectionsApi';
-import { usePageTitle } from '../../common/hooks';
+import { usePageTitle } from '../layout/layoutSlice';
 
 export default function Collections() {
   return (
     <Routes>
       <Route path="/" element={<CollectionsList />} />
-      <Route path=":doi" element={<CollectionDetail />} />
+      <Route path="/:id" element={<CollectionDetail />} />
       <Route path="*" element={<span>hmmm</span>} />
     </Routes>
   );
 }
 
 const CollectionDetail = () => {
-  const { doi } = useParams();
-  const collection = useGetCollectionQuery(
-    { collection_id: doi as string },
-    { skip: doi === undefined }
-  );
-  const name = collection.data?.[0]?.name;
+  const { id } = useParams();
+  const collection = getCollection.useQuery(id || '', {
+    skip: id === undefined,
+  });
+  const name = collection.data?.name;
   usePageTitle(`Collections > ${name || 'Loading'}`);
   return <>{JSON.stringify(collection.data)}</>;
 };
 
 const CollectionsList = () => {
   usePageTitle('Collections');
-  const collections = useListCollectionsQuery();
+  const collections = listCollections.useQuery();
   return (
     <ul>
       {collections.isSuccess
-        ? collections.data?.[0].map((collection) => {
+        ? collections.data?.map((collection) => {
             return (
               <li>
                 <img
                   src={collection.icon}
-                  alt={`${collection.name} collection icon`}
+                  alt={`${collection.name}l collection icon`}
                 />
-                <Link to={encodeURIComponent(collection.doi)}>
+                <Link to={encodeURIComponent(collection.id)}>
                   <h4>{collection.name}</h4>
                 </Link>
-                <span>{collection.description}</span>
+                <span>{collection.source_version}</span>
               </li>
             );
           })
