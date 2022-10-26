@@ -2,11 +2,11 @@ import classes from './App.module.scss';
 
 import { BrowserRouter as Router } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../common/hooks';
-import { FC, useEffect } from 'react';
+import { useEffect } from 'react';
 import { setEnvironment } from '../features/layout/layoutSlice';
 import {
-  authToken,
   authUsername,
+  useSetTokenCookie,
   useTryAuthFromToken,
 } from '../features/auth/authSlice';
 import { useLoggedInProfileUser } from '../features/profile/profileSlice';
@@ -18,19 +18,15 @@ import LeftNavBar from '../features/layout/LeftNavBar';
 import TopBar from '../features/layout/TopBar';
 import ErrorPage from '../features/layout/ErrorPage';
 
-const UnauthenticatedView: FC = () => (
-  <>
-    Set your <var>kbase_session</var> cookie to a valid login token to continue.
-  </>
-);
-
-export default function App() {
+const useInitApp = () => {
   const dispatch = useAppDispatch();
 
-  // Pull token from cookie. If it exists, try it for auth.
+  // Pull token from cookie. If it exists, and differs from state, try it for auth.
   const cookieToken = getCookie('kbase_session');
   const { isLoading } = useTryAuthFromToken(cookieToken);
-  const token = useAppSelector(authToken);
+
+  // Set the token cookie from auth state
+  useSetTokenCookie();
 
   // Use authenticated username to load user's profile
   const username = useAppSelector(authUsername);
@@ -41,25 +37,27 @@ export default function App() {
     dispatch(setEnvironment('ci'));
   }, [dispatch]);
 
+  return { isLoading };
+};
+
+export default function App() {
+  const { isLoading } = useInitApp();
+
   return (
     <Router basename={process.env.PUBLIC_URL}>
       <div className={classes.container}>
         <div className={classes.topbar}>
           <TopBar />
         </div>
-        <div className={classes.left_navbar}>
-          <LeftNavBar />
-        </div>
-        <div className={classes.page_content}>
-          <ErrorBoundary FallbackComponent={ErrorPage}>
-            {isLoading ? (
-              'Loading...'
-            ) : token ? (
-              <Routes />
-            ) : (
-              <UnauthenticatedView />
-            )}
-          </ErrorBoundary>
+        <div className={classes.site_content}>
+          <div className={classes.left_navbar}>
+            <LeftNavBar />
+          </div>
+          <div className={classes.page_content}>
+            <ErrorBoundary FallbackComponent={ErrorPage}>
+              {isLoading ? 'Loading...' : <Routes />}
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
     </Router>

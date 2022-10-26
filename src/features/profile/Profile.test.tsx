@@ -18,7 +18,7 @@ import {
 
 import Routes from '../../app/Routes';
 import { createTestStore } from '../../app/store';
-import { setAuth } from '../auth/authSlice';
+import { setAuth, TokenInfo } from '../auth/authSlice';
 import { baseApi } from '../../common/api';
 
 export const realname = 'Rosalind Franklin';
@@ -150,7 +150,7 @@ describe('Profile related components', () => {
     await testStore.dispatch(
       setAuth({
         token: 'some token',
-        tokenInfo: undefined,
+        tokenInfo: {} as TokenInfo,
         username: usernameRequested,
       })
     );
@@ -175,7 +175,7 @@ describe('Profile related components', () => {
     await testStore.dispatch(
       setAuth({
         token: 'some token',
-        tokenInfo: undefined,
+        tokenInfo: {} as TokenInfo,
         username: usernameRequested,
       })
     );
@@ -202,7 +202,7 @@ describe('Profile related components', () => {
     await testStore.dispatch(
       setAuth({
         token: 'some token',
-        tokenInfo: undefined,
+        tokenInfo: {} as TokenInfo,
         username: usernameRequested,
       })
     );
@@ -219,18 +219,6 @@ describe('Profile related components', () => {
       const linkElement = screen.getByText(realnameOther, { exact: false });
       expect(linkElement).toBeInTheDocument();
     });
-  });
-
-  test('renders ProfileWrapper with auth message when missing auth', () => {
-    render(
-      <Provider store={createTestStore()}>
-        <Router initialEntries={[`/profile/${usernameRequested}`]}>
-          <Routes />
-        </Router>
-      </Provider>
-    );
-    const linkElement = screen.getByText(/Loading authentication state/i);
-    expect(linkElement).toBeInTheDocument();
   });
 
   test('renders ProfileWrapper as Page Not Found for viewUsername query error', async () => {

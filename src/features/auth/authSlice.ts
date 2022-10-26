@@ -1,9 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { useEffect } from 'react';
 import { RootState } from '../../app/store';
 import { authFromToken, revokeToken } from '../../common/api/authService';
+import { clearCookie, setCookie } from '../../common/cookie';
 import { useAppDispatch, useAppSelector } from '../../common/hooks';
 
-interface TokenInfo {
+export interface TokenInfo {
   created: number;
   expires: number;
   id: string;
@@ -25,10 +27,20 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setAuth: (state, { payload }: PayloadAction<AuthState>) => {
-      state.token = normalizeToken(payload.token);
-      state.username = payload.username;
-      state.tokenInfo = payload.tokenInfo;
+    setAuth: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        token: string;
+        username: string;
+        tokenInfo: TokenInfo;
+      } | null>
+    ) => {
+      const normToken = normalizeToken(payload?.token);
+      state.token = normToken;
+      state.username = payload?.username;
+      state.tokenInfo = payload?.tokenInfo;
     },
   },
   extraReducers: (builder) =>
@@ -63,22 +75,52 @@ export const useTryAuthFromToken = (token?: string) => {
     skip: !normToken,
   });
 
-  if (tokenQuery.isSuccess && normToken !== currentToken) {
-    dispatch(
-      setAuth({
-        token: normToken,
-        username: tokenQuery.data.user,
-        tokenInfo: tokenQuery.data,
-      })
-    );
-  }
+  useEffect(() => {
+    if (tokenQuery.isSuccess && normToken !== currentToken) {
+      dispatch(
+        setAuth({
+          token: normToken,
+          username: tokenQuery.data.user,
+          tokenInfo: tokenQuery.data,
+        })
+      );
+    }
+  }, [
+    currentToken,
+    dispatch,
+    normToken,
+    tokenQuery.data,
+    tokenQuery.isSuccess,
+  ]);
 
   return tokenQuery;
 };
 
-const normalizeToken = <T = undefined>(
-  t?: string,
-  fallback: T = undefined as T
-): string | T => {
-  return t?.toUpperCase().trim() || fallback;
+export const useSetTokenCookie = () => {
+  const token = useAppSelector(authToken);
+  const expires = useAppSelector(({ auth }) => auth.tokenInfo?.expires);
+  useEffect(() => {
+    if (token && expires) {
+      setCookie('kbase_session', token, {
+        expires: new Date(expires),
+        ...(process.env.NODE_ENV === 'development'
+          ? {}
+          : { domain: process.env.REACT_APP_KBASE_DOMAIN }),
+      });
+    } else if (!token) {
+      clearCookie('kbase_session');
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('Could not set token cookie, missing expire time');
+    }
+  }, [expires, token]);
 };
+
+function normalizeToken(
+  t: string | undefined,
+  fallback?: undefined
+): string | undefined;
+function normalizeToken<T>(t: string | undefined, fallback: T): string | T;
+function normalizeToken<T>(t: string | undefined, fallback?: T) {
+  return t?.toUpperCase().trim() || fallback;
+}

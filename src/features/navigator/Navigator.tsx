@@ -1,4 +1,4 @@
-import { usePageTitle } from '../../common/hooks';
+import { usePageTitle } from '../layout/layoutSlice';
 
 export default function Navigator() {
   usePageTitle('Narrative Navigator');

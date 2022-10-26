@@ -5,7 +5,8 @@ import fetchMock from 'jest-fetch-mock';
 
 import { createTestStore } from '../../app/store';
 import { authFromToken, revokeToken } from '../../common/api/authService';
-import { useTryAuthFromToken } from './authSlice';
+import { TokenInfo, useSetTokenCookie, useTryAuthFromToken } from './authSlice';
+import * as cookies from '../../common/cookie';
 
 let testStore = createTestStore({});
 describe('authSlice', () => {
@@ -68,7 +69,7 @@ describe('authSlice', () => {
         username: 'someUser',
         token: 'foo',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tokenInfo: { id: 'existing-tokenid' } as any,
+        tokenInfo: { id: 'existing-tokenid' } as TokenInfo,
       },
     });
     fetchMock.enableMocks();
@@ -87,7 +88,7 @@ describe('authSlice', () => {
         username: 'someUser',
         token: 'foo',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tokenInfo: { id: 'existing-tokenid' } as any,
+        tokenInfo: { id: 'existing-tokenid' } as TokenInfo,
       },
     });
     fetchMock.enableMocks();
@@ -98,5 +99,139 @@ describe('authSlice', () => {
       expect(testStore.getState().auth.username).toBe('someUser');
     });
     fetchMock.disableMocks();
+  });
+
+  describe('useSetTokenCookie', () => {
+    let setCookieMock: jest.SpyInstance<
+      ReturnType<typeof cookies.setCookie>,
+      Parameters<typeof cookies.setCookie>
+    >;
+    let clearCookieMock: jest.SpyInstance<
+      ReturnType<typeof cookies.clearCookie>,
+      Parameters<typeof cookies.clearCookie>
+    >;
+    let consoleErrorMock: jest.SpyInstance<
+      ReturnType<typeof console.error>,
+      Parameters<typeof console.error>
+    >;
+    beforeAll(() => {
+      setCookieMock = jest.spyOn(cookies, 'setCookie');
+      setCookieMock.mockImplementation(() => undefined);
+      clearCookieMock = jest.spyOn(cookies, 'clearCookie');
+      clearCookieMock.mockImplementation(() => undefined);
+      consoleErrorMock = jest.spyOn(console, 'error');
+      consoleErrorMock.mockImplementation(() => undefined);
+    });
+    beforeEach(() => {
+      setCookieMock.mockClear();
+      clearCookieMock.mockClear();
+      consoleErrorMock.mockClear();
+    });
+    afterAll(() => {
+      setCookieMock.mockRestore();
+      clearCookieMock.mockRestore();
+      consoleErrorMock.mockRestore();
+    });
+
+    test('useSetTokenCookie clears cookie if auth token is undefined', async () => {
+      const Component = () => {
+        useSetTokenCookie();
+        return <></>;
+      };
+      render(
+        <Provider store={testStore}>
+          <Component />
+        </Provider>
+      );
+      await waitFor(() => {
+        expect(clearCookieMock).toHaveBeenCalledWith('kbase_session');
+        expect(consoleErrorMock).not.toHaveBeenCalled();
+      });
+    });
+
+    test('useSetTokenCookie sets cookie if auth token exists with expiration', async () => {
+      const auth = {
+        token: 'some-token',
+        username: 'some-user',
+        tokenInfo: {
+          expires: Date.now() + Math.floor(Math.random() * 10000),
+        } as TokenInfo,
+      };
+      const Component = () => {
+        useSetTokenCookie();
+        return <></>;
+      };
+      render(
+        <Provider store={createTestStore({ auth })}>
+          <Component />
+        </Provider>
+      );
+      await waitFor(() => {
+        expect(setCookieMock).toHaveBeenCalledWith(
+          'kbase_session',
+          'some-token',
+          {
+            domain: 'ci-europa.kbase.us',
+            expires: new Date(auth.tokenInfo.expires),
+          }
+        );
+        expect(consoleErrorMock).not.toHaveBeenCalled();
+      });
+    });
+
+    test('useSetTokenCookie sets cookie without domain in development mode', async () => {
+      const processEnv = process.env;
+      process.env = { ...processEnv, NODE_ENV: 'development' };
+      const auth = {
+        token: 'some-token',
+        username: 'some-user',
+        tokenInfo: {
+          expires: Date.now() + 1,
+        } as TokenInfo,
+      };
+      const Component = () => {
+        useSetTokenCookie();
+        return <></>;
+      };
+      render(
+        <Provider store={createTestStore({ auth })}>
+          <Component />
+        </Provider>
+      );
+      await waitFor(() => {
+        expect(setCookieMock).toHaveBeenCalledWith(
+          'kbase_session',
+          'some-token',
+          {
+            expires: new Date(auth.tokenInfo.expires),
+          }
+        );
+        expect(consoleErrorMock).not.toHaveBeenCalled();
+      });
+      process.env = processEnv;
+    });
+
+    test('useSetTokenCookie does nothing and `console.error`s if token is defined but tokenInfo.expires is not', async () => {
+      const auth = {
+        token: 'some-token',
+        username: 'some-user',
+        tokenInfo: undefined,
+      };
+      const Component = () => {
+        useSetTokenCookie();
+        return <></>;
+      };
+      render(
+        <Provider store={createTestStore({ auth })}>
+          <Component />
+        </Provider>
+      );
+      await waitFor(() => {
+        expect(consoleErrorMock).toHaveBeenCalledWith(
+          'Could not set token cookie, missing expire time'
+        );
+        expect(setCookieMock).not.toHaveBeenCalled();
+      });
+    });
   });
 });

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { RootState } from '../../app/store';
 import { getUserProfile } from '../../common/api/userProfileApi';
 import { useAppDispatch, useAppSelector } from '../../common/hooks';
@@ -46,16 +46,18 @@ export const useLoggedInProfileUser = (username?: string) => {
     ({ profile }) => profile?.loggedInProfile?.user?.username
   );
 
-  if (query.isSuccess) {
-    // App should crash if profile DNE
-    if (!(query.data && query.data[0][0])) {
-      throw query.error;
+  useEffect(() => {
+    if (query.isSuccess) {
+      // App should crash if profile DNE
+      if (!(query.data && query.data[0][0])) {
+        throw query.error;
+      }
+      // Set the logged in profile once it loads
+      if (query.isSuccess && query.data[0][0].user.username !== profileUser) {
+        dispatch(setLoggedInProfile(query.data[0][0]));
+      }
     }
-    // Set the logged in profile once it loads
-    if (query.isSuccess && query.data[0][0].user.username !== profileUser) {
-      dispatch(setLoggedInProfile(query.data[0][0]));
-    }
-  }
+  }, [dispatch, profileUser, query.data, query.error, query.isSuccess]);
 
   return query;
 };

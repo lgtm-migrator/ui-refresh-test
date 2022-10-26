@@ -1,4 +1,4 @@
-import { usePageTitle } from '../../common/hooks';
+import { usePageTitle } from '../layout/layoutSlice';
 
 export default function Status() {
   usePageTitle('KBase Europa UI Status');

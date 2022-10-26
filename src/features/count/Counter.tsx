@@ -1,9 +1,6 @@
 import { Button } from '../../common/components';
-import {
-  useAppSelector,
-  useAppDispatch,
-  usePageTitle,
-} from '../../common/hooks';
+import { useAppSelector, useAppDispatch } from '../../common/hooks';
+import { usePageTitle } from '../layout/layoutSlice';
 import { countStatus, increment } from '../count/countSlice';
 
 const Counter = () => {

@@ -4,11 +4,12 @@ import {
   setUserProfile,
 } from '../../common/api/userProfileApi';
 import { Button } from '../../common/components';
-import { useAppSelector, usePageTitle } from '../../common/hooks';
+import { useAppSelector } from '../../common/hooks';
 import { authFromToken, revokeToken } from '../../common/api/authService';
 import { faCheck, faX, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import { parseError } from '../../common/api/utils/parseError';
+import { usePageTitle } from '../layout/layoutSlice';
 
 export default function Auth() {
   usePageTitle('Authentication');
@@ -104,7 +105,7 @@ const UserRealNameChanger = () => {
     const newProfile: typeof oldProfile = JSON.parse(
       JSON.stringify(profile.data?.[0][0])
     );
-    if (newProfile === undefined) return;
+    if (newProfile === undefined || newProfile === null) return;
     if (nameText.trim() === '') return;
     newProfile.user.realname = nameText.trim();
     updateProfile({ profile: newProfile });

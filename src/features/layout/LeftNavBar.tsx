@@ -19,12 +19,12 @@ export default function LeftNavBar() {
     <nav>
       <ul className={classes.nav_list}>
         <NavItem path="/" desc="Navigator" icon={faCompass} />
-        <NavItem path="/orgs" desc="Orgs" icon={faUsers} />
-        <NavItem path="/catalog" desc="Catalog" icon={faBook} />
-        <NavItem path="/search" desc="Search" icon={faSearch} />
-        <NavItem path="/jobs" desc="Jobs" icon={faSuitcase} />
-        <NavItem path="/account" desc="Account" icon={faIdCard} />
-        <NavItem path="/feeds" desc="Feeds" icon={faBullhorn} />
+        <NavItem path="/legacy/orgs" desc="Orgs" icon={faUsers} />
+        <NavItem path="/legacy/catalog/apps" desc="Catalog" icon={faBook} />
+        <NavItem path="/legacy/search" desc="Search" icon={faSearch} />
+        <NavItem path="/legacy/jobbrowser" desc="Jobs" icon={faSuitcase} />
+        <NavItem path="/legacy/account" desc="Account" icon={faIdCard} />
+        <NavItem path="/legacy/feeds" desc="Feeds" icon={faBullhorn} />
         <NavItem path="/count" desc="Count" icon={faExclamation} />
         <NavItem path="/auth" desc="Auth" icon={faExclamation} />
       </ul>
