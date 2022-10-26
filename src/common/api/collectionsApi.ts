@@ -68,7 +68,15 @@ export const collectionsApi = baseApi.injectEndpoints({
       CollectionsParams['listCollections']
     >({
       // query: () => collectionsService({ method: 'GET', url: `/collections` }),
-      queryFn: () => ({ data: [mockCollection()] }),
+      queryFn: () => ({
+        data: [
+          mockCollection(),
+          mockCollection(),
+          mockCollection(),
+          mockCollection(),
+          mockCollection(),
+        ],
+      }),
     }),
 
     getCollection: builder.query<
