@@ -7,6 +7,10 @@
     background: #cdecff;
   }
 
+  &.inactive {
+    background: transparent;
+  }
+
   &:hover:not(.active):not(.dropdown_wrapper) {
     background: #eee;
     transition: background 0.15s ease-in;
@@ -55,16 +59,18 @@
 }
 
 .narrative_item_text {
+  display: flex;
   font-size: 1rem;
+  justify-content: space-between;
   margin: 0;
   margin-bottom: 0.5rem;
   padding: 0;
 }
 
 .dropdown_wrapper {
-  display: inline-block;
-  margin-left: 10px;
-  max-width: 100px;
+  display: flex;
+  justify-content: right;
+  width: 100px;
 }
 
 .narrative_item_details {

@@ -1,48 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import NarrativeList from './NarrativeList';
-
-const testItems = [
-  {
-    access_group: 12345,
-    creator: 'charlie',
-    narrative_title: "Charlie's Storybook Narrative",
-    obj_id: 1,
-    timestamp: 0,
-    version: 8,
-  },
-  {
-    access_group: 12346,
-    creator: 'DJKhaled',
-    narrative_title: 'Another One',
-    obj_id: 1,
-    timestamp: 0,
-    version: 1,
-  },
-  {
-    access_group: 12345,
-    creator: 'charlie',
-    narrative_title: "Charlie's Storybook Narrative",
-    obj_id: 1,
-    timestamp: 0,
-    version: 8,
-  },
-  {
-    access_group: 12346,
-    creator: 'DJKhaled',
-    narrative_title: 'Another One',
-    obj_id: 1,
-    timestamp: 0,
-    version: 1,
-  },
-  {
-    access_group: 12345,
-    creator: 'charlie',
-    narrative_title: "Charlie's Storybook Narrative",
-    obj_id: 1,
-    timestamp: 0,
-    version: 8,
-  },
-];
+import { testItems } from './NarrativeList.fixture';
 
 test('NarrativeList renders', async () => {
   const { container } = render(
@@ -55,7 +13,7 @@ test('NarrativeList renders', async () => {
     ></NarrativeList>
   );
   expect(container).toBeTruthy();
-  expect(container.querySelectorAll('.narrative_item_outer')).toHaveLength(5);
+  expect(container.querySelectorAll('.narrative_item_outer')).toHaveLength(4);
   expect(screen.getByText('No more results.')).toBeInTheDocument();
 });
 

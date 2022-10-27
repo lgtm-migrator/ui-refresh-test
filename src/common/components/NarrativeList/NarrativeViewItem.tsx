@@ -21,7 +21,8 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
   idx,
 }) => {
   const status = active ? 'active' : 'inactive';
-  const timeElapsed = timeago.format(item.timestamp);
+  // Note: timeago expects milliseconds
+  const timeElapsed = timeago.format(item.timestamp * 1000);
 
   // notify upa change once new narrative item is focused on
   useEffect(() => {
@@ -45,12 +46,14 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
       <div className={`${classes.narrative_item_outer} ${classes[status]}`}>
         <div className={classes.narrative_item_inner}>
           <div className={classes.narrative_item_text}>
-            {item.narrative_title || 'Untitiled'}
-            {showVersionDropdown && active && (
+            <div>{item.narrative_title || 'Untitiled'}</div>
+            {showVersionDropdown && active ? (
               <NarrativeItemDropdown
                 version={item.version}
                 onVersionSelect={(e) => handleVersionSelect(e)}
               ></NarrativeItemDropdown>
+            ) : (
+              <div className={classes.dropdown_wrapper}></div>
             )}
           </div>
           <div className={classes.narrative_item_details}>

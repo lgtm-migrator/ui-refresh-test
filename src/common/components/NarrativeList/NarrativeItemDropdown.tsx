@@ -32,7 +32,7 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
             icon: undefined,
             label: (
               <>
-                <span>{'v' + item}</span>
+                <span>v{item}</span>
                 {item === selectedVersion && (
                   <FAIcon icon={faCheck} style={{ marginLeft: '3rem' }} />
                 )}

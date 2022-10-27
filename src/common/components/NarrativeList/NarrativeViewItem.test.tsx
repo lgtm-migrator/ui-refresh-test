@@ -3,7 +3,7 @@ import { screen, render } from '@testing-library/react';
 import { NarrativeListDoc } from '../../types/NarrativeDoc';
 
 const testDoc: NarrativeListDoc = {
-  timestamp: 8032329432,
+  timestamp: 0,
   access_group: 4000,
   obj_id: 4000,
   version: 4000,

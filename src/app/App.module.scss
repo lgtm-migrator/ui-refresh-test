@@ -6,7 +6,8 @@
   display: flex;
   flex-flow: column nowrap;
   height: 100vh;
-  justify-content: stretch;
+  justify-content: flex-start;
+  min-width: 1024px;
   position: relative;
   width: 100vw;
 

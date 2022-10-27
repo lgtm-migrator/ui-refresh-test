@@ -54,6 +54,12 @@ const Routes: FC = () => (
   </>
 );
 
+/*
+// Using this to bypass some Auth weirdness
+export const Authed: FC<{ element: ReactElement }> = ({ element }) => (
+  <>{element}</>
+);
+*/
 export const Authed: FC<{ element: ReactElement }> = ({ element }) => {
   const token = useAppSelector((state) => state.auth.token);
   const location = useLocation();
