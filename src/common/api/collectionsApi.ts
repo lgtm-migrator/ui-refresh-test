@@ -16,7 +16,7 @@ interface DataProductRef {
   version: string;
 }
 
-interface Collection {
+export interface Collection {
   id: string;
   name: string;
   version_tag: string;

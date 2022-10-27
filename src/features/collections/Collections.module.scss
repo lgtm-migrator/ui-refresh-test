@@ -1,7 +1,61 @@
-.collection_list {
+@import "../../common/colors";
+
+$border: 1px solid rgba(0, 0, 0, 0.2);
+
+.collection_wrapper {
+  background-color: use-color("base-lightest");
   display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+  padding: 10px;
+}
 
-  // .collection_list_item{
+.collection_list {
+  border: $border;
+  display: flex;
+  flex-flow: column nowrap;
+  list-style: none;
+  padding: 0;
 
-  // }
+  > li {
+    align-items: center;
+    background-color: use-color("white");
+    cursor: pointer;
+    display: flex;
+    flex-flow: row nowrap;
+
+    &:not(:last-of-type) {
+      border-bottom: $border;
+    }
+
+    &:hover {
+      background-color: use-rgba-color("white", 0.5);
+    }
+
+    > img {
+      height: 44px;
+      margin: 10px;
+      width: 44px;
+    }
+  }
+}
+
+.desc {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.25em;
+  margin: 10px 0;
+
+  .desc_title {
+    color: use-color("ink");
+    font-size: 16px;
+    font-weight: normal;
+    text-decoration: none;
+  }
+
+  .desc_text {
+    color: use-color("ink");
+    cursor: auto;
+    font-size: 12px;
+  }
 }
