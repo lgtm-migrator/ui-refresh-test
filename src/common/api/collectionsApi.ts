@@ -6,7 +6,7 @@ const collectionsService = httpService({
   url: 'services/collectionsservice',
 });
 
-interface DataProduct {
+export interface DataProduct {
   product: string;
   // unknown
 }

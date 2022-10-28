@@ -64,13 +64,14 @@ $border: 1px solid rgba(0, 0, 0, 0.2);
   > li {
     align-items: center;
     background-color: use-color("white");
+    border-bottom: $border;
     cursor: pointer;
     display: flex;
     flex-flow: row nowrap;
     padding: 10px;
 
-    &:not(:last-of-type) {
-      border-bottom: $border;
+    &:last-of-type {
+      margin-bottom: -1px;
     }
 
     &:hover {

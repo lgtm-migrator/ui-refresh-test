@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { getCollection } from '../../common/api/collectionsApi';
 import { usePageTitle } from '../layout/layoutSlice';
+import { TaxaHistogram } from './data_products/TaxaHistogram';
 import styles from './Collections.module.scss';
 
 export const CollectionDetail = () => {
@@ -38,7 +39,9 @@ export const CollectionDetail = () => {
           <li>Data Product #2</li>
           <li>Data Product #3</li>
         </ul>
-        <div className={styles['collection_detail']}>foo</div>
+        <div className={styles['collection_detail']}>
+          <TaxaHistogram data={{ product: 'TaxaHistogram' }} />
+        </div>
       </div>
     </div>
   );
