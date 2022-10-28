@@ -6,8 +6,51 @@ $border: 1px solid rgba(0, 0, 0, 0.2);
   background-color: use-color("base-lightest");
   display: flex;
   flex-flow: column nowrap;
+  gap: 10px;
   height: 100%;
   padding: 10px;
+}
+
+.collection_wrapper_row {
+  align-items: stretch;
+  background-color: use-color("base-lightest");
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+
+  > div {
+    border-left: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+}
+
+.collection_detail {
+  background-color: use-color("white");
+  border: $border;
+  padding: 10px;
+}
+
+.detail_header {
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  font-size: 24px;
+  gap: 10px;
+  justify-content: stretch;
+  width: 100%;
+
+  > * {
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+
+  > img {
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 64px;
+    width: 64px;
+  }
 }
 
 .collection_list {
@@ -15,6 +58,7 @@ $border: 1px solid rgba(0, 0, 0, 0.2);
   display: flex;
   flex-flow: column nowrap;
   list-style: none;
+  margin: 0;
   padding: 0;
 
   > li {
@@ -23,6 +67,7 @@ $border: 1px solid rgba(0, 0, 0, 0.2);
     cursor: pointer;
     display: flex;
     flex-flow: row nowrap;
+    padding: 10px;
 
     &:not(:last-of-type) {
       border-bottom: $border;
@@ -33,9 +78,9 @@ $border: 1px solid rgba(0, 0, 0, 0.2);
     }
 
     > img {
-      height: 44px;
-      margin: 10px;
-      width: 44px;
+      height: 54px;
+      margin: 0 10px 0 0;
+      width: 54px;
     }
   }
 }

@@ -13,23 +13,33 @@ export const CollectionDetail = () => {
   if (!collection) return <>loading...</>;
   return (
     <div className={styles['collection_wrapper']}>
-      <div>
-        <h1>
-          {collection.name}
+      <div className={styles['collection_detail']}>
+        <div className={styles['detail_header']}>
           <img
             src={collection.icon}
             alt={`${collection.name} collection icon`}
           />
-        </h1>
+          <span>{collection.name}</span>
+        </div>
       </div>
-      <div>
-        <h2>
-          version number: {collection.version_num}
-          <br />
-          version name: {collection.version_tag}
-        </h2>
+      <div className={styles['collection_detail']}>
+        <ul>
+          <li>
+            Version:{' '}
+            <strong>
+              v{collection.version_num}: {collection.version_tag}
+            </strong>
+          </li>
+        </ul>
       </div>
-      <div></div>
+      <div className={styles['collection_wrapper_row']}>
+        <ul className={styles['collection_list']}>
+          <li>Data Product #1</li>
+          <li>Data Product #2</li>
+          <li>Data Product #3</li>
+        </ul>
+        <div className={styles['collection_detail']}>foo</div>
+      </div>
     </div>
   );
 };
