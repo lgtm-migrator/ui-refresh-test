@@ -47,7 +47,11 @@ jest.mock('../Dropdown', () => ({
 test('NarrativeItemDropdown renders', async () => {
   const versionSelectSpy = jest.fn();
   const { container } = render(
-    <NarrativeItemDropdown version={400} onVersionSelect={versionSelectSpy} />
+    <NarrativeItemDropdown
+      versionLatest={400}
+      version={400}
+      onVersionSelect={versionSelectSpy}
+    />
   );
   expect(container).toBeTruthy();
   expect(container.querySelector('.dropdown_wrapper')).toBeInTheDocument();
@@ -55,7 +59,11 @@ test('NarrativeItemDropdown renders', async () => {
 
 test('NarrativeItemDropdown populates right number of versions', () => {
   const { container } = render(
-    <NarrativeItemDropdown version={123} onVersionSelect={jest.fn()} />
+    <NarrativeItemDropdown
+      versionLatest={123}
+      version={123}
+      onVersionSelect={jest.fn()}
+    />
   );
   const select = screen.getByTestId('select');
   // this tests that the component will render 123 separate items in the dropdown
@@ -67,7 +75,11 @@ test('NarrativeItemDropdown populates right number of versions', () => {
 test('NarrativeItemDropdown calls onVersionSelect', () => {
   const versionSelectSpy = jest.fn();
   const { container } = render(
-    <NarrativeItemDropdown version={42} onVersionSelect={versionSelectSpy} />
+    <NarrativeItemDropdown
+      versionLatest={42}
+      version={42}
+      onVersionSelect={versionSelectSpy}
+    />
   );
   fireEvent.click(getByTestId(container, '34'));
   // callback should be numeric version

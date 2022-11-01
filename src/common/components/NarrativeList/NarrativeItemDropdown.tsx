@@ -6,12 +6,14 @@ import classes from './NarrativeList.module.scss';
 import { faCheck, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
 type NarrativeItemDropdownProps = {
-  version: number;
   onVersionSelect: (e: number) => void;
+  version: number;
+  versionLatest: number;
 };
 const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
-  version,
   onVersionSelect,
+  version,
+  versionLatest,
 }) => {
   const [selectedVersion, setSelectedVersion] = useState<number>(version);
 
@@ -20,7 +22,7 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
     onVersionSelect(event[0].value as number);
   };
 
-  const versions = Array(version)
+  const versions = Array(versionLatest)
     .fill(null)
     .map((_, n) => n + 1)
     .reverse()
@@ -55,7 +57,7 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
           <span>v{selectedVersion}</span>
         ) : (
           <span>
-            v{selectedVersion} of {version}
+            v{selectedVersion} of {versionLatest}
           </span>
         )}
         <FAIcon icon={faCaretDown} style={{ marginLeft: '5px' }} />

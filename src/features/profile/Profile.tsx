@@ -46,10 +46,11 @@ export const NarrativesView: FC<{ realname: string; yours: boolean }> = ({
     <div className={classes.narratives}>
       <ProfileNarrativesMessage realname={realname} yours={yours} />
       <NarrativeList
+        hasMoreItems={false}
         items={[]}
         itemsRemaining={0}
-        hasMoreItems={false}
         loading={false}
+        narrative={null}
         showVersionDropdown
       />
     </div>

@@ -45,7 +45,7 @@ const Routes: FC = () => (
       />
       <Route
         path={'/narratives/:category/:id/:obj/:ver'}
-        element={<Navigator />}
+        element={<Authed element={<Navigator />} />}
       />
       <Route path="/narratives" element={<Authed element={<Navigator />} />} />
       <Route path="/" element={<HashRouteRedirect />} />

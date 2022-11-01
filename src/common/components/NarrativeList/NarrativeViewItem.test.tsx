@@ -10,13 +10,14 @@ const testDoc: NarrativeListDoc = {
   narrative_title: 'What a cool narrative',
   creator: 'JaRule',
 };
+const testDocUpa = `${testDoc.access_group}/${testDoc.obj_id}/${testDoc.version}`;
 
 test('NarrativeViewItem renders', () => {
   const { container } = render(
     <NarrativeViewItem
-      item={testDoc}
       idx={0}
-      active={true}
+      item={testDoc}
+      narrative={null}
       showVersionDropdown={true}
     />
   );
@@ -35,9 +36,9 @@ test('NarrativeViewItem renders', () => {
 test('NarrativeViewItem displays active class', () => {
   const { container } = render(
     <NarrativeViewItem
-      item={testDoc}
       idx={0}
-      active={true}
+      item={testDoc}
+      narrative={testDocUpa}
       showVersionDropdown={true}
     />
   );

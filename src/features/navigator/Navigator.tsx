@@ -1,7 +1,7 @@
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { FC } from 'react';
-import { NavLink, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Button, Input, InputInterface, Select } from '../../common/components';
 import { PlaceholderFactory } from '../../common/components/PlaceholderFactory';
 import NarrativeList from '../../common/components/NarrativeList/NarrativeList';
@@ -83,7 +83,7 @@ const RefreshButton: FC = () => (
     Refresh <FAIcon icon={faRefresh} />
   </Button>
 );
-const FilterFragment: FC<{ search: string; sort: string }> = ({
+const FilterContainer: FC<{ search: string; sort: string }> = ({
   search,
   sort,
 }) => {
@@ -97,37 +97,43 @@ const FilterFragment: FC<{ search: string; sort: string }> = ({
 };
 const HeaderTabs: FC<{ category: string }> = ({ category }) => (
   <ul className={classes.tabs}>
-    <NavLink to={keepSort('/narratives/')}>
-      <li>My Narratives</li>
-    </NavLink>
-    <NavLink to={keepSort('/narratives/shared/')}>
-      <li>Shared With Me</li>
-    </NavLink>
-    <NavLink to={keepSort('/narratives/tutorials/')}>
-      <li>Tutorials</li>
-    </NavLink>
-    <NavLink to={keepSort('/narratives/public/')}>
-      <li>Public</li>
-    </NavLink>
+    <Link to={keepSort('/narratives/')}>
+      <li className={category === 'own' ? classes.active : ''}>
+        My Narratives
+      </li>
+    </Link>
+    <Link to={keepSort('/narratives/shared/')}>
+      <li className={category === 'shared' ? classes.active : ''}>
+        Shared With Me
+      </li>
+    </Link>
+    <Link to={keepSort('/narratives/tutorials/')}>
+      <li className={category === 'tutorials' ? classes.active : ''}>
+        Tutorials
+      </li>
+    </Link>
+    <Link to={keepSort('/narratives/public/')}>
+      <li className={category === 'public' ? classes.active : ''}>Public</li>
+    </Link>
   </ul>
 );
 
-const HeaderNavigationFragment: FC<{ category: string }> = ({ category }) => (
+const HeaderNavigationContainer: FC<{ category: string }> = ({ category }) => (
   <nav className={classes.header}>
     <HeaderTabs category={category} />
     <NarrativeNewButton />
   </nav>
 );
 
-const HeaderFragment: FC<{ category: string; search: string; sort: string }> =
+const HeaderContainer: FC<{ category: string; search: string; sort: string }> =
   ({ category, search, sort }) => (
     <header className={classes.header}>
-      <HeaderNavigationFragment category={category} />
-      <FilterFragment search={search} sort={sort} />
+      <HeaderNavigationContainer category={category} />
+      <FilterContainer search={search} sort={sort} />
     </header>
   );
 
-const MainFragment: FC<{
+const MainContainer: FC<{
   items: NarrativeListDoc[];
   narrative: string | null;
   view: string;
@@ -137,11 +143,12 @@ const MainFragment: FC<{
       <div className={classes.container}>
         <div className={classes.list}>
           <NarrativeList
-            items={items}
-            showVersionDropdown={true}
-            itemsRemaining={40}
             hasMoreItems={true}
+            items={items}
+            itemsRemaining={40}
             loading={false}
+            narrative={narrative}
+            showVersionDropdown={true}
           />
         </div>
         <NarrativeView
@@ -185,8 +192,12 @@ const Navigator: FC = () => {
           ${envs.map((env) => env.join('=')).join('\n          ')}
       `}</pre>
       <section className={classes.navigator}>
-        <HeaderFragment category={categoryFilter} search={search} sort={sort} />
-        <MainFragment
+        <HeaderContainer
+          category={categoryFilter}
+          search={search}
+          sort={sort}
+        />
+        <MainContainer
           items={testItems}
           narrative={narrativeSelected}
           view={view}
