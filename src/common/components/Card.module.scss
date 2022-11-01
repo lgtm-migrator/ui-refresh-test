@@ -1,0 +1,95 @@
+@import "../../common/colors";
+
+$border: 1px solid use-rgba-color("black", 0.2);
+
+.card {
+  align-items: center;
+  align-items: center;
+  background-color: use-color("white");
+  border: $border;
+  display: flex;
+  flex-flow: row nowrap;
+  font-size: 16px;
+  gap: 10px;
+  overflow: clip;
+  padding: 10px;
+  text-align: left;
+
+  &.clickable {
+    cursor: pointer;
+  }
+
+  &.clickable:hover {
+    background-color: use-color("base-lightest");
+  }
+
+  &.clickable.selected:hover,
+  &.clickable:active {
+    background-color: use-color("primary-lightest");
+  }
+
+  &.selected {
+    background-color: use-color("primary-lighter");
+  }
+}
+
+.image-wrapper {
+  align-self: flex-start;
+  display: flex;
+  flex-flow: column nowrap;
+  height: 44px;
+  justify-content: center;
+  position: relative;
+  width: 44px;
+
+  > * {
+    display: block;
+    max-height: 44px;
+    max-width: 44px;
+  }
+}
+
+.body {
+  align-content: stretch;
+  color: use-color("ink");
+  display: flex;
+  flex-flow: column nowrap;
+  flex-grow: 1;
+  gap: 5px;
+  justify-content: center;
+
+  .title > & {
+    flex-grow: 0;
+  }
+
+  .subtitle {
+    color: use-color("base-darkest");
+    flex-grow: 1;
+    font-size: 0.75em;
+  }
+}
+
+.card-list {
+  display: flex;
+  flex-flow: column nowrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  > li {
+    align-items: center;
+    background-color: use-color("white");
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: stretch;
+  }
+
+  > li > .card {
+    border-bottom: 0;
+    width: 100%;
+  }
+
+  > li:last-of-type> .card {
+    border-bottom: $border;
+  }
+}
