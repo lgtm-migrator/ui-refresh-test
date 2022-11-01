@@ -58,10 +58,6 @@ $border: 1px solid use-rgba-color("black", 0.2);
   gap: 5px;
   justify-content: center;
 
-  .title > & {
-    flex-grow: 0;
-  }
-
   .subtitle {
     color: use-color("base-darkest");
     flex-grow: 1;
