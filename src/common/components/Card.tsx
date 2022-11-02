@@ -6,7 +6,7 @@ import {
   useCallback,
   useRef,
 } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import classes from './Card.module.scss';
 
 /**
