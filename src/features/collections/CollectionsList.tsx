@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
-import { listCollections, Collection } from '../../common/api/collectionsApi';
+import { listCollections } from '../../common/api/collectionsApi';
 import { usePageTitle } from '../layout/layoutSlice';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import classes from './Collections.module.scss';
-import { FC, MouseEventHandler } from 'react';
+import { Card, CardList } from '../../common/components/Card';
 
 export const CollectionsList = () => {
+  const navigate = useNavigate();
   usePageTitle('Data Collections');
   const collections = listCollections.useQuery();
   return (
@@ -15,43 +15,28 @@ export const CollectionsList = () => {
         Between this and the list below, we may add search/sort/etc inputs. We
         may also add some sort of pagination at the bottom of the list.
       </div>
-      <ul className={classes['collection_list']}>
+      <CardList>
         {collections.isSuccess
-          ? collections.data?.map((collection) => (
-              <CollectionListItem key={collection.id} collection={collection} />
-            ))
+          ? collections.data?.map((collection) => {
+              const detailLink = encodeURIComponent(collection.id);
+              const handleClick = () => navigate(detailLink);
+              return (
+                <Card
+                  key={collection.id}
+                  title={collection.name}
+                  subtitle={collection.version_tag}
+                  onClick={handleClick}
+                  image={
+                    <img
+                      src={collection.icon}
+                      alt={`${collection.name} collection icon`}
+                    />
+                  }
+                />
+              );
+            })
           : null}
-      </ul>
+      </CardList>
     </div>
-  );
-};
-
-const CollectionListItem: FC<{ collection: Collection }> = ({ collection }) => {
-  const navigate = useNavigate();
-  const detailLink = encodeURIComponent(collection.id);
-
-  const handleClick: MouseEventHandler<HTMLLIElement | HTMLImageElement> = (
-    ev
-  ) => {
-    if (ev.currentTarget !== ev.target) return;
-    navigate(detailLink);
-  };
-
-  return (
-    <li onClick={handleClick}>
-      <img
-        src={collection.icon}
-        alt={`${collection.name} collection icon`}
-        onClick={handleClick}
-      />
-      <div className={classes['desc']}>
-        <Link className={classes['desc_title']} to={detailLink}>
-          {collection.name}
-        </Link>
-        <span className={classes['desc_text']}>
-          Where the description goes {collection.source_version}
-        </span>
-      </div>
-    </li>
   );
 };

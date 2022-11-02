@@ -3,6 +3,7 @@ import { getCollection } from '../../common/api/collectionsApi';
 import { usePageTitle } from '../layout/layoutSlice';
 import { TaxaHistogram } from './data_products/TaxaHistogram';
 import styles from './Collections.module.scss';
+import { Card, CardList } from '../../common/components/Card';
 
 export const CollectionDetail = () => {
   const { id } = useParams();
@@ -22,8 +23,9 @@ export const CollectionDetail = () => {
           />
           <span>{collection.name}</span>
         </div>
-      </div>
-      <div className={styles['collection_detail']}>
+
+        <p>Some text description of this collection</p>
+
         <ul>
           <li>
             Version:{' '}
@@ -33,13 +35,17 @@ export const CollectionDetail = () => {
           </li>
         </ul>
       </div>
-      <div className={styles['collection_wrapper_row']}>
-        <ul className={styles['collection_list']}>
-          <li>Data Product #1</li>
-          <li>Data Product #2</li>
-          <li>Data Product #3</li>
-        </ul>
-        <div className={styles['collection_detail']}>
+      <div className={styles['data_products']}>
+        <CardList className={styles['data_product_list']}>
+          <Card
+            title="Data Product #1"
+            subtitle="some further info"
+            onClick={() => null}
+          />
+          <Card title="Data Product #2" onClick={() => null} />
+          <Card title="Data Product #3" onClick={() => null} />
+        </CardList>
+        <div className={styles['data_product_detail']}>
           <TaxaHistogram data={{ product: 'TaxaHistogram' }} />
         </div>
       </div>
