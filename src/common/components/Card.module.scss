@@ -1,6 +1,6 @@
 @import "../../common/colors";
 
-$border: 1px solid use-rgba-color("black", 0.2);
+$border: 1px solid use-color("base-lighter");
 
 .card {
   align-items: center;
@@ -66,6 +66,7 @@ $border: 1px solid use-rgba-color("black", 0.2);
 }
 
 .card-list {
+  border: $border;
   display: flex;
   flex-flow: column nowrap;
   list-style: none;
@@ -81,11 +82,12 @@ $border: 1px solid use-rgba-color("black", 0.2);
   }
 
   > li > .card {
-    border-bottom: 0;
+    border: 0;
+    border-bottom: $border;
     width: 100%;
   }
 
   > li:last-of-type> .card {
-    border-bottom: $border;
+    margin-bottom: -1;
   }
 }

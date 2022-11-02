@@ -1,5 +1,6 @@
 import {
   Children,
+  ComponentProps,
   FC,
   HTMLAttributes,
   ReactElement,
@@ -93,9 +94,13 @@ export const Card: FC<{
  * <CardList/>
  * ```
  */
-export const CardList: FC<{}> = ({ children }) => {
+export const CardList: FC<ComponentProps<'ol'>> = ({ children, ...props }) => {
   return (
-    <ol data-testid="cardList" className={classes['card-list']}>
+    <ol
+      {...props}
+      data-testid="cardList"
+      className={props.className + ' ' + classes['card-list']}
+    >
       {Children.map(children, (child) => (
         <li>{child}</li>
       ))}
