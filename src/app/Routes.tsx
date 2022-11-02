@@ -49,6 +49,7 @@ const Routes: FC = () => (
         element={<Navigator />}
       />
       <Route path="/narratives" element={<Authed element={<Navigator />} />} />
+      <Route path="/collections/*" element={<Collections />} />
       <Route path="/" element={<HashRouteRedirect />} />
       <Route path="*" element={<PageNotFound />} />
     </RRRoutes>
