@@ -24,11 +24,11 @@ export const CollectionsList = () => {
                 <Card
                   key={collection.id}
                   title={collection.name}
-                  subtitle={collection.version_tag}
+                  subtitle={collection.ver_tag}
                   onClick={handleClick}
                   image={
                     <img
-                      src={collection.icon}
+                      src={collection.icon_url}
                       alt={`${collection.name} collection icon`}
                     />
                   }

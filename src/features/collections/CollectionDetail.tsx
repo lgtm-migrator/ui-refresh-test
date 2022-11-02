@@ -18,7 +18,7 @@ export const CollectionDetail = () => {
       <div className={styles['collection_detail']}>
         <div className={styles['detail_header']}>
           <img
-            src={collection.icon}
+            src={collection.icon_url}
             alt={`${collection.name} collection icon`}
           />
           <span>{collection.name}</span>
@@ -30,7 +30,7 @@ export const CollectionDetail = () => {
           <li>
             Version:{' '}
             <strong>
-              v{collection.version_num}: {collection.version_tag}
+              v{collection.ver_num}: {collection.ver_tag}
             </strong>
           </li>
         </ul>

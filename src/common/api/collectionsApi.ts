@@ -16,16 +16,22 @@ interface DataProductRef {
   version: string;
 }
 
-export interface Collection {
+export interface UnsavedCollection {
   id: string;
   name: string;
-  version_tag: string;
-  version_num: number;
-  source_version: string;
-  icon: string;
-  creation_date: string;
-  activation_date: string;
+  desc: string;
+  ver_tag: string;
+  ver_src: string;
+  icon_url: string;
   data_products: DataProductRef[];
+}
+
+export interface Collection extends UnsavedCollection {
+  ver_num: number;
+  user_create: string;
+  date_create: string;
+  user_active: string;
+  date_active: string;
 }
 
 interface CollectionsResults {
@@ -46,10 +52,10 @@ interface CollectionsParams {
   status: void;
   listCollections: void;
   getCollection: Collection['id'];
-  saveCollection: Omit<Collection, 'version_num'>;
+  saveCollection: UnsavedCollection;
   activateVersion:
-    | Pick<Collection, 'id' | 'version_tag'>
-    | Pick<Collection, 'id' | 'version_num'>;
+    | Pick<Collection, 'id' | 'ver_tag'>
+    | Pick<Collection, 'id' | 'ver_num'>;
   getDataProduct: { id: Collection['id']; product: DataProduct['product'] };
 }
 
@@ -92,10 +98,10 @@ export const collectionsApi = baseApi.injectEndpoints({
       CollectionsResults['saveCollection'],
       CollectionsParams['saveCollection']
     >({
-      query: (collection) =>
+      query: ({ id, ver_tag, ...collection }) =>
         collectionsService({
           method: 'PUT',
-          url: encode`/collections/${collection.id}/versions/${collection.version_tag}`,
+          url: encode`/collections/${id}/versions/${ver_tag}`,
         }),
     }),
 
@@ -103,13 +109,13 @@ export const collectionsApi = baseApi.injectEndpoints({
       CollectionsResults['activateVersion'],
       CollectionsParams['activateVersion']
     >({
-      query: ({ id, ...params }) =>
+      query: ({ id, ...either_ver }) =>
         collectionsService({
           method: 'PUT',
           url:
-            'version_num' in params
-              ? encode`/collections/${id}/versions/num/${params.version_num}/activate`
-              : encode`/collections/${id}/versions/tag/${params.version_tag}/activate`,
+            'ver_num' in either_ver
+              ? encode`/collections/${id}/versions/num/${either_ver.ver_num}/activate`
+              : encode`/collections/${id}/versions/tag/${either_ver.ver_tag}/activate`,
         }),
     }),
 
@@ -140,12 +146,15 @@ const mockCollection = (override?: Partial<Collection>): Collection => {
   return {
     id: String(id),
     name: `Some Collection with ID ${id}`,
-    version_tag: `tag_${id}`,
-    version_num: id,
-    source_version: 'foo_bar_baz',
-    icon: `https://picsum.photos/seed/${id}/64`,
-    creation_date: new Date().toString(),
-    activation_date: new Date().toString(),
+    desc: 'some collections description here',
+    ver_tag: `tag_${id}`,
+    ver_num: id,
+    ver_src: 'foo_bar_baz',
+    icon_url: `https://picsum.photos/seed/${id}/64`,
+    user_active: 'FooUser',
+    user_create: 'FooUser2',
+    date_create: new Date().toString(),
+    date_active: new Date().toString(),
     data_products: [],
     ...override,
   };
