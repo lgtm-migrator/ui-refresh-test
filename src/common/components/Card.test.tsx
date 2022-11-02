@@ -4,7 +4,11 @@ import userEvent from '@testing-library/user-event';
 import classes from './Card.module.scss';
 import { Card, CardList } from './Card';
 import { act } from 'react-dom/test-utils';
-import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router';
+import {
+  createMemoryRouter,
+  MemoryRouter,
+  RouterProvider,
+} from 'react-router-dom';
 
 describe('Card', () => {
   test('renders Card with title', () => {
