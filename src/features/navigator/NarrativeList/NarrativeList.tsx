@@ -79,7 +79,6 @@ function NarrativeList(props: NarrativeListProps) {
             idx={idx}
             item={item}
             key={idx}
-            narrative={props.narrative}
             onUpaChange={
               (upa) => console.log(upa) /* eslint-disable-line no-console */
             }

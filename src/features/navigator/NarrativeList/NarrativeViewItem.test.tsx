@@ -1,6 +1,6 @@
-import NarrativeViewItem from './NarrativeViewItem';
 import { screen, render } from '@testing-library/react';
-import { NarrativeListDoc } from '../../types/NarrativeDoc';
+import { NarrativeListDoc } from '../../../common/types/NarrativeDoc';
+import NarrativeViewItem from './NarrativeViewItem';
 
 const testDoc: NarrativeListDoc = {
   timestamp: 0,
@@ -10,16 +10,11 @@ const testDoc: NarrativeListDoc = {
   narrative_title: 'What a cool narrative',
   creator: 'JaRule',
 };
-const testDocUpa = `${testDoc.access_group}/${testDoc.obj_id}/${testDoc.version}`;
+// const testDocUpa = `${testDoc.access_group}/${testDoc.obj_id}/${testDoc.version}`;
 
 test('NarrativeViewItem renders', () => {
   const { container } = render(
-    <NarrativeViewItem
-      idx={0}
-      item={testDoc}
-      narrative={null}
-      showVersionDropdown={true}
-    />
+    <NarrativeViewItem idx={0} item={testDoc} showVersionDropdown={true} />
   );
   expect(container).toBeTruthy();
   expect(container.querySelectorAll('.narrative_item_outer')).toHaveLength(1);
@@ -35,12 +30,7 @@ test('NarrativeViewItem renders', () => {
 
 test('NarrativeViewItem displays active class', () => {
   const { container } = render(
-    <NarrativeViewItem
-      idx={0}
-      item={testDoc}
-      narrative={testDocUpa}
-      showVersionDropdown={true}
-    />
+    <NarrativeViewItem idx={0} item={testDoc} showVersionDropdown={true} />
   );
   expect(container.querySelector('.narrative_item_outer')).toHaveClass(
     'active'

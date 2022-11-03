@@ -11,6 +11,7 @@ import {
 import classes from './NarrativeList.module.scss';
 
 type NarrativeItemDropdownProps = {
+  narrative: string | null;
   onVersionSelect: (e: number) => void;
   version: number;
   versionLatest: number;
@@ -22,6 +23,10 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
   versionLatest,
 }) => {
   const [selectedVersion, setSelectedVersion] = useState<number>(version);
+  /*
+    We cannot depend on this to discern the selected narrative. The url may not
+specify a valid narrative.
+  */
   const { category, id, obj } =
     useParams<{ category: string; id: string; obj: string }>();
 

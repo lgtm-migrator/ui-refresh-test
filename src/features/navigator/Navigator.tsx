@@ -35,6 +35,9 @@ const NarrativeNewButton: FC = () => (
     </Button>
   </a>
 );
+/* NarrativeView should take (at least) a narrative upa as prop, but if it is
+   null then it should show a message saying there is no narrative selected.
+*/
 const NarrativeView = PlaceholderFactory('NarrativeView');
 interface SearchInterface extends InputInterface {
   search: string;
@@ -155,7 +158,15 @@ const Navigator: FC = () => {
   const search = searchParams.get('search') || '';
   const sort = searchParams.get('sort') || '-updated';
   const categoryFilter = category ? category : 'own';
-  const narrativeSelected = id ? `${id}/${obj}/${ver}` : null;
+  /*
+  The default selected narrative should be the 0 indexed item in items.
+  If the length of items is 0 then a message should be shown.
+  If the URL specifies a valid narrative object then it should be selected,
+  otherwise the default should be selected.
+  */
+  const { access_group, obj_id, version } = testItems[0];
+  const upa = `${access_group}/${obj_id}/${version}`;
+  const narrativeSelected = id && obj && ver ? `${id}/${obj}/${ver}` : upa;
   const envs = Object.entries(process.env);
   return (
     <>

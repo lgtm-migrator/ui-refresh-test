@@ -1,8 +1,8 @@
 import { screen, render, getByTestId, fireEvent } from '@testing-library/react';
 import NarrativeItemDropdown from './NarrativeItemDropdown';
-import { DropdownProps } from '../Dropdown';
+import { DropdownProps } from '../../../common/components/Dropdown';
 import { GroupBase } from 'react-select';
-import { SelectOption, OptionsArray } from '../Select';
+import { SelectOption, OptionsArray } from '../../../common/components/Select';
 
 // mock react-select with regular HTML select
 jest.mock('../Dropdown', () => ({
@@ -48,9 +48,10 @@ test('NarrativeItemDropdown renders', async () => {
   const versionSelectSpy = jest.fn();
   const { container } = render(
     <NarrativeItemDropdown
-      versionLatest={400}
-      version={400}
+      narrative={null}
       onVersionSelect={versionSelectSpy}
+      version={400}
+      versionLatest={400}
     />
   );
   expect(container).toBeTruthy();
@@ -60,9 +61,10 @@ test('NarrativeItemDropdown renders', async () => {
 test('NarrativeItemDropdown populates right number of versions', () => {
   const { container } = render(
     <NarrativeItemDropdown
-      versionLatest={123}
-      version={123}
+      narrative={null}
       onVersionSelect={jest.fn()}
+      version={123}
+      versionLatest={123}
     />
   );
   const select = screen.getByTestId('select');
@@ -76,9 +78,10 @@ test('NarrativeItemDropdown calls onVersionSelect', () => {
   const versionSelectSpy = jest.fn();
   const { container } = render(
     <NarrativeItemDropdown
-      versionLatest={42}
-      version={42}
+      narrative={null}
       onVersionSelect={versionSelectSpy}
+      version={42}
+      versionLatest={42}
     />
   );
   fireEvent.click(getByTestId(container, '34'));

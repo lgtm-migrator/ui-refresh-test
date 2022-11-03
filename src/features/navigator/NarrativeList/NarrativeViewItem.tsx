@@ -8,7 +8,6 @@ import NarrativeItemDropdown from './NarrativeItemDropdown';
 export interface NarrativeViewItemProps {
   idx: number;
   item: NarrativeListDoc;
-  narrative: string | null;
   showVersionDropdown: boolean;
   onSelectItem?: (idx: number) => void;
   onUpaChange?: (upa: string) => void;
@@ -17,7 +16,6 @@ export interface NarrativeViewItemProps {
 const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
   idx,
   item,
-  narrative,
   onUpaChange,
   showVersionDropdown,
 }) => {
@@ -62,6 +60,7 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
             </div>
             {showVersionDropdown && active ? (
               <NarrativeItemDropdown
+                narrative={null}
                 version={active ? +selectedVersion : item.version}
                 versionLatest={item.version}
                 onVersionSelect={(e) => handleVersionSelect(e)}
