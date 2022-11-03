@@ -1,8 +1,10 @@
-import { NarrativeListDoc } from '../../types/NarrativeDoc';
 import { FC, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import * as timeago from 'timeago.js';
+import { NarrativeListDoc } from '../../../common/types/NarrativeDoc';
 import classes from './NarrativeList.module.scss';
 import NarrativeItemDropdown from './NarrativeItemDropdown';
-import * as timeago from 'timeago.js';
+
 export interface NarrativeViewItemProps {
   idx: number;
   item: NarrativeListDoc;
@@ -21,9 +23,11 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
 }) => {
   const { access_group, obj_id, version } = item;
   const upa = `${access_group}/${obj_id}/${version}`;
-  const [selectedAccessGroup, selectedObjId, selectedVersion] = narrative
-    ? narrative.split('/')
-    : [null, null, null];
+  const { id, obj, ver } =
+    useParams<{ id: string; obj: string; ver: string }>();
+  const selectedAccessGroup = id ? id : null;
+  const selectedObjId = obj ? obj : null;
+  const selectedVersion = ver ? ver : null;
   const active =
     access_group.toString() === selectedAccessGroup &&
     obj_id.toString() === selectedObjId &&
@@ -35,13 +39,11 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
   // notify upa change once new narrative item is focused on
   useEffect(() => {
     if (active) {
-      const { access_group, obj_id, version } = item;
-      onUpaChange?.(`${access_group}/${obj_id}/${version}`);
+      onUpaChange?.(upa);
     }
-  }, [active, item, onUpaChange]);
+  }, [active, onUpaChange, upa]);
 
   function handleVersionSelect(version: number) {
-    const { access_group, obj_id } = item;
     onUpaChange?.(`${access_group}/${obj_id}/${version}`);
   }
 
@@ -49,7 +51,7 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
   const prefix = '/' + (category !== 'own' ? `${category}/` : '');
   console.log(keepParams(prefix + `${upa}/`)); // eslint-disable-line no-console
   */
-  console.log({ narrative, upa, selected: active }); // eslint-disable-line no-console
+  console.log({ upa, selected: active }); // eslint-disable-line no-console
   return (
     <section key={idx}>
       <div className={`${classes.narrative_item_outer} ${classes[status]}`}>

@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
-import NarrativeList from '../../common/components/NarrativeList/NarrativeList';
-import { testItems } from '../../common/components/NarrativeList/NarrativeList.fixture';
+import NarrativeList from '../../features/navigator/NarrativeList/NarrativeList';
+import { testItems } from '../../features/navigator/NarrativeList/NarrativeList.fixture';
 export default {
   title: 'Components/NarrativeList',
   component: NarrativeList,

@@ -1,15 +1,23 @@
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { FC } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import {
+  Link,
+  useLocation,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { Button, Input, InputInterface, Select } from '../../common/components';
 import { PlaceholderFactory } from '../../common/components/PlaceholderFactory';
-import NarrativeList from '../../common/components/NarrativeList/NarrativeList';
-// FAKE DATA
-import { testItems } from '../../common/components/NarrativeList/NarrativeList.fixture';
-import { usePageTitle } from '../../features/layout/layoutSlice';
 import { NarrativeListDoc } from '../../common/types/NarrativeDoc';
+import { usePageTitle } from '../../features/layout/layoutSlice';
+import NarrativeList from './NarrativeList/NarrativeList';
+// FAKE DATA
+import { testItems } from './NarrativeList/NarrativeList.fixture';
+import { keepParamsForLocation } from './common';
 import classes from './Navigator.module.scss';
+
+const searchParams = ['sort', 'search'];
 
 const sorts: Record<string, string> = {
   '-updated': 'Recently updated',
@@ -19,39 +27,6 @@ const sorts: Record<string, string> = {
   lex: 'Lexicographic (A-Za-z)',
   '-lex': 'Reverse Lexicographic',
 };
-
-// eslint-disable-next-line no-restricted-globals
-const loc = location;
-
-// Take a pathname (relative or absolute) and create a url to that pathname
-// preserving the current query parameters
-const keepParams = (params: string[], link: string) => {
-  // Is the link relative or absolute?
-  const linkAbsolute = link[0] === '/';
-  // An extra slash is needed eventually if the path is relative.
-  const extraSlash = linkAbsolute ? '' : '/';
-  // The PUBLIC_URL prefix should be removed from relative links.
-  const publicPrefix = process.env.PUBLIC_URL;
-  // If the link is absolute then use it for the new pathmame,
-  // otherwise use the current path without the publicPrefix.
-  const pathnamePrefix = linkAbsolute
-    ? ''
-    : loc.pathname.slice(publicPrefix.length);
-  // Create a new URL object with the appropriate href.
-  const newLinkHref = loc.origin + pathnamePrefix + extraSlash + link;
-  const newLink = new URL(newLinkHref);
-  // Remember the desired SearchParams.
-  const locSearchParams = new URLSearchParams(loc.search);
-  params.forEach((param) => {
-    const value = locSearchParams.get(param);
-    if (value !== null) {
-      newLink.searchParams.set(param, value);
-    }
-  });
-  return newLink.pathname + newLink.search;
-};
-
-const keepSort = (link: string) => keepParams(['sort', 'search'], link);
 
 const NarrativeNewButton: FC = () => (
   <a href="/#narrativemanager/new" rel="noopener noreferrer" target="_blank">
@@ -95,28 +70,35 @@ const FilterContainer: FC<{ search: string; sort: string }> = ({
     </div>
   );
 };
-const HeaderTabs: FC<{ category: string }> = ({ category }) => (
-  <ul className={classes.tabs}>
-    <Link to={keepSort('/narratives/')}>
-      <li className={category === 'own' ? classes.active : ''}>
-        My Narratives
-      </li>
-    </Link>
-    <Link to={keepSort('/narratives/shared/')}>
-      <li className={category === 'shared' ? classes.active : ''}>
-        Shared With Me
-      </li>
-    </Link>
-    <Link to={keepSort('/narratives/tutorials/')}>
-      <li className={category === 'tutorials' ? classes.active : ''}>
-        Tutorials
-      </li>
-    </Link>
-    <Link to={keepSort('/narratives/public/')}>
-      <li className={category === 'public' ? classes.active : ''}>Public</li>
-    </Link>
-  </ul>
-);
+const HeaderTabs: FC<{ category: string }> = ({ category }) => {
+  const loc = useLocation();
+  const keepSearch = keepParamsForLocation({
+    location: loc,
+    params: searchParams,
+  });
+  return (
+    <ul className={classes.tabs}>
+      <Link to={keepSearch('/narratives/')}>
+        <li className={category === 'own' ? classes.active : ''}>
+          My Narratives
+        </li>
+      </Link>
+      <Link to={keepSearch('/narratives/shared/')}>
+        <li className={category === 'shared' ? classes.active : ''}>
+          Shared With Me
+        </li>
+      </Link>
+      <Link to={keepSearch('/narratives/tutorials/')}>
+        <li className={category === 'tutorials' ? classes.active : ''}>
+          Tutorials
+        </li>
+      </Link>
+      <Link to={keepSearch('/narratives/public/')}>
+        <li className={category === 'public' ? classes.active : ''}>Public</li>
+      </Link>
+    </ul>
+  );
+};
 
 const HeaderNavigationContainer: FC<{ category: string }> = ({ category }) => (
   <nav className={classes.header}>

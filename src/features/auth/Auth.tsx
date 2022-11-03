@@ -3,7 +3,7 @@ import {
   getUserProfile,
   setUserProfile,
 } from '../../common/api/userProfileApi';
-import { Button } from '../../common/components';
+import { Button } from '../../common/components/Button';
 import { useAppSelector } from '../../common/hooks';
 import { authFromToken, revokeToken } from '../../common/api/authService';
 import { faCheck, faX, faSpinner } from '@fortawesome/free-solid-svg-icons';

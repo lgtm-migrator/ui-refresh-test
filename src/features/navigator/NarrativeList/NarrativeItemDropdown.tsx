@@ -1,25 +1,52 @@
 import { FC, useState } from 'react';
-import { Dropdown } from '../../components';
-import { SelectOption } from '../Select';
+import { generatePath, useParams, Link } from 'react-router-dom';
 import { FontAwesomeIcon as FAIcon } from '@fortawesome/react-fontawesome';
-import classes from './NarrativeList.module.scss';
 import { faCheck, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { Dropdown } from '../../../common/components/Dropdown';
+import { SelectOption } from '../../../common/components/Select';
+import {
+  narrativeSelectedPath,
+  narrativeSelectedPathWithCategory,
+} from '../../../common/routes';
+import classes from './NarrativeList.module.scss';
 
 type NarrativeItemDropdownProps = {
   onVersionSelect: (e: number) => void;
   version: number;
   versionLatest: number;
 };
+
 const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
   onVersionSelect,
   version,
   versionLatest,
 }) => {
   const [selectedVersion, setSelectedVersion] = useState<number>(version);
+  const { category, id, obj } =
+    useParams<{ category: string; id: string; obj: string }>();
 
   const handleDropdownChange = (event: SelectOption[]) => {
+    const upa = `${id}/${obj}/${event[0].value}`;
+    console.log({ upa }); // eslint-disable-line no-console
     setSelectedVersion(event[0].value as number);
     onVersionSelect(event[0].value as number);
+  };
+
+  const versionPath = (version: number) => {
+    const ver = version.toString();
+    if (category) {
+      return generatePath(narrativeSelectedPathWithCategory, {
+        category,
+        id,
+        obj,
+        ver,
+      });
+    }
+    return generatePath(narrativeSelectedPath, {
+      id,
+      obj,
+      ver,
+    });
   };
 
   const versions = Array(versionLatest)
@@ -33,12 +60,12 @@ const NarrativeItemDropdown: FC<NarrativeItemDropdownProps> = ({
             value: item,
             icon: undefined,
             label: (
-              <>
+              <Link to={versionPath(item)}>
                 <span>v{item}</span>
                 {item === selectedVersion && (
                   <FAIcon icon={faCheck} style={{ marginLeft: '3rem' }} />
                 )}
-              </>
+              </Link>
             ),
           },
         ],
