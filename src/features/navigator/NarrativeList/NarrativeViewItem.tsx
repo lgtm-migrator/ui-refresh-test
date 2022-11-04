@@ -60,9 +60,8 @@ const NarrativeViewItem: FC<NarrativeViewItemProps> = ({
             </div>
             {showVersionDropdown && active ? (
               <NarrativeItemDropdown
-                narrative={null}
+                narrative={upa}
                 version={active ? +selectedVersion : item.version}
-                versionLatest={item.version}
                 onVersionSelect={(e) => handleVersionSelect(e)}
               />
             ) : (

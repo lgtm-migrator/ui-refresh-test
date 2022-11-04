@@ -43,3 +43,14 @@ export const keepParamsForLocation = (parameters: {
   const { location, params } = parameters;
   return (link: string) => keepParams({ location, params, link });
 };
+
+export enum Category {
+  own = 'own',
+  public = 'public',
+  shared = 'shared',
+  tutorial = 'tutorial',
+}
+
+export type CategoryStrings = keyof typeof Category;
+
+export const searchParams = ['search', 'sort'];

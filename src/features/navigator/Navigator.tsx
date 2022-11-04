@@ -10,14 +10,19 @@ import {
 import { Button, Input, InputInterface, Select } from '../../common/components';
 import { PlaceholderFactory } from '../../common/components/PlaceholderFactory';
 import { NarrativeListDoc } from '../../common/types/NarrativeDoc';
+import { useAppDispatch } from '../../common/hooks';
 import { usePageTitle } from '../../features/layout/layoutSlice';
 import NarrativeList from './NarrativeList/NarrativeList';
 // FAKE DATA
 import { testItems } from './NarrativeList/NarrativeList.fixture';
-import { keepParamsForLocation } from './common';
+import {
+  keepParamsForLocation,
+  searchParams,
+  Category,
+  CategoryStrings,
+} from './common';
+import { select, setCategory } from './navigatorSlice';
 import classes from './Navigator.module.scss';
-
-const searchParams = ['sort', 'search'];
 
 const sorts: Record<string, string> = {
   '-updated': 'Recently updated',
@@ -149,15 +154,22 @@ const MainContainer: FC<{
 // Navigator component
 const Navigator: FC = () => {
   usePageTitle('Narrative Navigator');
-  const { category, id, obj, ver } =
-    useParams<{ category: string; id: string; obj: string; ver: string }>();
+  const { category, id, obj, ver } = useParams<{
+    category: CategoryStrings;
+    id: string;
+    obj: string;
+    ver: string;
+  }>();
   // we will set params eventually
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
   const view = searchParams.get('view') || 'data';
   const search = searchParams.get('search') || '';
   const sort = searchParams.get('sort') || '-updated';
-  const categoryFilter = category ? category : 'own';
+  const categoryFilter =
+    category && Category[category] ? Category[category] : Category['own'];
+  const dispatch = useAppDispatch();
+  dispatch(setCategory(categoryFilter));
   /*
   The default selected narrative should be the 0 indexed item in items.
   If the length of items is 0 then a message should be shown.
@@ -166,6 +178,7 @@ const Navigator: FC = () => {
   */
   const { access_group, obj_id, version } = testItems[0];
   const upa = `${access_group}/${obj_id}/${version}`;
+  dispatch(select(upa));
   const narrativeSelected = id && obj && ver ? `${id}/${obj}/${ver}` : upa;
   const envs = Object.entries(process.env);
   return (
