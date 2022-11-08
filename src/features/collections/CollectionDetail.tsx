@@ -45,7 +45,7 @@ export const CollectionDetail = () => {
           <span>{collection.name}</span>
         </div>
 
-        <p>Some text description of this collection</p>
+        <p>{collection.desc}</p>
 
         <ul>
           <li>
