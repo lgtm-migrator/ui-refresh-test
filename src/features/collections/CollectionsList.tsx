@@ -17,7 +17,7 @@ export const CollectionsList = () => {
       </div>
       <CardList>
         {collections.isSuccess
-          ? collections.data?.map((collection) => {
+          ? collections.data?.data.map((collection) => {
               const detailLink = encodeURIComponent(collection.id);
               const handleClick = () => navigate(detailLink);
               return (

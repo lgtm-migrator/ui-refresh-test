@@ -1,9 +1,14 @@
 import { useParams } from 'react-router-dom';
-import { getCollection } from '../../common/api/collectionsApi';
+import {
+  DataProduct as DataProductType,
+  getCollection,
+} from '../../common/api/collectionsApi';
 import { usePageTitle } from '../layout/layoutSlice';
-import { TaxaHistogram } from './data_products/TaxaHistogram';
 import styles from './Collections.module.scss';
 import { Card, CardList } from '../../common/components/Card';
+import { useEffect, useState } from 'react';
+import { DataProduct } from './DataProduct';
+import { snakeCaseToHumanReadable } from '../../common/utils/stringUtils';
 
 export const CollectionDetail = () => {
   const { id } = useParams();
@@ -12,6 +17,22 @@ export const CollectionDetail = () => {
   });
   const collection = collectionQuery.data;
   usePageTitle(`Data Collections`);
+
+  // State for data_prodcut tabs
+  const [selectedDP, setSelectedDP] = useState<DataProductType>();
+  // Keep selectedDP up to date if collection reloads
+  useEffect(() => {
+    const matchingDP = collection?.data_products.find(
+      (dp) =>
+        dp.product === selectedDP?.product && dp.version === selectedDP?.version
+    );
+    if (matchingDP) {
+      setSelectedDP(matchingDP);
+    } else {
+      setSelectedDP(undefined);
+    }
+  }, [collection?.data_products, selectedDP]);
+
   if (!collection) return <>loading...</>;
   return (
     <div className={styles['collection_wrapper']}>
@@ -37,16 +58,27 @@ export const CollectionDetail = () => {
       </div>
       <div className={styles['data_products']}>
         <CardList className={styles['data_product_list']}>
-          <Card
-            title="Data Product #1"
-            subtitle="some further info"
-            onClick={() => null}
-          />
-          <Card title="Data Product #2" onClick={() => null} />
-          <Card title="Data Product #3" onClick={() => null} />
+          {collection.data_products.map((dp) => (
+            <Card
+              key={dp.product + '|' + dp.version}
+              title={snakeCaseToHumanReadable(dp.product)}
+              subtitle={dp.version}
+              onClick={() => setSelectedDP(dp)}
+              selected={selectedDP === dp}
+            />
+          ))}
         </CardList>
         <div className={styles['data_product_detail']}>
-          <TaxaHistogram data={{ product: 'TaxaHistogram' }} />
+          {selectedDP ? (
+            <DataProduct
+              dataProduct={selectedDP}
+              collection_id={collection.id}
+            />
+          ) : (
+            <div className={styles['data_product_placeholder']}>
+              <span>Select a Data Product</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

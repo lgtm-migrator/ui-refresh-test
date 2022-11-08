@@ -8,6 +8,7 @@ const collectionsService = httpService({
 
 export interface DataProduct {
   product: string;
+  version: string;
   // unknown
 }
 
@@ -41,11 +42,17 @@ interface CollectionsResults {
     git_hash: string;
     server_time: string;
   };
-  listCollections: Collection[];
+  listCollections: { data: Collection[] };
   getCollection: Collection;
   saveCollection: Collection;
   activateVersion: void;
-  getDataProduct: DataProduct;
+  listTaxaCountRanks: { data: string[] };
+  getTaxaCountRank: {
+    data: {
+      name: string;
+      count: number;
+    }[];
+  };
 }
 
 interface CollectionsParams {
@@ -56,7 +63,12 @@ interface CollectionsParams {
   activateVersion:
     | Pick<Collection, 'id' | 'ver_tag'>
     | Pick<Collection, 'id' | 'ver_num'>;
-  getDataProduct: { id: Collection['id']; product: DataProduct['product'] };
+  listTaxaCountRanks: { collection_id: string; load_ver_override?: string };
+  getTaxaCountRank: {
+    collection_id: string;
+    rank: string;
+    load_ver_override?: string;
+  };
 }
 
 // Auth does not use JSONRpc, so we use queryFn to make custom queries
@@ -73,25 +85,27 @@ export const collectionsApi = baseApi.injectEndpoints({
       CollectionsResults['listCollections'],
       CollectionsParams['listCollections']
     >({
-      // query: () => collectionsService({ method: 'GET', url: `/collections` }),
-      queryFn: () => ({
-        data: [
-          mockCollection(),
-          mockCollection(),
-          mockCollection(),
-          mockCollection(),
-          mockCollection(),
-        ],
-      }),
+      query: () => collectionsService({ method: 'GET', url: `/collections/` }),
+      // queryFn: () => ({
+      //   data: {
+      //     data: [
+      //       mockCollection(),
+      //       mockCollection(),
+      //       mockCollection(),
+      //       mockCollection(),
+      //       mockCollection(),
+      //     ],
+      //   },
+      // }),
     }),
 
     getCollection: builder.query<
       CollectionsResults['getCollection'],
       CollectionsParams['getCollection']
     >({
-      // query: (id) =>
-      //   collectionsService({ method: 'GET', url: encode`/collections/${id}` }),
-      queryFn: (id) => ({ data: mockCollection({ id }) }),
+      query: (id) =>
+        collectionsService({ method: 'GET', url: encode`/collections/${id}/` }),
+      // queryFn: (id) => ({ data: mockCollection({ id }) }),
     }),
 
     saveCollection: builder.mutation<
@@ -101,7 +115,7 @@ export const collectionsApi = baseApi.injectEndpoints({
       query: ({ id, ver_tag, ...collection }) =>
         collectionsService({
           method: 'PUT',
-          url: encode`/collections/${id}/versions/${ver_tag}`,
+          url: encode`/collections/${id}/versions/${ver_tag}/`,
         }),
     }),
 
@@ -114,19 +128,32 @@ export const collectionsApi = baseApi.injectEndpoints({
           method: 'PUT',
           url:
             'ver_num' in either_ver
-              ? encode`/collections/${id}/versions/num/${either_ver.ver_num}/activate`
-              : encode`/collections/${id}/versions/tag/${either_ver.ver_tag}/activate`,
+              ? encode`/collections/${id}/versions/num/${either_ver.ver_num}/activate/`
+              : encode`/collections/${id}/versions/tag/${either_ver.ver_tag}/activate/`,
         }),
     }),
 
-    getDataProduct: builder.query<
-      CollectionsResults['getDataProduct'],
-      CollectionsParams['getDataProduct']
+    listTaxaCountRanks: builder.query<
+      CollectionsResults['listTaxaCountRanks'],
+      CollectionsParams['listTaxaCountRanks']
     >({
-      query: ({ id, product }) =>
+      query: ({ collection_id, load_ver_override }) =>
         collectionsService({
           method: 'GET',
-          url: encode`/collections/${id}/data/${product}/`,
+          url: encode`/collections/${collection_id}/taxa_count/ranks/`,
+          params: load_ver_override ? { load_ver_override } : undefined,
+        }),
+    }),
+
+    getTaxaCountRank: builder.query<
+      CollectionsResults['getTaxaCountRank'],
+      CollectionsParams['getTaxaCountRank']
+    >({
+      query: ({ collection_id, rank, load_ver_override }) =>
+        collectionsService({
+          method: 'GET',
+          url: encode`/collections/${collection_id}/taxa_count/counts/${rank}/`,
+          params: load_ver_override ? { load_ver_override } : undefined,
         }),
     }),
   }),
@@ -137,25 +164,26 @@ export const {
   getCollection,
   saveCollection,
   activateVersion,
-  getDataProduct,
+  listTaxaCountRanks,
+  getTaxaCountRank,
 } = collectionsApi.endpoints;
 
-const mockCollection = (override?: Partial<Collection>): Collection => {
-  const randoNum = Math.floor(Math.random() * 1000000000);
-  const id = Number(override?.id) || randoNum;
-  return {
-    id: String(id),
-    name: `Some Collection with ID ${id}`,
-    desc: 'some collections description here',
-    ver_tag: `tag_${id}`,
-    ver_num: id,
-    ver_src: 'foo_bar_baz',
-    icon_url: `https://picsum.photos/seed/${id}/64`,
-    user_active: 'FooUser',
-    user_create: 'FooUser2',
-    date_create: new Date().toString(),
-    date_active: new Date().toString(),
-    data_products: [],
-    ...override,
-  };
-};
+// const mockCollection = (override?: Partial<Collection>): Collection => {
+//   const randoNum = Math.floor(Math.random() * 1000000000);
+//   const id = Number(override?.id) || randoNum;
+//   return {
+//     id: String(id),
+//     name: `Some Collection with ID ${id}`,
+//     desc: 'some collections description here',
+//     ver_tag: `tag_${id}`,
+//     ver_num: id,
+//     ver_src: 'foo_bar_baz',
+//     icon_url: `https://picsum.photos/seed/${id}/64`,
+//     user_active: 'FooUser',
+//     user_create: 'FooUser2',
+//     date_create: new Date().toString(),
+//     date_active: new Date().toString(),
+//     data_products: [],
+//     ...override,
+//   };
+// };
